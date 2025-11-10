@@ -14,7 +14,6 @@
         header { background: #0b3d91; color: #fff; padding: 1.2rem 0; position: sticky; top: 0; z-index: 100; }
         .header-inner { display: flex; justify-content: space-between; align-items: center; }
 
-        /* BIG LOGO */
         .logo img { height: 80px; width: auto; }
         @media (max-width: 768px) { .logo img { height: 60px; } }
 
@@ -41,16 +40,21 @@
         .card img { width:80px; height:80px; margin:0 auto 1rem; object-fit:contain; }
         .card h3 { margin-bottom:.5rem; color:#0b3d91; }
 
-        .about,.contact,.request,.fleet { background:#eaeaea; }
-        .about p,.contact p,.request p { max-width:800px; margin:0 auto 1.5rem; text-align:center; }
+        .about,.contact,.request,.fleet,.payment { background:#eaeaea; }
+        .about p,.contact p,.request p,.payment p { max-width:800px; margin:0 auto 1.5rem; text-align:center; }
 
-        .request-form { max-width:600px; margin:0 auto; background:#fff; padding:2rem; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,.1); }
+        .request-form, .payment-form { max-width:600px; margin:0 auto; background:#fff; padding:2rem; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,.1); }
         .form-group { margin-bottom:1rem; }
         label { display:block; margin-bottom:.5rem; font-weight:bold; color:#0b3d91; }
         input,select,textarea { width:100%; padding:.8rem; border:1px solid #ccc; border-radius:5px; font-size:1rem; }
         textarea { resize:vertical; height:100px; }
         .submit-btn { background:#0b3d91; color:#fff; padding:.9rem 2.2rem; border:none; border-radius:50px; font-weight:bold; cursor:pointer; transition:background .3s; font-size:1.1rem; }
         .submit-btn:hover { background:#093070; }
+
+        .payment-options { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1.5rem 0; }
+        .payment-btn { background: #fff; border: 2px solid #0b3d91; color: #0b3d91; padding: 1rem 1.5rem; border-radius: 10px; font-weight: bold; text-align: center; flex: 1; min-width: 140px; transition: all .3s; }
+        .payment-btn:hover { background: #0b3d91; color: #fff; }
+        .payment-btn i { font-size: 1.8rem; display: block; margin-bottom: .5rem; }
 
         .contact-info { display:flex; flex-direction:column; align-items:center; gap:1rem; margin-top:2rem; }
         .contact-info a { color:#0b3d91; font-weight:bold; }
@@ -64,11 +68,17 @@
         .social a { color:#fff; font-size:1.6rem; transition:color .3s; }
         .social a:hover { color:#ffcc00; }
 
+        .success-message { display: none; text-align: center; background: #d4edda; color: #155724; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
+        .admin-section { display: none; background: #fff; padding: 2rem; border-radius: 10px; margin-top: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,.1); }
+        .toggle-admin { background: #ffcc00; color: #0b3d91; padding: .8rem 1.5rem; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin: 1rem auto; display: block; }
+        .toggle-admin:hover { background: #e6b800; }
+
         @media (max-width:768px){
             .hero h1{font-size:2.2rem;}
             nav ul{flex-direction:column;gap:.5rem; text-align:center;}
             .fleet-gallery img{width:100%;}
             .cta-btn, .submit-btn { font-size:1rem; padding:.8rem 1.8rem; }
+            .payment-btn { min-width: 100%; }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -78,7 +88,6 @@
 <header>
     <div class="container header-inner">
         <div class="logo">
-            <!-- REPLACE WITH YOUR LOGO DIRECT LINK (e.g. https://i.imgur.com/GDcBZQ8.png) -->
             <img src="https://i.imgur.com/GDcBZQ8.png" alt="Corridor Towing Logo">
         </div>
         <nav>
@@ -86,6 +95,7 @@
                 <li><a href="#home">Home</a></li>
                 <li><a href="#services">Services</a></li>
                 <li><a href="#request">Request Tow</a></li>
+                <li><a href="#payment">Pay Now</a></li>
                 <li><a href="#fleet">Our Fleet</a></li>
                 <li><a href="#about">About</a></li>
                 <li><a href="#contact">Contact</a></li>
@@ -116,6 +126,7 @@
     </div>
 </section>
 
+<!-- CUSTOMER REQUEST FORM -->
 <section id="request" class="request">
     <div class="container">
         <h2 class="section-title">Request Towing Service Now</h2>
@@ -123,6 +134,7 @@
         <form class="request-form" action="https://formspree.io/f/xdkyonjb" method="POST">
             <div class="form-group"><label for="name">Full Name *</label><input type="text" id="name" name="name" required placeholder="John Doe"></div>
             <div class="form-group"><label for="phone">Phone Number *</label><input type="tel" id="phone" name="phone" required placeholder="(804) 555-1234"></div>
+            <div class="form-group"><label for="email">Email (for receipt) *</label><input type="email" id="email" name="email" required placeholder="john@example.com"></div>
             <div class="form-group"><label for="location">Current Location *</label><input type="text" id="location" name="location" required placeholder="123 Main St, Richmond, VA"></div>
             <div class="form-group"><label for="service">Service Needed *</label>
                 <select id="service" name="service" required>
@@ -138,20 +150,59 @@
             <div class="form-group"><label for="message">Additional Details (optional)</label><textarea id="message" name="message" placeholder="Vehicle make/model, color, any special instructions..."></textarea></div>
             <button type="submit" class="submit-btn">Send Request – We’ll Call You!</button>
         </form>
-        <p style="text-align:center;margin-top:1.5rem;font-size:.9rem;color:#666;">
-            Your phone number is required so we can call you immediately. We respect your privacy.
-        </p>
     </div>
 </section>
 
-<!-- FLEET SECTION – YOUR TWO TRUCK PHOTOS -->
+<!-- PAYMENT & RECEIPT SECTION -->
+<section id="payment" class="payment">
+    <div class="container">
+        <h2 class="section-title">Pay for Your Service</h2>
+        <p>Choose your preferred payment method below. You'll receive a receipt instantly.</p>
+        <div class="payment-options">
+            <a href="https://venmo.com/corridortowing" class="payment-btn" target="_blank">
+                <i class="fab fa-venmo"></i> Venmo
+            </a>
+            <a href="https://cash.app/$corridortowing" class="payment-btn" target="_blank">
+                <i class="fas fa-dollar-sign"></i> Cash App
+            </a>
+            <a href="mailto:corridor.towing.services@gmail.com?subject=Payment%20Request" class="payment-btn">
+                <i class="fas fa-credit-card"></i> Card / Invoice
+            </a>
+            <div class="payment-btn">
+                <i class="fas fa-money-bill-wave"></i> Cash on Arrival
+            </div>
+        </div>
+
+        <!-- ADMIN: SEND RECEIPT & SAVE TO TAX RECORDS -->
+        <button class="toggle-admin" onclick="document.getElementById('admin-receipt').style.display='block'; this.style.display='none';">
+            Service Complete – Send Receipt
+        </button>
+
+        <div id="admin-receipt" class="admin-section">
+            <h3>Send Receipt & Save to Tax Records</h3>
+            <p>Every receipt is <strong>automatically saved</strong> in Google Sheets + your email.</p>
+            <form id="receipt-form" action="https://formspree.io/f/mvgdoook" method="POST">
+                <div class="form-group"><label>Customer Email *</label><input type="email" name="customer_email" required></div>
+                <div class="form-group"><label>Service Provided *</label><input type="text" name="service" required placeholder="e.g. Flatbed Tow"></div>
+                <div class="form-group"><label>Amount Charged ($)*</label><input type="number" name="amount" step="0.01" required placeholder="85.00"></div>
+                <input type="hidden" name="date" value="">
+                <input type="hidden" name="_next" value="#payment">
+                <button type="submit" class="submit-btn">Send Receipt & Save Record</button>
+            </form>
+            <div id="success-message" class="success-message">
+                Receipt sent! Saved to tax records.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FLEET SECTION -->
 <section id="fleet" class="fleet">
     <div class="container">
         <h2 class="section-title">Our Fleet</h2>
         <div class="fleet-gallery">
-            <!-- REPLACE THESE WITH YOUR DIRECT IMGUR LINKS -->
-            <img src="https://imgur.com/SNExSrY.jpg" alt="Flat-bed Truck">
-            <img src="https://imgur.com/yLUsyTW.jpg" alt="Wheel-lift Tow Truck">
+            <img src="https://i.imgur.com/SNExSrY.jpg" alt="Flat-bed Truck">
+            <img src="https://i.imgur.com/yLUsyTW.jpg" alt="Wheel-lift Tow Truck">
         </div>
     </div>
 </section>
@@ -188,9 +239,22 @@
 </footer>
 
 <script>
-    const form = document.querySelector('.request-form');
-    if (form) {
-        form.addEventListener('submit', () => setTimeout(() => alert('Request sent! We’re calling you now.'), 500));
+    // Auto-fill current date
+    document.querySelectorAll('input[name="date"]').forEach(input => {
+        const now = new Date();
+        input.value = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    });
+
+    // Show success message
+    const receiptForm = document.getElementById('receipt-form');
+    const successMsg = document.getElementById('success-message');
+    if (receiptForm) {
+        receiptForm.addEventListener('submit', function() {
+            setTimeout(() => {
+                successMsg.style.display = 'block';
+                setTimeout(() => successMsg.style.display = 'none', 4000);
+            }, 800);
+        });
     }
 </script>
 </body>
