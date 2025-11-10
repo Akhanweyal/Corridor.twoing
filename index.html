@@ -68,11 +68,6 @@
         .social a { color:#fff; font-size:1.6rem; transition:color .3s; }
         .social a:hover { color:#ffcc00; }
 
-        .success-message { display: none; text-align: center; background: #d4edda; color: #155724; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
-        .admin-section { display: none; background: #fff; padding: 2rem; border-radius: 10px; margin-top: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,.1); }
-        .toggle-admin { background: #ffcc00; color: #0b3d91; padding: .8rem 1.5rem; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin: 1rem auto; display: block; }
-        .toggle-admin:hover { background: #e6b800; }
-
         @media (max-width:768px){
             .hero h1{font-size:2.2rem;}
             nav ul{flex-direction:column;gap:.5rem; text-align:center;}
@@ -153,11 +148,11 @@
     </div>
 </section>
 
-<!-- PAYMENT & RECEIPT SECTION -->
+<!-- PAYMENT SECTION (SQUARE + VENMO + CASH APP + CASH) -->
 <section id="payment" class="payment">
     <div class="container">
         <h2 class="section-title">Pay for Your Service</h2>
-        <p>Choose your preferred payment method below. You'll receive a receipt instantly.</p>
+        <p>Choose your preferred payment method below. You'll receive a receipt via email reply within 5 minutes.</p>
         <div class="payment-options">
             <a href="https://venmo.com/corridortowing" class="payment-btn" target="_blank">
                 <i class="fab fa-venmo"></i> Venmo
@@ -165,34 +160,18 @@
             <a href="https://cash.app/$corridortowing" class="payment-btn" target="_blank">
                 <i class="fas fa-dollar-sign"></i> Cash App
             </a>
-            <a href="mailto:corridor.towing.services@gmail.com?subject=Payment%20Request" class="payment-btn">
-                <i class="fas fa-credit-card"></i> Card / Invoice
+            <!-- UPDATE THIS LINK WITH YOUR SQUARE PAYMENT LINK -->
+            <a href="https://app.squareup.com/dashboard/payment-links/new" class="payment-btn" target="_blank">
+                <i class="fas fa-credit-card"></i> Pay with Card (Square)
             </a>
             <div class="payment-btn">
                 <i class="fas fa-money-bill-wave"></i> Cash on Arrival
             </div>
         </div>
 
-        <!-- ADMIN: SEND RECEIPT & SAVE TO TAX RECORDS -->
-        <button class="toggle-admin" onclick="document.getElementById('admin-receipt').style.display='block'; this.style.display='none';">
-            Service Complete – Send Receipt
-        </button>
-
-        <div id="admin-receipt" class="admin-section">
-            <h3>Send Receipt & Save to Tax Records</h3>
-            <p>Every receipt is <strong>automatically saved</strong> in Google Sheets + your email.</p>
-            <form id="receipt-form" action="https://formspree.io/f/mvgdoook" method="POST">
-                <div class="form-group"><label>Customer Email *</label><input type="email" name="customer_email" required></div>
-                <div class="form-group"><label>Service Provided *</label><input type="text" name="service" required placeholder="e.g. Flatbed Tow"></div>
-                <div class="form-group"><label>Amount Charged ($)*</label><input type="number" name="amount" step="0.01" required placeholder="85.00"></div>
-                <input type="hidden" name="date" value="">
-                <input type="hidden" name="_next" value="#payment">
-                <button type="submit" class="submit-btn">Send Receipt & Save Record</button>
-            </form>
-            <div id="success-message" class="success-message">
-                Receipt sent! Saved to tax records.
-            </div>
-        </div>
+        <p style="text-align:center; margin-top:2rem; color:#0b3d91; font-weight:bold;">
+            After payment, you’ll receive a receipt via email reply within 5 minutes.
+        </p>
     </div>
 </section>
 
@@ -238,24 +217,5 @@
     </div>
 </footer>
 
-<script>
-    // Auto-fill current date
-    document.querySelectorAll('input[name="date"]').forEach(input => {
-        const now = new Date();
-        input.value = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-    });
-
-    // Show success message
-    const receiptForm = document.getElementById('receipt-form');
-    const successMsg = document.getElementById('success-message');
-    if (receiptForm) {
-        receiptForm.addEventListener('submit', function() {
-            setTimeout(() => {
-                successMsg.style.display = 'block';
-                setTimeout(() => successMsg.style.display = 'none', 4000);
-            }, 800);
-        });
-    }
-</script>
 </body>
 </html>
