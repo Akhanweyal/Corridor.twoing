@@ -13,7 +13,19 @@
         .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
 
         /* HEADER & MOBILE MENU */
-        header { background: #0b3d91; color: #fff; padding: 1rem 0; position: sticky; top: 0; z-index: 1000; }
+        header {
+            background: #0b3d91;
+            color: #fff;
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            transform: translateY(0);
+        }
+        header.hide { transform: translateY(-100%); }
         .header-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
         .logo img { height: 70px; width: auto; }
         .menu-toggle { display: none; font-size: 1.8rem; cursor: pointer; color: #fff; }
@@ -21,6 +33,9 @@
         nav ul { display: flex; gap: 1.5rem; list-style: none; flex-wrap: wrap; }
         nav a { color: #fff; font-weight: 600; font-size: 1rem; padding: 0.5rem 0; transition: color .3s; }
         nav a:hover, nav a.active { color: #ffcc00; }
+
+        /* Add padding to body so content isn't hidden under fixed header */
+        body { padding-top: 90px; }
 
         /* HERO */
         .hero { 
@@ -72,6 +87,7 @@
 
         /* MOBILE OPTIMIZATIONS */
         @media (max-width: 768px) {
+            body { padding-top: 80px; }
             .header-inner { flex-direction: column; align-items: flex-start; gap: 1rem; }
             .logo img { height: 55px; }
             .menu-toggle { display: block; }
@@ -92,7 +108,7 @@
             .card { padding: 1.2rem; }
             .card h3 { font-size: 1.1rem; }
 
-            .request-form, .payment-form { padding: 1.5rem; }
+            .request-form { padding: 1.5rem; }
             .submit-btn { font-size: 1rem; }
 
             .payment-btn { min-width: 100%; font-size: 1rem; padding: 1rem; }
@@ -112,7 +128,7 @@
 </head>
 <body>
 
-<header>
+<header id="main-header">
     <div class="container header-inner">
         <div class="logo">
             <img src="https://i.imgur.com/GDcBZQ8.png" alt="Corridor Towing Logo">
@@ -279,6 +295,29 @@
                 a.classList.add('active');
             }
         });
+    });
+
+    // Hide header on scroll down, show on scroll up
+    let lastScroll = 0;
+    const header = document.getElementById('main-header');
+
+    window.addEventListener('scroll', () => {
+        const currentScroll = window.pageYOffset;
+
+        if (currentScroll <= 0) {
+            header.classList.remove('hide');
+            return;
+        }
+
+        if (currentScroll > lastScroll && !header.classList.contains('hide')) {
+            // Scrolling down
+            header.classList.add('hide');
+        } else if (currentScroll < lastScroll && header.classList.contains('hide')) {
+            // Scrolling up
+            header.classList.remove('hide');
+        }
+
+        lastScroll = currentScroll;
     });
 </script>
 
