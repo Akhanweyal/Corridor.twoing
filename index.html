@@ -86,6 +86,9 @@
         .submit-btn { background:#0b3d91; color:#fff; padding:.8rem 2rem; border:none; border-radius:50px; font-weight:bold; cursor:pointer; transition:background .3s; font-size:1.1rem; width:100%; margin-top:0.5rem; }
         .submit-btn:hover { background:#093070; }
 
+        .location-btn { background: #ffcc00; color: #0b3d91; padding: .8rem 1.5rem; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: 0.5rem; transition: background .3s; }
+        .location-btn:hover { background: #e6b800; }
+
         .payment-options { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1.5rem 0; }
         .payment-btn { background: #fff; border: 2px solid #0b3d91; color: #0b3d91; padding: 1rem 1.2rem; border-radius: 10px; font-weight: bold; text-align: center; flex: 1; min-width: 130px; transition: all .3s; font-size:0.95rem; }
         .payment-btn:hover { background: #0b3d91; color: #fff; }
@@ -103,7 +106,11 @@
         .social a { color:#fff; font-size:1.5rem; transition:color .3s; }
         .social a:hover { color:#ffcc00; }
 
-        /* MOBILE OPTIMIZATIONS */
+        .success-message { display: none; text-align: center; background: #d4edda; color: #155724; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
+        .admin-section { display: none; background: #fff; padding: 2rem; border-radius: 10px; margin-top: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,.1); }
+        .toggle-admin { background: #ffcc00; color: #0b3d91; padding: .8rem 1.5rem; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin: 1rem auto; display: block; }
+        .toggle-admin:hover { background: #e6b800; }
+
         @media (max-width: 768px) {
             body { padding-top: 80px; }
             .header-inner { flex-direction: row; justify-content: space-between; align-items: center; }
@@ -199,12 +206,16 @@
 <section id="request" class="request">
     <div class="container">
         <h2 class="section-title">Request Towing Service Now</h2>
-        <p>Fill out the form below and we’ll call you within 2 minutes to confirm and dispatch.</p>
+        <p>Fast, reliable, and professional service in Richmond, VA. We're on the way — just call or request online!</p>
         <form class="request-form" action="https://formspree.io/f/xdkyonjb" method="POST">
             <div class="form-group"><label for="name">Full Name *</label><input type="text" id="name" name="name" required placeholder="John Doe"></div>
             <div class="form-group"><label for="phone">Phone Number *</label><input type="tel" id="phone" name="phone" required placeholder="(804) 555-1234"></div>
             <div class="form-group"><label for="email">Email (for receipt) *</label><input type="email" id="email" name="email" required placeholder="john@example.com"></div>
-            <div class="form-group"><label for="location">Current Location *</label><input type="text" id="location" name="location" required placeholder="123 Main St, Richmond, VA"></div>
+            <div class="form-group">
+                <label for="location">Current Location *</label>
+                <input type="text" id="location" name="location" required placeholder="123 Main St, Richmond, VA">
+                <button type="button" class="location-btn" onclick="getLocation()">Share Current Location</button>
+            </div>
             <div class="form-group"><label for="service">Service Needed *</label>
                 <select id="service" name="service" required>
                     <option value="">Select a service</option>
@@ -344,6 +355,45 @@
 
         lastScroll = currentScroll;
     });
+
+    // Get Current Location for Request Form
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition, showError);
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+
+    function showPosition(position) {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("location").value = data.display_name || `Lat: ${lat}, Long: ${lon}`;
+            })
+            .catch(error => {
+                document.getElementById("location").value = `Lat: ${lat}, Long: ${lon}`;
+            });
+    }
+
+    function showError(error) {
+        switch(error.code) {
+            case error.PERMISSION_DENIED:
+                alert("User denied the request for Geolocation.");
+                break;
+            case error.POSITION_UNAVAILABLE:
+                alert("Location information is unavailable.");
+                break;
+            case error.TIMEOUT:
+                alert("The request to get user location timed out.");
+                break;
+            case error.UNKNOWN_ERROR:
+                alert("An unknown error occurred.");
+                break;
+        }
+    }
 </script>
 
 </body>
