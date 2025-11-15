@@ -12,7 +12,7 @@
 
         .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
 
-        /* HEADER & MOBILE MENU */
+        /* HEADER */
         header {
             background: #0b3d91;
             color: #fff;
@@ -52,7 +52,6 @@
         nav a { color: #fff; font-weight: 600; font-size: 1rem; padding: 0.5rem 0; transition: color .3s; }
         nav a:hover, nav a.active { color: #ffcc00; }
 
-        /* Add padding to body so content isn't hidden under fixed header */
         body { padding-top: 90px; }
 
         /* HERO */
@@ -69,88 +68,98 @@
         section { padding: 3rem 0; }
         .services { background:#fff; }
         .section-title { text-align:center; margin-bottom:2rem; font-size:2rem; color:#0b3d91; }
-        .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:1.5rem; }
-        .card { background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,.1); text-align:center; padding:1.5rem; transition:transform .3s; }
-        .card:hover { transform:translateY(-5px); }
-        .card img { width:70px; height:70px; margin:0 auto 1rem; object-fit:contain; }
-        .card h3 { margin-bottom:.5rem; color:#0b3d91; font-size:1.2rem; }
 
-        .about,.contact,.request,.fleet,.payment { background:#eaeaea; }
-        .about p,.contact p,.request p,.payment p { max-width:800px; margin:0 auto 1.5rem; text-align:center; font-size:1rem; }
+        /* SERVICE PRICING TABLE */
+        .pricing-table {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .price-card {
+            background: #fff;
+            border: 2px solid #0b3d91;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,.1);
+            transition: transform .3s;
+        }
+        .price-card:hover { transform: translateY(-8px); }
+        .price-card h3 { color: #0b3d91; margin-bottom: .5rem; font-size: 1.3rem; }
+        .price-card .price { font-size: 1.8rem; font-weight: bold; color: #ffcc00; margin: 1rem 0; }
+        .price-card ul { text-align: left; margin: 1rem 0; font-size: 0.95rem; }
+        .price-card li { margin: .4rem 0; }
 
-        .request-form { max-width:600px; margin:0 auto; background:#fff; padding:1.8rem; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,.1); }
-        .form-group { margin-bottom:1rem; }
-        label { display:block; margin-bottom:.5rem; font-weight:bold; color:#0b3d91; font-size:0.95rem; }
-        input,select,textarea { width:100%; padding:.75rem; border:1px solid #ccc; border-radius:5px; font-size:1rem; }
-        textarea { resize:vertical; height:90px; }
-        .submit-btn { background:#0b3d91; color:#fff; padding:.8rem 2rem; border:none; border-radius:50px; font-weight:bold; cursor:pointer; transition:background .3s; font-size:1.1rem; width:100%; margin-top:0.5rem; }
-        .submit-btn:hover { background:#093070; }
+        /* TOWING CALCULATOR */
+        .calculator {
+            background: #fff;
+            padding: 1.8rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.1);
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+        .calc-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #d4edda;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            color: #155724;
+            display: none;
+        }
 
-        .location-btn { background: #ffcc00; color: #0b3d91; padding: .8rem 1.5rem; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: 0.5rem; transition: background .3s; }
-        .location-btn:hover { background: #e6b800; }
+        .request-form, .receipt-form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 1.8rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.1);
+        }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: .5rem; font-weight: bold; color: #0b3d91; }
+        input, select, textarea { width: 100%; padding: .75rem; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; }
+        textarea { resize: vertical; height: 90px; }
+        .submit-btn, .calc-btn, .send-receipt {
+            background: #0b3d91; color: #fff; padding: .8rem 2rem; border: none; border-radius: 50px;
+            font-weight: bold; cursor: pointer; transition: background .3s; font-size: 1.1rem; width: 100%; margin-top: .5rem;
+        }
+        .submit-btn:hover, .calc-btn:hover, .send-receipt:hover { background: #093070; }
+        .location-btn { background: #ffcc00; color: #0b3d91; padding: .8rem 1.5rem; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: .5rem; }
+
+        .receipt-preview {
+            background: #f9f9f9;
+            border: 1px dashed #ccc;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-line;
+            display: none;
+        }
 
         .payment-options { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1.5rem 0; }
-        .payment-btn { background: #fff; border: 2px solid #0b3d91; color: #0b3d91; padding: 1rem 1.2rem; border-radius: 10px; font-weight: bold; text-align: center; flex: 1; min-width: 130px; transition: all .3s; font-size:0.95rem; }
+        .payment-btn { background: #fff; border: 2px solid #0b3d91; color: #0b3d91; padding: 1rem 1.2rem; border-radius: 10px; font-weight: bold; text-align: center; flex: 1; min-width: 130px; transition: all .3s; }
         .payment-btn:hover { background: #0b3d91; color: #fff; }
         .payment-btn i { font-size: 1.6rem; display: block; margin-bottom: .4rem; }
 
-        .contact-info { display:flex; flex-direction:column; align-items:center; gap:1rem; margin-top:1.5rem; font-size:1rem; }
-        .contact-info a { color:#0b3d91; font-weight:bold; }
-
-        .fleet-gallery { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; margin-top:1.5rem; }
-        .fleet-gallery img { width:100%; max-width:340px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,.1); }
-
         footer { background:#0b3d91; color:#fff; text-align:center; padding:2rem 0; font-size:0.9rem; }
-        footer p { margin-bottom:.5rem; }
-        .social { display:flex; justify-content:center; gap:1rem; margin-top:1rem; }
-        .social a { color:#fff; font-size:1.5rem; transition:color .3s; }
-        .social a:hover { color:#ffcc00; }
 
-        .success-message { display: none; text-align: center; background: #d4edda; color: #155724; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
-        .admin-section { display: none; background: #fff; padding: 2rem; border-radius: 10px; margin-top: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,.1); }
-        .toggle-admin { background: #ffcc00; color: #0b3d91; padding: .8rem 1.5rem; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin: 1rem auto; display: block; }
-        .toggle-admin:hover { background: #e6b800; }
-
+        /* MOBILE */
         @media (max-width: 768px) {
             body { padding-top: 80px; }
-            .header-inner { flex-direction: row; justify-content: space-between; align-items: center; }
-            .logo-container { gap: 8px; }
             .logo img { height: 50px; }
             .company-name { font-size: 0.95rem; }
             .menu-toggle { display: block; }
-            nav { width: 100%; }
             nav ul { display: none; flex-direction: column; width: 100%; background: #0b3d91; padding: 1rem 0; }
             nav ul.show { display: flex; }
             nav a { padding: 0.8rem 1rem; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
-            nav a:last-child { border-bottom: none; }
-
             .hero { padding: 4rem 1rem; }
             .hero h1 { font-size: 2rem; }
-            .hero p { font-size: 1rem; }
-            .cta-btn { font-size: 1rem; padding: .7rem 1.8rem; }
-
-            section { padding: 2.5rem 0; }
-            .section-title { font-size: 1.8rem; }
-            .grid { gap: 1rem; }
-            .card { padding: 1.2rem; }
-            .card h3 { font-size: 1.1rem; }
-
-            .request-form { padding: 1.5rem; }
-            .submit-btn { font-size: 1rem; }
-
-            .payment-btn { min-width: 100%; font-size: 1rem; padding: 1rem; }
-            .payment-btn i { font-size: 1.8rem; }
-
-            .fleet-gallery img { max-width: 100%; }
-        }
-
-        @media (max-width: 480px) {
-            .logo img { height: 45px; }
-            .company-name { font-size: 0.85rem; }
-            .hero h1 { font-size: 1.8rem; }
-            .hero p { font-size: 0.95rem; }
-            .section-title { font-size: 1.6rem; }
-            .payment-btn { font-size: 0.9rem; }
+            .pricing-table { grid-template-columns: 1fr; }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -163,17 +172,17 @@
             <div class="logo">
                 <img src="https://i.imgur.com/GDcBZQ8.png" alt="Corridor Towing Logo">
             </div>
-            <div class="company-name"> Corridor Towing & Transportation</div>
+            <div class="company-name">Corridor Towing & Transportation</div>
         </div>
         <div class="menu-toggle" onclick="toggleMenu()">Menu</div>
         <nav>
             <ul id="nav-menu">
                 <li><a href="#home" class="active">Home</a></li>
-                <li><a href="#services">Services</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#calculator">Estimate</a></li>
                 <li><a href="#request">Request Tow</a></li>
+                <li><a href="#receipt">Issue Receipt</a></li>
                 <li><a href="#payment">Pay Now</a></li>
-                <li><a href="#fleet">Our Fleet</a></li>
-                <li><a href="#about">About</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
         </nav>
@@ -188,104 +197,136 @@
     </div>
 </section>
 
-<section id="services" class="services">
+<!-- PRICING -->
+<section id="pricing" class="services">
     <div class="container">
-        <h2 class="section-title">Our Services</h2>
-        <div class="grid">
-            <div class="card"><img src="https://img.icons8.com/color/96/000000/tow-truck.png" alt="Tow Truck"><h3>Vehicle Towing</h3><p>Local & long-distance towing for cars, trucks, SUVs, and motorcycles.</p></div>
-            <div class="card"><img src="https://img.icons8.com/color/96/000000/flat-tire.png" alt="Flat Tire"><h3>Flat Tire Change</h3><p>Quick and safe tire replacement on the spot.</p></div>
-            <div class="card"><img src="https://img.icons8.com/color/96/000000/car-battery.png" alt="Battery Jump"><h3>Battery Jumpstart</h3><p>Get back on the road in minutes with a jump.</p></div>
-            <div class="card"><img src="https://img.icons8.com/color/96/000000/lock.png" alt="Lockout"><h3>Lockout Service</h3><p>Fast, damage-free vehicle unlocking.</p></div>
-            <div class="card"><img src="https://img.icons8.com/color/96/000000/gas-station.png" alt="Fuel Delivery"><h3>Fuel Delivery</h3><p>Ran out of gas? We deliver fuel to you.</p></div>
-            <div class="card"><img src="https://img.icons8.com/color/96/000000/winch.png" alt="Winch Out"><h3>Winch Out & Recovery</h3><p>Stuck in ditch, mud, or snow? We’ll pull you out.</p></div>
+        <h2 class="section-title">Our Services & Pricing</h2>
+        <div class="pricing-table">
+            <div class="price-card">
+                <h3>Light Duty Tow</h3>
+                <div class="price">$50 base</div>
+                <ul>
+                    <li>Pickup: $50</li>
+                    <li>Enroute: $2/mile</li>
+                    <li>Tow (loaded): $5/mile</li>
+                    <li>Cars, SUVs, small trucks</li>
+                </ul>
+            </div>
+            <div class="price-card">
+                <h3>Medium Duty Tow</h3>
+                <div class="price">$70 base</div>
+                <ul>
+                    <li>Pickup: $70</li>
+                    <li>Enroute: $2/mile</li>
+                    <li>Tow (loaded): $5/mile</li>
+                    <li>Vans, box trucks</li>
+                </ul>
+            </div>
+            <div class="price-card">
+                <h3>Roadside Assistance</h3>
+                <div class="price">From $50</div>
+                <ul>
+                    <li>Jumpstart: $50</li>
+                    <li>Lockout: $60</li>
+                    <li>Tire Change: $60</li>
+                    <li>Fuel Delivery: $60 + fuel</li>
+                </ul>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- CUSTOMER REQUEST FORM -->
+<!-- TOWING CALCULATOR -->
+<section id="calculator" class="request">
+    <div class="container">
+        <h2 class="section-title">Get Towing Estimate</h2>
+        <div class="calculator">
+            <div class="form-group">
+                <label>Tow Type</label>
+                <select id="towType">
+                    <option value="light">Light Duty ($50 base)</option>
+                    <option value="medium">Medium Duty ($70 base)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Enroute Miles (to you)</label>
+                <input type="number" id="enrouteMiles" placeholder="e.g. 10" min="0">
+            </div>
+            <div class="form-group">
+                <label>Tow Miles (loaded)</label>
+                <input type="number" id="towMiles" placeholder="e.g. 15" min="0">
+            </div>
+            <button class="calc-btn" onclick="calculateTow()">Calculate Estimate</button>
+            <div id="calcResult" class="calc-result"></div>
+        </div>
+    </div>
+</section>
+
+<!-- REQUEST TOW -->
 <section id="request" class="request">
     <div class="container">
         <h2 class="section-title">Request Towing Service Now</h2>
-        <p>Fast, reliable, and professional service in Richmond, VA. We're on the way — just call or request online!</p>
         <form class="request-form" action="https://formspree.io/f/xdkyonjb" method="POST">
-            <div class="form-group"><label for="name">Full Name *</label><input type="text" id="name" name="name" required placeholder="John Doe"></div>
-            <div class="form-group"><label for="phone">Phone Number *</label><input type="tel" id="phone" name="phone" required placeholder="(804) 555-1234"></div>
-            <div class="form-group"><label for="email">Email (for receipt) *</label><input type="email" id="email" name="email" required placeholder="john@example.com"></div>
+            <div class="form-group"><label>Full Name *</label><input type="text" name="name" required></div>
+            <div class="form-group"><label>Phone *</label><input type="tel" name="phone" required></div>
+            <div class="form-group"><label>Email (for receipt) *</label><input type="email" name="email" required></div>
             <div class="form-group">
-                <label for="location">Current Location *</label>
-                <input type="text" id="location" name="location" required placeholder="123 Main St, Richmond, VA">
-                <button type="button" class="location-btn" onclick="getLocation()">Share Current Location</button>
+                <label>Current Location *</label>
+                <input type="text" id="location" name="location" required>
+                <button type="button" class="location-btn" onclick="getLocation()">Share Location</button>
             </div>
-            <div class="form-group"><label for="service">Service Needed *</label>
-                <select id="service" name="service" required>
-                    <option value="">Select a service</option>
-                    <option value="towing">Towing</option>
-                    <option value="flat-tire">Flat Tire Change</option>
-                    <option value="jumpstart">Battery Jumpstart</option>
-                    <option value="lockout">Lockout Service</option>
+            <div class="form-group"><label>Service Needed *</label>
+                <select name="service" required>
+                    <option value="">Select</option>
+                    <option value="light-tow">Light Duty Tow</option>
+                    <option value="medium-tow">Medium Duty Tow</option>
+                    <option value="jumpstart">Jumpstart</option>
+                    <option value="lockout">Lockout</option>
+                    <option value="tire">Tire Change</option>
                     <option value="fuel">Fuel Delivery</option>
-                    <option value="winch">Winch Out / Recovery</option>
                 </select>
             </div>
-            <div class="form-group"><label for="message">Additional Details (optional)</label><textarea id="message" name="message" placeholder="Vehicle make/model, color, any special instructions..."></textarea></div>
+            <div class="form-group"><label>Estimated Miles (optional)</label><input type="text" name="miles" placeholder="Enroute: 10, Tow: 15"></div>
             <button type="submit" class="submit-btn">Send Request – We’ll Call You!</button>
         </form>
     </div>
 </section>
 
-<!-- PAYMENT SECTION -->
+<!-- DRIVER RECEIPT FORM -->
+<section id="receipt" class="request">
+    <div class="container">
+        <h2 class="section-title">Issue Customer Receipt (Driver Use)</h2>
+        <form class="receipt-form" onsubmit="generateReceipt(event)">
+            <div class="form-group"><label>Customer Name *</label><input type="text" id="r_name" required></div>
+            <div class="form-group"><label>Customer Email *</label><input type="email" id="r_email" required></div>
+            <div class="form-group"><label>Service Provided *</label>
+                <select id="r_service" required>
+                    <option value="Light Duty Tow">Light Duty Tow</option>
+                    <option value="Medium Duty Tow">Medium Duty Tow</option>
+                    <option value="Jumpstart">Jumpstart</option>
+                    <option value="Lockout">Lockout</option>
+                    <option value="Tire Change">Tire Change</option>
+                    <option value="Fuel Delivery">Fuel Delivery</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Enroute Miles</label><input type="number" id="r_enroute" min="0"></div>
+            <div class="form-group"><label>Tow Miles (loaded)</label><input type="number" id="r_tow" min="0"></div>
+            <div class="form-group"><label>Total Amount ($)*</label><input type="number" id="r_amount" step="0.01" required></div>
+            <button type="submit" class="send-receipt">Generate & Send Receipt</button>
+            <div id="receiptPreview" class="receipt-preview"></div>
+        </form>
+    </div>
+</section>
+
+<!-- PAYMENT -->
 <section id="payment" class="payment">
     <div class="container">
         <h2 class="section-title">Pay for Your Service</h2>
-        <p>Choose your preferred payment method below. You'll receive a receipt via email reply within 5 minutes.</p>
         <div class="payment-options">
-            <a href="https://venmo.com/corridortowing" class="payment-btn" target="_blank">
-                <i class="fab fa-venmo"></i> Venmo
-            </a>
-            <a href="https://cash.app/$corridortowing" class="payment-btn" target="_blank">
-                <i class="fas fa-dollar-sign"></i> Cash App
-            </a>
-            <!-- REPLACE WITH YOUR SQUARE LINK -->
-            <a href="https://square.link/u/YOUR_SQUARE_LINK_HERE" class="payment-btn" target="_blank">
-                <i class="fas fa-credit-card"></i> Pay with Card (Square)
-            </a>
-            <div class="payment-btn">
-                <i class="fas fa-money-bill-wave"></i> Cash on Arrival
-            </div>
-        </div>
-        <p style="text-align:center; margin-top:1.5rem; color:#0b3d91; font-weight:bold; font-size:0.95rem;">
-            After payment, you’ll receive a receipt via email reply within 5 minutes.
-        </p>
-    </div>
-</section>
-
-<!-- FLEET SECTION -->
-<section id="fleet" class="fleet">
-    <div class="container">
-        <h2 class="section-title">Our Fleet</h2>
-        <div class="fleet-gallery">
-            <img src="https://i.imgur.com/SNExSrY.jpg" alt="Flat-bed Truck">
-            <img src="https://i.imgur.com/yLUsyTW.jpg" alt="Wheel-lift Tow Truck">
-        </div>
-    </div>
-</section>
-
-<section id="about" class="about">
-    <div class="container">
-        <h2 class="section-title">About Corridor Towing</h2>
-        <p>Based in Richmond, VA, <strong>Corridor Towing and Transportation Services</strong> provides fast, reliable, and affordable 24/7 towing and roadside assistance. We serve all of Central Virginia with a modern fleet and experienced drivers.</p>
-        <p>Licensed, insured, and trusted by local police and businesses. Average response time: <strong>under 25 minutes</strong>.</p>
-    </div>
-</section>
-
-<section id="contact" class="contact">
-    <div class="container">
-        <h2 class="section-title">Contact Us</h2>
-        <p>Available 24/7 for emergency service.</p>
-        <div class="contact-info">
-            <p><i class="fas fa-phone"></i> <a href="tel:8042928414">(804) 292-8414</a></p>
-            <p><i class="fas fa-envelope"></i> <a href="mailto:corridor.towing.services@gmail.com">corridor.towing.services@gmail.com</a></p>
-            <p><i class="fas fa-map-marker-alt"></i> 4100 Tomlynn St, Richmond, VA 23230</p>
+            <a href="https://venmo.com/corridortowing" class="payment-btn" target="_blank"><i class="fab fa-venmo"></i> Venmo</a>
+            <a href="https://cash.app/$corridortowing" class="payment-btn" target="_blank"><i class="fas fa-dollar-sign"></i> Cash App</a>
+            <a href="https://square.link/u/YOUR_SQUARE_LINK_HERE" class="payment-btn" target="_blank"><i class="fas fa-credit-card"></i> Pay with Card</a>
+            <div class="payment-btn"><i class="fas fa-money-bill-wave"></i> Cash on Arrival</div>
         </div>
     </div>
 </section>
@@ -294,105 +335,102 @@
     <div class="container">
         <p>© 2025 Corridor Towing and Transportation Services. All rights reserved.</p>
         <p>Licensed & Insured | 24/7 Emergency Service | Richmond, VA</p>
-        <div class="social">
-            <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-        </div>
     </div>
 </footer>
 
 <script>
-    // Mobile Menu Toggle
+    // Mobile Menu
     function toggleMenu() {
-        const menu = document.getElementById('nav-menu');
-        menu.classList.toggle('show');
+        document.getElementById('nav-menu').classList.toggle('show');
     }
 
-    // Close menu when link is clicked
-    document.querySelectorAll('nav a').forEach(link => {
-        link.addEventListener('click', () => {
-            document.getElementById('nav-menu').classList.remove('show');
-        });
-    });
-
-    // Highlight active section
-    window.addEventListener('scroll', () => {
-        let current = '';
-        const sections = document.querySelectorAll('section');
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop - 100;
-            if (pageYOffset >= sectionTop) {
-                current = section.getAttribute('id');
-            }
-        });
-        document.querySelectorAll('nav a').forEach(a => {
-            a.classList.remove('active');
-            if (a.getAttribute('href').slice(1) === current) {
-                a.classList.add('active');
-            }
-        });
-    });
-
-    // Hide header on scroll down, show on scroll up
+    // Header Scroll Hide
     let lastScroll = 0;
-    const header = document.getElementById('main-header');
-
     window.addEventListener('scroll', () => {
-        const currentScroll = window.pageYOffset;
-
-        if (currentScroll <= 0) {
-            header.classList.remove('hide');
-            return;
-        }
-
-        if (currentScroll > lastScroll && !header.classList.contains('hide')) {
-            // Scrolling down
+        const current = window.pageYOffset;
+        const header = document.getElementById('main-header');
+        if (current <= 0) { header.classList.remove('hide'); return; }
+        if (current > lastScroll && !header.classList.contains('hide')) {
             header.classList.add('hide');
-        } else if (currentScroll < lastScroll && header.classList.contains('hide')) {
-            // Scrolling up
+        } else if (current < lastScroll && header.classList.contains('hide')) {
             header.classList.remove('hide');
         }
-
-        lastScroll = currentScroll;
+        lastScroll = current;
     });
 
-    // Get Current Location for Request Form
+    // Geolocation
     function getLocation() {
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(showPosition, showError);
-        } else {
-            alert("Geolocation is not supported by this browser.");
+            navigator.geolocation.getCurrentPosition(pos => {
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        document.getElementById("location").value = data.display_name;
+                    });
+            }, () => alert("Location access denied."));
         }
     }
 
-    function showPosition(position) {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("location").value = data.display_name || `Lat: ${lat}, Long: ${lon}`;
-            })
-            .catch(error => {
-                document.getElementById("location").value = `Lat: ${lat}, Long: ${lon}`;
-            });
+    // Towing Calculator
+    function calculateTow() {
+        const type = document.getElementById("towType").value;
+        const enroute = parseFloat(document.getElementById("enrouteMiles").value) || 0;
+        const tow = parseFloat(document.getElementById("towMiles").value) || 0;
+        const base = type === "light" ? 50 : 70;
+        const total = base + (enroute * 2) + (tow * 5);
+        document.getElementById("calcResult").innerHTML = `Estimated Total: <strong>$${total.toFixed(2)}</strong>`;
+        document.getElementById("calcResult").style.display = "block";
     }
 
-    function showError(error) {
-        switch(error.code) {
-            case error.PERMISSION_DENIED:
-                alert("User denied the request for Geolocation.");
-                break;
-            case error.POSITION_UNAVAILABLE:
-                alert("Location information is unavailable.");
-                break;
-            case error.TIMEOUT:
-                alert("The request to get user location timed out.");
-                break;
-            case error.UNKNOWN_ERROR:
-                alert("An unknown error occurred.");
-                break;
-        }
+    // Receipt Generator
+    function generateReceipt(e) {
+        e.preventDefault();
+        const name = document.getElementById("r_name").value;
+        const email = document.getElementById("r_email").value;
+        const service = document.getElementById("r_service").value;
+        const enroute = document.getElementById("r_enroute").value || 0;
+        const tow = document.getElementById("r_tow").value || 0;
+        const amount = parseFloat(document.getElementById("r_amount").value).toFixed(2);
+
+        const receipt = `
+CORRIDOR TOWING & TRANSPORTATION
+4100 Tomlynn St, Richmond, VA 23230
+(804) 292-8414 | corridor.towing.services@gmail.com
+
+══════════════════════════════════
+           RECEIPT
+══════════════════════════════════
+
+Customer: ${name}
+Email: ${email}
+Date: ${new Date().toLocaleDateString()}
+
+Service: ${service}
+Enroute Miles: ${enroute}
+Tow Miles: ${tow}
+Total Charged: $${amount}
+
+Thank you for your business!
+Licensed & Insured | 24/7 Service
+
+[Logo: https://i.imgur.com/GDcBZQ8.png]
+        `;
+
+        document.getElementById("receiptPreview").textContent = receipt;
+        document.getElementById("receiptPreview").style.display = "block";
+
+        // Send via Formspree
+        fetch("https://formspree.io/f/xdkyonjb", {
+            method: "POST",
+            body: JSON.stringify({
+                email: email,
+                subject: `Your Receipt from Corridor Towing - $${amount}`,
+                message: receipt
+            }),
+            headers: { "Content-Type": "application/json" }
+        }).then(() => alert("Receipt sent to customer!"));
     }
 </script>
 
