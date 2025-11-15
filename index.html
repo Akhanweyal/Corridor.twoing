@@ -6,7 +6,7 @@
     <title>Corridor Towing and Transportation Services</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; background: #f4f4f4; margin: 0; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; line-height: 1.6; color: #333; background: #f9f9fb; margin: 0; }
         a { text-decoration: none; color: inherit; }
         img { max-width: 100%; height: auto; display: block; }
 
@@ -69,7 +69,7 @@
         .services { background:#fff; }
         .section-title { text-align:center; margin-bottom:2rem; font-size:2rem; color:#0b3d91; }
 
-        /* SERVICE PRICING TABLE */
+        /* PRICING TABLE */
         .pricing-table {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -91,34 +91,35 @@
         .price-card ul { text-align: left; margin: 1rem 0; font-size: 0.95rem; }
         .price-card li { margin: .4rem 0; }
 
-        /* TOWING CALCULATOR */
-        .calculator {
-            background: #fff;
-            padding: 1.8rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,.1);
+        /* DROPDOWN FORMS */
+        .form-dropdown {
             max-width: 600px;
             margin: 2rem auto;
-        }
-        .calc-result {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: #d4edda;
-            border-radius: 8px;
-            font-weight: bold;
-            text-align: center;
-            color: #155724;
-            display: none;
-        }
-
-        .request-form, .receipt-form {
-            max-width: 600px;
-            margin: 0 auto;
             background: #fff;
-            padding: 1.8rem;
-            border-radius: 10px;
+            border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,.1);
+            overflow: hidden;
         }
+        .dropdown-header {
+            background: #0b3d91;
+            color: #fff;
+            padding: 1.2rem 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1rem;
+        }
+        .dropdown-header i { transition: transform .3s; }
+        .dropdown-header.active i { transform: rotate(180deg); }
+        .dropdown-content {
+            padding: 1.8rem;
+            display: none;
+            border-top: 1px solid #eee;
+        }
+        .dropdown-content.active { display: block; }
+
         .form-group { margin-bottom: 1rem; }
         label { display: block; margin-bottom: .5rem; font-weight: bold; color: #0b3d91; }
         input, select, textarea { width: 100%; padding: .75rem; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; }
@@ -130,14 +131,29 @@
         .submit-btn:hover, .calc-btn:hover, .send-receipt:hover { background: #093070; }
         .location-btn { background: #ffcc00; color: #0b3d91; padding: .8rem 1.5rem; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: .5rem; }
 
-        .receipt-preview {
-            background: #f9f9f9;
-            border: 1px dashed #ccc;
-            padding: 1.5rem;
+        .calc-result {
             margin-top: 1rem;
+            padding: 1rem;
+            background: #d4edda;
             border-radius: 8px;
-            font-family: monospace;
+            font-weight: bold;
+            text-align: center;
+            color: #155724;
+            display: none;
+        }
+
+        .receipt-preview {
+            background: #fff;
+            border: 2px solid #0b3d91;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
             white-space: pre-line;
+            color: #000;
+            box-shadow: 0 4px 12px rgba(0,0,0,.1);
             display: none;
         }
 
@@ -148,7 +164,6 @@
 
         footer { background:#0b3d91; color:#fff; text-align:center; padding:2rem 0; font-size:0.9rem; }
 
-        /* MOBILE */
         @media (max-width: 768px) {
             body { padding-top: 80px; }
             .logo img { height: 50px; }
@@ -156,7 +171,6 @@
             .menu-toggle { display: block; }
             nav ul { display: none; flex-direction: column; width: 100%; background: #0b3d91; padding: 1rem 0; }
             nav ul.show { display: flex; }
-            nav a { padding: 0.8rem 1rem; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
             .hero { padding: 4rem 1rem; }
             .hero h1 { font-size: 2rem; }
             .pricing-table { grid-template-columns: 1fr; }
@@ -179,9 +193,7 @@
             <ul id="nav-menu">
                 <li><a href="#home" class="active">Home</a></li>
                 <li><a href="#pricing">Pricing</a></li>
-                <li><a href="#calculator">Estimate</a></li>
-                <li><a href="#request">Request Tow</a></li>
-                <li><a href="#receipt">Issue Receipt</a></li>
+                <li><a href="#forms">Forms</a></li>
                 <li><a href="#payment">Pay Now</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
@@ -236,85 +248,95 @@
     </div>
 </section>
 
-<!-- TOWING CALCULATOR -->
-<section id="calculator" class="request">
+<!-- ALL FORMS IN ONE DROPDOWN -->
+<section id="forms" class="request">
     <div class="container">
-        <h2 class="section-title">Get Towing Estimate</h2>
-        <div class="calculator">
-            <div class="form-group">
-                <label>Tow Type</label>
-                <select id="towType">
-                    <option value="light">Light Duty ($50 base)</option>
-                    <option value="medium">Medium Duty ($70 base)</option>
-                </select>
+        <h2 class="section-title">Service Tools</h2>
+
+        <!-- Estimate Calculator -->
+        <div class="form-dropdown">
+            <div class="dropdown-header" onclick="toggleDropdown(this)">
+                Get Towing Estimate <i class="fas fa-chevron-down"></i>
             </div>
-            <div class="form-group">
-                <label>Enroute Miles (to you)</label>
-                <input type="number" id="enrouteMiles" placeholder="e.g. 10" min="0">
+            <div class="dropdown-content">
+                <div class="form-group">
+                    <label>Tow Type</label>
+                    <select id="towType">
+                        <option value="light">Light Duty ($50 base)</option>
+                        <option value="medium">Medium Duty ($70 base)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Enroute Miles (to you)</label>
+                    <input type="number" id="enrouteMiles" placeholder="e.g. 10" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Tow Miles (loaded)</label>
+                    <input type="number" id="towMiles" placeholder="e.g. 15" min="0">
+                </div>
+                <button class="calc-btn" onclick="calculateTow()">Calculate Estimate</button>
+                <div id="calcResult" class="calc-result"></div>
             </div>
-            <div class="form-group">
-                <label>Tow Miles (loaded)</label>
-                <input type="number" id="towMiles" placeholder="e.g. 15" min="0">
-            </div>
-            <button class="calc-btn" onclick="calculateTow()">Calculate Estimate</button>
-            <div id="calcResult" class="calc-result"></div>
         </div>
-    </div>
-</section>
 
-<!-- REQUEST TOW -->
-<section id="request" class="request">
-    <div class="container">
-        <h2 class="section-title">Request Towing Service Now</h2>
-        <form class="request-form" action="https://formspree.io/f/xdkyonjb" method="POST">
-            <div class="form-group"><label>Full Name *</label><input type="text" name="name" required></div>
-            <div class="form-group"><label>Phone *</label><input type="tel" name="phone" required></div>
-            <div class="form-group"><label>Email (for receipt) *</label><input type="email" name="email" required></div>
-            <div class="form-group">
-                <label>Current Location *</label>
-                <input type="text" id="location" name="location" required>
-                <button type="button" class="location-btn" onclick="getLocation()">Share Location</button>
+        <!-- Request Tow -->
+        <div class="form-dropdown">
+            <div class="dropdown-header" onclick="toggleDropdown(this)">
+                Request Towing Service <i class="fas fa-chevron-down"></i>
             </div>
-            <div class="form-group"><label>Service Needed *</label>
-                <select name="service" required>
-                    <option value="">Select</option>
-                    <option value="light-tow">Light Duty Tow</option>
-                    <option value="medium-tow">Medium Duty Tow</option>
-                    <option value="jumpstart">Jumpstart</option>
-                    <option value="lockout">Lockout</option>
-                    <option value="tire">Tire Change</option>
-                    <option value="fuel">Fuel Delivery</option>
-                </select>
+            <div class="dropdown-content">
+                <form action="https://formspree.io/f/xdkyonjb" method="POST">
+                    <div class="form-group"><label>Full Name *</label><input type="text" name="name" required></div>
+                    <div class="form-group"><label>Phone *</label><input type="tel" name="phone" required></div>
+                    <div class="form-group"><label>Email (for receipt) *</label><input type="email" name="email" required></div>
+                    <div class="form-group">
+                        <label>Current Location *</label>
+                        <input type="text" id="location" name="location" required>
+                        <button type="button" class="location-btn" onclick="getLocation()">Share Location</button>
+                    </div>
+                    <div class="form-group"><label>Service Needed *</label>
+                        <select name="service" required>
+                            <option value="">Select</option>
+                            <option value="light-tow">Light Duty Tow</option>
+                            <option value="medium-tow">Medium Duty Tow</option>
+                            <option value="jumpstart">Jumpstart</option>
+                            <option value="lockout">Lockout</option>
+                            <option value="tire">Tire Change</option>
+                            <option value="fuel">Fuel Delivery</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn">Send Request – We’ll Call You!</button>
+                </form>
             </div>
-            <div class="form-group"><label>Estimated Miles (optional)</label><input type="text" name="miles" placeholder="Enroute: 10, Tow: 15"></div>
-            <button type="submit" class="submit-btn">Send Request – We’ll Call You!</button>
-        </form>
-    </div>
-</section>
+        </div>
 
-<!-- DRIVER RECEIPT FORM -->
-<section id="receipt" class="request">
-    <div class="container">
-        <h2 class="section-title">Issue Customer Receipt (Driver Use)</h2>
-        <form class="receipt-form" onsubmit="generateReceipt(event)">
-            <div class="form-group"><label>Customer Name *</label><input type="text" id="r_name" required></div>
-            <div class="form-group"><label>Customer Email *</label><input type="email" id="r_email" required></div>
-            <div class="form-group"><label>Service Provided *</label>
-                <select id="r_service" required>
-                    <option value="Light Duty Tow">Light Duty Tow</option>
-                    <option value="Medium Duty Tow">Medium Duty Tow</option>
-                    <option value="Jumpstart">Jumpstart</option>
-                    <option value="Lockout">Lockout</option>
-                    <option value="Tire Change">Tire Change</option>
-                    <option value="Fuel Delivery">Fuel Delivery</option>
-                </select>
+        <!-- Issue Receipt (Driver) -->
+        <div class="form-dropdown">
+            <div class="dropdown-header" onclick="toggleDropdown(this)">
+                Issue Receipt (Driver Use) <i class="fas fa-chevron-down"></i>
             </div>
-            <div class="form-group"><label>Enroute Miles</label><input type="number" id="r_enroute" min="0"></div>
-            <div class="form-group"><label>Tow Miles (loaded)</label><input type="number" id="r_tow" min="0"></div>
-            <div class="form-group"><label>Total Amount ($)*</label><input type="number" id="r_amount" step="0.01" required></div>
-            <button type="submit" class="send-receipt">Generate & Send Receipt</button>
-            <div id="receiptPreview" class="receipt-preview"></div>
-        </form>
+            <div class="dropdown-content">
+                <form onsubmit="generateReceipt(event)">
+                    <div class="form-group"><label>Customer Name *</label><input type="text" id="r_name" required></div>
+                    <div class="form-group"><label>Customer Email *</label><input type="email" id="r_email" required></div>
+                    <div class="form-group"><label>Service Provided *</label>
+                        <select id="r_service" required onchange="calcTotal()">
+                            <option value="Light Duty Tow">Light Duty Tow ($50)</option>
+                            <option value="Medium Duty Tow">Medium Duty Tow ($70)</option>
+                            <option value="Jumpstart">Jumpstart ($50)</option>
+                            <option value="Lockout">Lockout ($60)</option>
+                            <option value="Tire Change">Tire Change ($60)</option>
+                            <option value="Fuel Delivery">Fuel Delivery ($60 + fuel)</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Enroute Miles</label><input type="number" id="r_enroute" min="0" value="0" onchange="calcTotal()"></div>
+                    <div class="form-group"><label>Tow Miles (loaded)</label><input type="number" id="r_tow" min="0" value="0" onchange="calcTotal()"></div>
+                    <div class="form-group"><label>Total Amount ($)*</label><input type="number" id="r_amount" step="0.01" required readonly style="background:#f0f0f0;"></div>
+                    <button type="submit" class="send-receipt">Generate & Send Receipt</button>
+                    <div id="receiptPreview" class="receipt-preview"></div>
+                </form>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -342,6 +364,18 @@
     // Mobile Menu
     function toggleMenu() {
         document.getElementById('nav-menu').classList.toggle('show');
+    }
+
+    // Dropdown Toggle
+    function toggleDropdown(header) {
+        const content = header.nextElementSibling;
+        const isActive = content.classList.contains('active');
+        document.querySelectorAll('.dropdown-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.dropdown-header').forEach(h => h.classList.remove('active'));
+        if (!isActive) {
+            content.classList.add('active');
+            header.classList.add('active');
+        }
     }
 
     // Header Scroll Hide
@@ -384,54 +418,95 @@
         document.getElementById("calcResult").style.display = "block";
     }
 
-    // Receipt Generator
+    // Receipt Auto-Calc
+    function calcTotal() {
+        const service = document.getElementById("r_service").value;
+        const enroute = parseFloat(document.getElementById("r_enroute").value) || 0;
+        const tow = parseFloat(document.getElementById("r_tow").value) || 0;
+
+        let base = 0;
+        if (service.includes("Light")) base = 50;
+        else if (service.includes("Medium")) base = 70;
+        else if (service.includes("Jumpstart")) base = 50;
+        else if (["Lockout", "Tire", "Fuel"].some(s => service.includes(s))) base = 60;
+
+        const total = base + (enroute * 2) + (tow * 5);
+        document.getElementById("r_amount").value = total.toFixed(2);
+    }
+
+    // Generate Receipt
     function generateReceipt(e) {
         e.preventDefault();
-        const name = document.getElementById("r_name").value;
+        const name = document.getElementById("r_name").value.trim();
         const email = document.getElementById("r_email").value;
         const service = document.getElementById("r_service").value;
         const enroute = document.getElementById("r_enroute").value || 0;
         const tow = document.getElementById("r_tow").value || 0;
         const amount = parseFloat(document.getElementById("r_amount").value).toFixed(2);
 
-        const receipt = `
-CORRIDOR TOWING & TRANSPORTATION
-4100 Tomlynn St, Richmond, VA 23230
-(804) 292-8414 | corridor.towing.services@gmail.com
+        const receiptId = "CT-" + new Date().getFullYear() + "-" + String(Math.floor(Math.random() * 9999)).padStart(4, '0');
+        const date = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-══════════════════════════════════
-           RECEIPT
-══════════════════════════════════
+        let breakdown = "";
+        if (service.includes("Tow")) {
+            const base = service.includes("Light") ? 50 : 70;
+            breakdown = `
+ • Pickup Fee:                $${base.toFixed(2)}
+ • Enroute (${enroute} mi @ $2/mi):   $${(enroute * 2).toFixed(2)}
+ • Tow (${tow} mi @ $5/mi):       $${(tow * 5).toFixed(2)}`;
+        } else {
+            breakdown = ` • Flat Rate Service:         $${amount}`;
+        }
 
-Customer: ${name}
-Email: ${email}
-Date: ${new Date().toLocaleDateString()}
+        const receipt = `╔══════════════════════════════════════════════════╗
+║          CORRIDOR TOWING & TRANSPORTATION        ║
+║        4100 Tomlynn St, Richmond, VA 23230       ║
+║       (804) 292-8414 | corridor.towing@gmail.com ║
+╚══════════════════════════════════════════════════╝
 
-Service: ${service}
-Enroute Miles: ${enroute}
-Tow Miles: ${tow}
-Total Charged: $${amount}
+                     OFFICIAL RECEIPT
+────────────────────────────────────────────────────
+Receipt #: ${receiptId}
+Date:      ${date}
+────────────────────────────────────────────────────
 
-Thank you for your business!
-Licensed & Insured | 24/7 Service
+BILL TO:
+${name}
+${email}
 
-[Logo: https://i.imgur.com/GDcBZQ8.png]
-        `;
+────────────────────────────────────────────────────
+SERVICE DETAILS
+────────────────────────────────────────────────────
+${service}${breakdown}
+────────────────────────────────────────────────────
+SUBTOTAL:                    $${amount}
+TAX (0%):                      $0.00
+────────────────────────────────────────────────────
+TOTAL DUE:                   $${amount}
+────────────────────────────────────────────────────
+
+PAID IN FULL – THANK YOU!
+
+Licensed • Insured • 24/7 Emergency Service
+www.corridortowing.com
+`;
 
         document.getElementById("receiptPreview").textContent = receipt;
         document.getElementById("receiptPreview").style.display = "block";
 
-        // Send via Formspree
         fetch("https://formspree.io/f/xdkyonjb", {
             method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 email: email,
-                subject: `Your Receipt from Corridor Towing - $${amount}`,
+                subject: `Receipt ${receiptId} - $${amount}`,
                 message: receipt
-            }),
-            headers: { "Content-Type": "application/json" }
-        }).then(() => alert("Receipt sent to customer!"));
+            })
+        }).then(() => alert("Receipt sent!")).catch(() => alert("Failed. Copy receipt."));
     }
+
+    // Init
+    window.onload = calcTotal;
 </script>
 
 </body>
