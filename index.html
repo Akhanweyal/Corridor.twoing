@@ -170,7 +170,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,.1);
             transition: transform .3s;
             text-align: center;
-            background: #fff;
+            background: #fff8e1;
             padding: 1rem;
         }
         .service-img:hover { transform: scale(1.03); }
@@ -236,9 +236,9 @@
         <div class="pricing-table">
             <div class="price-card">
                 <h3>Light Duty Tow</h3>
-                <div class="price">$50 base</div>
+                <div class="price">$60 base</div>
                 <ul>
-                    <li>Pickup: $50</li>
+                    <li>Pickup: $60</li>
                     <li>Enroute: $2/mile</li>
                     <li>Tow (loaded): $5/mile</li>
                     <li>Cars, SUVs, small trucks</li>
@@ -258,13 +258,13 @@
             </div>
             <div class="price-card">
                 <h3>Roadside Assistance</h3>
-                <div class="price">$60 flat</div>
+                <div class="price">From $50</div>
                 <ul>
-                    <li>Jumpstart: $60</li>
-                    <li>Lockout: $60</li>
-                    <li>Tire Change: $60</li>
-                    <li>Extraction / Winch Out: $60</li>
-                    <li>Fuel Delivery: $60 + fuel cost</li>
+                    <li>Jumpstart: $50</li>
+                    <li>Lockout: $50</li>
+                    <li>Tire Change: $50</li>
+                    <li>Fuel Delivery: $50 + fuel</li>
+                    <li><strong>Extraction / Winch Out: $60</strong></li>
                 </ul>
             </div>
         </div>
@@ -285,7 +285,7 @@
                 <div class="form-group">
                     <label>Tow Type</label>
                     <select id="towType">
-                        <option value="light">Light Duty ($50 base)</option>
+                        <option value="light">Light Duty ($60 base)</option>
                         <option value="medium">Medium Duty ($70 base)</option>
                     </select>
                 </div>
@@ -320,13 +320,13 @@
                     <div class="form-group"><label>Service Needed *</label>
                         <select name="service" required>
                             <option value="">Select</option>
-                            <option value="light-tow">Light Duty Tow ($50+)</option>
+                            <option value="light-tow">Light Duty Tow ($60+)</option>
                             <option value="medium-tow">Medium Duty Tow ($70+)</option>
-                            <option value="jumpstart">Jumpstart ($60)</option>
-                            <option value="lockout">Lockout ($60)</option>
-                            <option value="tire">Tire Change ($60)</option>
+                            <option value="jumpstart">Jumpstart ($50)</option>
+                            <option value="lockout">Lockout ($50)</option>
+                            <option value="tire">Tire Change ($50)</option>
+                            <option value="fuel">Fuel Delivery ($50 + fuel)</option>
                             <option value="extraction">Extraction / Winch Out ($60)</option>
-                            <option value="fuel">Fuel Delivery ($60 + fuel)</option>
                         </select>
                     </div>
                     <button type="submit" class="submit-btn">Send Request – We’ll Call You!</button>
@@ -345,13 +345,13 @@
                     <div class="form-group"><label>Customer Email *</label><input type="email" id="r_email" required></div>
                     <div class="form-group"><label>Service Provided *</label>
                         <select id="r_service" required onchange="calcTotal()">
-                            <option value="Light Duty Tow">Light Duty Tow ($50)</option>
+                            <option value="Light Duty Tow">Light Duty Tow ($60)</option>
                             <option value="Medium Duty Tow">Medium Duty Tow ($70)</option>
-                            <option value="Jumpstart">Jumpstart ($60)</option>
-                            <option value="Lockout">Lockout ($60)</option>
-                            <option value="Tire Change">Tire Change ($60)</option>
+                            <option value="Jumpstart">Jumpstart ($50)</option>
+                            <option value="Lockout">Lockout ($50)</option>
+                            <option value="Tire Change">Tire Change ($50)</option>
+                            <option value="Fuel Delivery">Fuel Delivery ($50 + fuel)</option>
                             <option value="Extraction">Extraction / Winch Out ($60)</option>
-                            <option value="Fuel Delivery">Fuel Delivery ($60 + fuel)</option>
                         </select>
                     </div>
                     <div class="form-group"><label>Enroute Miles</label><input type="number" id="r_enroute" min="0" value="0" onchange="calcTotal()"></div>
@@ -480,7 +480,7 @@
         const type = document.getElementById("towType").value;
         const enroute = parseFloat(document.getElementById("enrouteMiles").value) || 0;
         const tow = parseFloat(document.getElementById("towMiles").value) || 0;
-        const base = type === "light" ? 50 : 70;
+        const base = type === "light" ? 60 : 70;
         const total = base + (enroute * 2) + (tow * 5);
         document.getElementById("calcResult").innerHTML = `Estimated Total: <strong>$${total.toFixed(2)}</strong>`;
         document.getElementById("calcResult").style.display = "block";
@@ -493,9 +493,10 @@
         const tow = parseFloat(document.getElementById("r_tow").value) || 0;
 
         let base = 0;
-        if (service.includes("Light")) base = 50;
+        if (service.includes("Light Duty Tow")) base = 60;
         else if (service.includes("Medium")) base = 70;
-        else base = 60; // All roadside
+        else if (service.includes("Extraction")) base = 60;
+        else base = 50; // Jump, Lockout, Tire, Fuel
 
         const total = base + (enroute * 2) + (tow * 5);
         document.getElementById("r_amount").value = total.toFixed(2);
@@ -516,7 +517,7 @@
 
         let breakdown = "";
         if (service.includes("Tow")) {
-            const base = service.includes("Light") ? 50 : 70;
+            const base = service.includes("Light") ? 60 : 70;
             breakdown = `
  • Pickup Fee:                $${base.toFixed(2)}
  • Enroute (${enroute} mi @ $2/mi):   $${(enroute * 2).toFixed(2)}
