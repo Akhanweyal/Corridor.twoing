@@ -412,7 +412,7 @@
         const type = document.getElementById("towType").value;
         const enroute = parseFloat(document.getElementById("enrouteMiles").value) || 0;
         const tow = parseFloat(document.getElementById("towMiles").value) || 0;
-        const base = type === "light" ? 50 : 70;
+        const base = type === "light" ? 60 : 70;
         const total = base + (enroute * 2) + (tow * 5);
         document.getElementById("calcResult").innerHTML = `Estimated Total: <strong>$${total.toFixed(2)}</strong>`;
         document.getElementById("calcResult").style.display = "block";
@@ -428,7 +428,7 @@
         if (service.includes("Light")) base = 50;
         else if (service.includes("Medium")) base = 70;
         else if (service.includes("Jumpstart")) base = 50;
-        else if (["Lockout", "Tire", "Fuel"].some(s => service.includes(s))) base = 60;
+        else if (["Lockout", "Tire", "Fuel"].some(s => service.includes(s))) base = 50;
 
         const total = base + (enroute * 2) + (tow * 5);
         document.getElementById("r_amount").value = total.toFixed(2);
