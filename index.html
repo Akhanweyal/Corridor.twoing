@@ -116,7 +116,7 @@
         .dropdown-content {
             padding: 1.8rem;
             display: none;
-            border-top: 1px and 1px solid #eee;
+            border-top: 1px solid #eee;
         }
         .dropdown-content.active { display: block; }
 
@@ -241,8 +241,8 @@
                     <li>Pickup: $60</li>
                     <li>Enroute: $2/mile</li>
                     <li>Tow (loaded): $5/mile</li>
-                    <li>Cars, SUVs, small trucksNap</li>
-                    <: <li>Up to 10,000 lbs</li>
+                    <li>Cars, SUVs, small trucks</li>
+                    <li>Up to 10,000 lbs</li>
                 </ul>
             </div>
             <div class="price-card">
@@ -290,9 +290,15 @@
                         <option value="light-service">General Light Service / Roadside ($50 flat)</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>Customer Location *</label>
+                    <input type="text" id="location" placeholder="Enter address or use button">
+                    <button type="button" class="location-btn" onclick="getLocation()">Share Location</button>
+                    <button type="button" class="location-btn" onclick="calculateEnrouteFromBase()" style="margin-left:8px;">Auto Enroute from Base</button>
+                </div>
                 <div class="form-group" id="enrouteGroup">
-                    <label>Enroute Miles (to you)</label>
-                    <input type="number" id="enrouteMiles" placeholder="e.g. 10" min="0">
+                    <label>Enroute Miles (from base)</label>
+                    <input type="number" id="enrouteMiles" placeholder="Auto-filled" step="0.1" readonly style="background:#f9f9f9;">
                 </div>
                 <div class="form-group" id="towGroup">
                     <label>Tow Miles (loaded)</label>
@@ -333,7 +339,7 @@
                     <button type="submit" class="submit-btn">Send Request – We’ll Call You!</button>
                 </form>
             </div>
-        mapas
+        </div>
 
         <!-- Issue Receipt (Driver) -->
         <div class="form-dropdown">
@@ -388,7 +394,7 @@
                 <p><strong>Tire Change</strong><br>Spare installed fast</p>
             </div>
             <div class="service-img">
-                <img src="https://img.icons8.com/color/96/000000/gas-station.png" alt="Fuelcieli Delivery">
+                <img src="https://img.icons8.com/color/96/000000/gas-station.png" alt="Fuel Delivery">
                 <p><strong>Fuel Delivery</strong><br>Out of gas? We bring it</p>
             </div>
             <div class="service-img">
@@ -405,7 +411,7 @@
                 </svg>
                 <p><strong>Extraction / Winch Out</strong><br>Stuck in mud or ditch? We pull you out!</p>
             </div>
-        </div>
+        </secutive>
     </div>
 </section>
 
@@ -430,6 +436,9 @@
 </footer>
 
 <script>
+    // === CONFIGURATION ===
+    const BASE_ADDRESS = "4100 Tomlynn St, Richmond, VA 23230"; // YOUR BASE
+
     // Mobile Menu
     function toggleMenu() {
         document.getElementById('nav-menu').classList.toggle('show');
@@ -455,9 +464,12 @@
         if (type === "light-service") {
             enrouteGroup.style.display = "none";
             towGroup.style.display = "none";
+            document.getElementById("calcResult").innerHTML = `Estimated Total: <strong>$50.00</strong> (flat rate)`;
+            document.getElementById("calcResult").style.display = "block";
         } else {
             enrouteGroup.style.display = "block";
             towGroup.style.display = "block";
+            document.getElementById("calcResult").style.display = "none";
         }
     });
 
@@ -475,17 +487,61 @@
         lastScroll = current;
     });
 
-    // Geolocation
+    // GEOLOCATION + ADDRESS → ENROUTE MILES
+    async function calculateEnrouteFromBase() {
+        const locationInput = document.getElementById("location").value.trim();
+        if (!locationInput) {
+            alert("Please enter or share your location first.");
+            return;
+        }
+
+        try {
+            // Step 1: Geocode customer location
+            const customerRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationInput)}&limit=1`);
+            const customerData = await customerRes.json();
+            if (!customerData.length) throw new Error("Customer location not found");
+
+            const custLat = customerData[0].lat;
+            const custLon = customerData[0].lon;
+
+            // Step 2: Geocode base
+            const baseRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(BASE_ADDRESS)}&limit=1`);
+            const baseData = await baseRes.json();
+            if (!baseData.length) throw new Error("Base address not found");
+
+            const baseLat = baseData[0].lat;
+            const baseLon = baseData[0].lon;
+
+            // Step 3: Get driving distance via OSRM
+            const routeRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${baseLon},${baseLat};${custLon},${custLat}?overview=false&alternatives=false`);
+            const routeData = await routeRes.json();
+            if (!routeData.routes || !routeData.routes[0]) throw new Error("No route found");
+
+            const distanceKm = routeData.routes[0].distance / 1000;
+            const distanceMiles = distanceKm * 0.621371;
+
+            // Auto-fill enroute
+            document.getElementById("enrouteMiles").value = distanceMiles.toFixed(1);
+
+            // Auto-calculate total
+            calculateTow();
+
+        } catch (err) {
+            console.error(err);
+            alert("Could not calculate distance. Please enter enroute miles manually.");
+        }
+    }
+
+    // Share Location Button
     function getLocation() {
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(pos => {
+            navigator.geolocation.getCurrentPosition(async (pos) => {
                 const lat = pos.coords.latitude;
                 const lon = pos.coords.longitude;
-                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
-                    .then(r => r.json())
-                    .then(data => {
-                        document.getElementById("location").value = data.display_name;
-                    });
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                const data = await res.json();
+                document.getElementById("location").value = data.display_name;
+                calculateEnrouteFromBase();
             }, () => alert("Location access denied."));
         }
     }
@@ -498,11 +554,19 @@
             document.getElementById("calcResult").style.display = "block";
             return;
         }
+
         const enroute = parseFloat(document.getElementById("enrouteMiles").value) || 0;
         const tow = parseFloat(document.getElementById("towMiles").value) || 0;
         const base = type === "light-tow" ? 60 : 70;
         const total = base + (enroute * 2) + (tow * 5);
-        document.getElementById("calcResult").innerHTML = `Estimated Total: <strong>$${total.toFixed(2)}</strong>`;
+
+        document.getElementById("calcResult").innerHTML = `
+            <strong>Estimate Breakdown:</strong><br>
+            • Pickup: $${base}<br>
+            • Enroute (${enroute} mi @ $2/mi): $${(enroute * 2).toFixed(2)}<br>
+            • Tow (${tow} mi @ $5/mi): $${(tow * 5).toFixed(2)}<br>
+            <strong>Total: $${total.toFixed(2)}</strong>
+        `;
         document.getElementById("calcResult").style.display = "block";
     }
 
@@ -516,7 +580,7 @@
         if (service.includes("Light Duty Tow")) base = 60;
         else if (service.includes("Medium")) base = 70;
         else if (service.includes("Extraction")) base = 60;
-        else base = 50; // Jump, Lockout, Tire, Fuel
+        else base = 50;
 
         const total = base + (enroute * 2) + (tow * 5);
         document.getElementById("r_amount").value = total.toFixed(2);
@@ -593,7 +657,7 @@ www.corridortowing.com
         }).then(() => alert("Receipt sent!")).catch(() => alert("Failed. Copy receipt."));
     }
 
-    // Init
+    // INIT
     window.onload = () => {
         calcTotal();
         document.getElementById("towType").dispatchEvent(new Event("change"));
