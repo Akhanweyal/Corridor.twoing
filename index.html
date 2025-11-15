@@ -8,7 +8,7 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Helvetica', 'Arial', sans-serif; line-height: 1.6; color: #333; background: #f9f9fb; margin: 0; }
         a { text-decoration: none; color: inherit; }
-        img { max-width: 100%; height: auto; display: block; }
+        img, svg { max-width: 100%; height: auto; display: block; }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
 
@@ -169,9 +169,12 @@
             overflow: hidden;
             box-shadow: 0 4px 15px rgba(0,0,0,.1);
             transition: transform .3s;
+            text-align: center;
+            background: #fff;
+            padding: 1rem;
         }
         .service-img:hover { transform: scale(1.03); }
-        .service-img img { width: 100%; height: 200px; object-fit: cover; }
+        .service-img img, .service-img svg { width: 100%; height: 180px; object-fit: contain; }
 
         .payment-options { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1.5rem 0; }
         .payment-btn { background: #fff; border: 2px solid #0b3d91; color: #0b3d91; padding: 1rem 1.2rem; border-radius: 10px; font-weight: bold; text-align: center; flex: 1; min-width: 130px; transition: all .3s; }
@@ -239,6 +242,7 @@
                     <li>Enroute: $2/mile</li>
                     <li>Tow (loaded): $5/mile</li>
                     <li>Cars, SUVs, small trucks</li>
+                    <li>Up to 10,000 lbs</li>
                 </ul>
             </div>
             <div class="price-card">
@@ -248,7 +252,8 @@
                     <li>Pickup: $70</li>
                     <li>Enroute: $2/mile</li>
                     <li>Tow (loaded): $5/mile</li>
-                    <li>Vans, box trucks</li>
+                    <li>Vans, box trucks, RVs</li>
+                    <li>Up to 26,000 lbs</li>
                 </ul>
             </div>
             <div class="price-card">
@@ -258,7 +263,7 @@
                     <li>Jumpstart: $60</li>
                     <li>Lockout: $60</li>
                     <li>Tire Change: $60</li>
-                    <li>Extraction (Winch Out): $60</li>
+                    <li>Extraction / Winch Out: $60</li>
                     <li>Fuel Delivery: $60 + fuel cost</li>
                 </ul>
             </div>
@@ -270,7 +275,34 @@
 <section id="forms" class="request">
     <div class="container">
         <h2 class="section-title">Service Tools</h2>
-         <!-- Request Tow -->
+
+        <!-- Estimate Calculator -->
+        <div class="form-dropdown">
+            <div class="dropdown-header" onclick="toggleDropdown(this)">
+                Get Towing Estimate <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="dropdown-content">
+                <div class="form-group">
+                    <label>Tow Type</label>
+                    <select id="towType">
+                        <option value="light">Light Duty ($50 base)</option>
+                        <option value="medium">Medium Duty ($70 base)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Enroute Miles (to you)</label>
+                    <input type="number" id="enrouteMiles" placeholder="e.g. 10" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Tow Miles (loaded)</label>
+                    <input type="number" id="towMiles" placeholder="e.g. 15" min="0">
+                </div>
+                <button class="calc-btn" onclick="calculateTow()">Calculate Estimate</button>
+                <div id="calcResult" class="calc-result"></div>
+            </div>
+        </div>
+
+        <!-- Request Tow -->
         <div class="form-dropdown">
             <div class="dropdown-header" onclick="toggleDropdown(this)">
                 Request Towing Service <i class="fas fa-chevron-down"></i>
@@ -301,34 +333,6 @@
                 </form>
             </div>
         </div>
-
-        <!-- Estimate Calculator -->
-        <div class="form-dropdown">
-            <div class="dropdown-header" onclick="toggleDropdown(this)">
-                Get Towing Estimate <i class="fas fa-chevron-down"></i>
-            </div>
-            <div class="dropdown-content">
-                <div class="form-group">
-                    <label>Tow Type</label>
-                    <select id="towType">
-                        <option value="light">Light Duty ($50 base)</option>
-                        <option value="medium">Medium Duty ($70 base)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Enroute Miles (to you)</label>
-                    <input type="number" id="enrouteMiles" placeholder="e.g. 10" min="0">
-                </div>
-                <div class="form-group">
-                    <label>Tow Miles (loaded)</label>
-                    <input type="number" id="towMiles" placeholder="e.g. 15" min="0">
-                </div>
-                <button class="calc-btn" onclick="calculateTow()">Calculate Estimate</button>
-                <div id="calcResult" class="calc-result"></div>
-            </div>
-        </div>
-
-       
 
         <!-- Issue Receipt (Driver) -->
         <div class="form-dropdown">
@@ -366,12 +370,40 @@
     <div class="container">
         <h2 class="section-title">Our Services in Action</h2>
         <div class="services-gallery">
-            <div class="service-img"><img src="https://img.icons8.com/color/96/000000/tow-truck.png" alt="Towing"></div>
-            <div class="service-img"><img src="https://img.icons8.com/color/96/000000/flat-tire.png" alt="Tire Change"></div>
-            <div class="service-img"><img src="https://img.icons8.com/color/96/000000/car-battery.png" alt="Jumpstart"></div>
-            <div class="service-img"><img src="https://img.icons8.com/color/96/000000/lock.png" alt="Lockout"></div>
-            <div class="service-img"><img src="https://img.icons8.com/color/96/000000/gas-station.png" alt="Fuel Delivery"></div>
-            <div class="service-img"><img src="https://img.icons8.com/color/96/000000/winch.png" alt="Extraction"></div>
+            <div class="service-img">
+                <img src="https://img.icons8.com/color/96/000000/tow-truck.png" alt="Towing">
+                <p><strong>Light & Medium Duty Towing</strong><br>Flatbed & Wheel Lift</p>
+            </div>
+            <div class="service-img">
+                <img src="https://img.icons8.com/color/96/000000/car-battery.png" alt="Jumpstart">
+                <p><strong>Jumpstart</strong><br>Dead battery? We’re on it!</p>
+            </div>
+            <div class="service-img">
+                <img src="https://img.icons8.com/color/96/000000/lock.png" alt="Lockout">
+                <p><strong>Lockout Service</strong><br>Locked out? No damage!</p>
+            </div>
+            <div class="service-img">
+                <img src="https://img.icons8.com/color/96/000000/flat-tire.png" alt="Tire Change">
+                <p><strong>Tire Change</strong><br>Spare installed fast</p>
+            </div>
+            <div class="service-img">
+                <img src="https://img.icons8.com/color/96/000000/gas-station.png" alt="Fuel Delivery">
+                <p><strong>Fuel Delivery</strong><br>Out of gas? We bring it</p>
+            </div>
+            <div class="service-img">
+                <!-- EMBEDDED SVG: Extraction / Winch Out -->
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="45" fill="#0b3d91" stroke="#ffcc00" stroke-width="3"/>
+                    <path d="M30 40 L50 60 L70 40" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round"/>
+                    <path d="M50 60 L50 75" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+                    <rect x="35" y="75" width="30" height="10" rx="2" fill="#ffcc00"/>
+                    <circle cx="40" cy="80" r="5" fill="#333"/>
+                    <circle cx="60" cy="80" r="5" fill="#333"/>
+                    <path d="M25 35 Q20 30 25 25" stroke="#ffcc00" stroke-width="4" fill="none"/>
+                    <path d="M75 35 Q80 30 75 25" stroke="#ffcc00" stroke-width="4" fill="none"/>
+                </svg>
+                <p><strong>Extraction / Winch Out</strong><br>Stuck in mud or ditch? We pull you out!</p>
+            </div>
         </div>
     </div>
 </section>
@@ -463,7 +495,7 @@
         let base = 0;
         if (service.includes("Light")) base = 50;
         else if (service.includes("Medium")) base = 70;
-        else base = 60; // All roadside services are $60
+        else base = 60; // All roadside
 
         const total = base + (enroute * 2) + (tow * 5);
         document.getElementById("r_amount").value = total.toFixed(2);
