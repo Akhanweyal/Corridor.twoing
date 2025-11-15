@@ -270,34 +270,7 @@
 <section id="forms" class="request">
     <div class="container">
         <h2 class="section-title">Service Tools</h2>
-
-        <!-- Estimate Calculator -->
-        <div class="form-dropdown">
-            <div class="dropdown-header" onclick="toggleDropdown(this)">
-                Get Towing Estimate <i class="fas fa-chevron-down"></i>
-            </div>
-            <div class="dropdown-content">
-                <div class="form-group">
-                    <label>Tow Type</label>
-                    <select id="towType">
-                        <option value="light">Light Duty ($50 base)</option>
-                        <option value="medium">Medium Duty ($70 base)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Enroute Miles (to you)</label>
-                    <input type="number" id="enrouteMiles" placeholder="e.g. 10" min="0">
-                </div>
-                <div class="form-group">
-                    <label>Tow Miles (loaded)</label>
-                    <input type="number" id="towMiles" placeholder="e.g. 15" min="0">
-                </div>
-                <button class="calc-btn" onclick="calculateTow()">Calculate Estimate</button>
-                <div id="calcResult" class="calc-result"></div>
-            </div>
-        </div>
-
-        <!-- Request Tow -->
+         <!-- Request Tow -->
         <div class="form-dropdown">
             <div class="dropdown-header" onclick="toggleDropdown(this)">
                 Request Towing Service <i class="fas fa-chevron-down"></i>
@@ -328,6 +301,34 @@
                 </form>
             </div>
         </div>
+
+        <!-- Estimate Calculator -->
+        <div class="form-dropdown">
+            <div class="dropdown-header" onclick="toggleDropdown(this)">
+                Get Towing Estimate <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="dropdown-content">
+                <div class="form-group">
+                    <label>Tow Type</label>
+                    <select id="towType">
+                        <option value="light">Light Duty ($50 base)</option>
+                        <option value="medium">Medium Duty ($70 base)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Enroute Miles (to you)</label>
+                    <input type="number" id="enrouteMiles" placeholder="e.g. 10" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Tow Miles (loaded)</label>
+                    <input type="number" id="towMiles" placeholder="e.g. 15" min="0">
+                </div>
+                <button class="calc-btn" onclick="calculateTow()">Calculate Estimate</button>
+                <div id="calcResult" class="calc-result"></div>
+            </div>
+        </div>
+
+       
 
         <!-- Issue Receipt (Driver) -->
         <div class="form-dropdown">
