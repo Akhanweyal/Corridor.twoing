@@ -160,15 +160,28 @@
             .logo img { height: 50px; }
             .company-name { font-size: 0.95rem; }
             .menu-toggle { display: block; }
-            nav ul { display: none; flex-direction: column; width: 100%; background: #0b3d91; padding: 1rem 0; position: absolute; top: 100%; left: 0; z-index: 999; }
+            nav ul { 
+                display: none; 
+                flex-direction: column; 
+                width: 100%; 
+                background: #0b3d91; 
+                padding: 1rem 0; 
+                position: absolute; 
+                top: 100%; 
+                left: 0; 
+                z-index: 999;
+                max-height: 70vh;
+                overflow-y: auto;
+            }
             nav ul.show { display: flex; }
             nav li { width: 100%; text-align: center; }
-            nav a { display: block; padding: 1.2rem 0; font-size: 1.1rem; }
+            nav a { display: block; padding: 1.2rem 0; font-size: 1.2rem; }
             .hero { padding: 4rem 1rem; }
             .hero h1 { font-size: 2rem; }
             .pricing-table { grid-template-columns: 1fr; }
         }
         #payMethodGroup { display: none; }
+        .estimate-bar { margin: 1rem 0; padding: 0.8rem; background: #e6f3ff; border-radius: 8px; font-size: 0.95rem; color: #0b3d91; display: none; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -206,7 +219,6 @@
     </div>
 </section>
 
-<!-- PRICING -->
 <section id="pricing" class="services">
     <div class="container">
         <h2 class="section-title">Our Services & Pricing</h2>
@@ -248,12 +260,10 @@
     </div>
 </section>
 
-<!-- SERVICE TOOLS -->
 <section id="forms" class="request">
     <div class="container">
         <h2 class="section-title">Service Tools</h2>
 
-        <!-- Request Tow -->
         <div id="request-form" class="form-dropdown">
             <div class="dropdown-header" onclick="toggleDropdown(this)">
                 Request Towing Service <i class="fas fa-chevron-down"></i>
@@ -270,13 +280,11 @@
                     </div>
                     <div class="form-group">
                         <label>Tow Destination (optional for roadside)</label>
-                        <input type="text" id="towDestination" placeholder="Enter destination address">
+                        <input type="text" id="towDestination" placeholder="Enter destination address" oninput="autoCalculateMiles()">
                     </div>
-                    <div class="form-group">
-                        <button type="button" class="location-btn" onclick="autoCalculateMiles()">Auto Calculate Miles & Total</button>
-                    </div>
+                    <div id="estimateBar" class="estimate-bar">Enter both addresses to auto-estimate tow miles.</div>
                     <div class="form-group"><label>Service Needed *</label>
-                        <select id="req_service" required>
+                        <select id="req_service" required onchange="calculateTotal()">
                             <option value="">Select</option>
                             <option value="light-tow" data-base="60">Light Duty Tow ($60+)</option>
                             <option value="medium-tow" data-base="70">Medium Duty Tow ($70+)</option>
@@ -289,11 +297,11 @@
                     </div>
                     <div class="form-group">
                         <label>Enroute Miles (first 5 free)</label>
-                        <input type="number" id="req_enroute" step="0.1" min="0" value="5">
+                        <input type="number" id="req_enroute" step="0.1" min="0" value="5" onchange="calculateTotal()">
                     </div>
                     <div class="form-group">
-                        <label>Tow Miles (loaded)</label>
-                        <input type="number" id="req_tow" step="0.1" min="0" value="0">
+                        <label>Tow Miles (loaded, editable)</label>
+                        <input type="number" id="req_tow" step="0.1" min="0" value="0" onchange="calculateTotal()">
                     </div>
                     <div class="form-group">
                         <label>Total Amount ($) *</label>
@@ -389,7 +397,6 @@
     </div>
 </section>
 
-<!-- GALLERY -->
 <section id="gallery" class="services">
     <div class="container">
         <h2 class="section-title">Our Services in Action</h2>
@@ -431,7 +438,6 @@
     </div>
 </section>
 
-<!-- PAYMENT -->
 <section id="payment" class="payment">
     <div class="container">
         <h2 class="section-title">Pay for Your Service</h2>
@@ -445,7 +451,6 @@
     </div>
 </section>
 
-<!-- CONTACT -->
 <section id="contact">
     <div class="container contact-info">
         <h2>Contact Us</h2>
@@ -467,7 +472,7 @@
 <script>
     const BASE_ADDRESS = "4100 Tomlynn St, Richmond, VA 23230";
 
-    // Mobile Menu - restored full items and better mobile display
+    // Mobile Menu
     const menuToggle = document.querySelector('.menu-toggle');
     const navMenu = document.getElementById('nav-menu');
 
@@ -487,9 +492,8 @@
         });
     });
 
-    window.addEventListener('scroll', () => {
-        navMenu.classList.remove('show');
-    });
+    // Prevent close on scroll inside menu
+    navMenu.addEventListener('wheel', (e) => e.stopPropagation());
 
     // Dropdown Toggle
     function toggleDropdown(header) {
@@ -509,7 +513,7 @@
         document.getElementById("payMethodGroup").style.display = preference === "pay-now" ? "block" : "none";
     }
 
-    // Calculate Total - now updates instantly
+    // Calculate Total
     function calculateTotal() {
         const serviceSelect = document.getElementById("req_service");
         const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
@@ -522,64 +526,56 @@
         document.getElementById("req_amount").value = total.toFixed(2);
     }
 
-    // Attach events to update total
+    // Events for total update
     document.getElementById("req_service").addEventListener("change", calculateTotal);
     document.getElementById("req_enroute").addEventListener("input", calculateTotal);
     document.getElementById("req_tow").addEventListener("input", calculateTotal);
 
-    // Auto Calculate Miles
+    // Background auto calculate tow miles
     async function autoCalculateMiles() {
         const location = document.getElementById("vehicleLocation").value.trim();
         const destination = document.getElementById("towDestination").value.trim();
 
-        if (!location) {
-            alert("Please enter vehicle location first.");
+        const bar = document.getElementById("estimateBar");
+        bar.style.display = "block";
+
+        if (!location || !destination) {
+            bar.textContent = "Enter both addresses for auto tow miles estimate.";
             return;
         }
 
-        try {
-            const baseRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(BASE_ADDRESS)}&limit=1`);
-            const baseJson = await baseRes.json();
-            if (baseJson.length === 0) throw new Error();
-            const baseLat = baseJson[0].lat;
-            const baseLon = baseJson[0].lon;
+        bar.textContent = "Estimating tow miles...";
 
+        try {
             const locRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1`);
             const locJson = await locRes.json();
             if (locJson.length === 0) throw new Error();
             const locLat = locJson[0].lat;
             const locLon = locJson[0].lon;
 
-            const enRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${baseLon},${baseLat};${locLon},${locLat}?overview=false`);
-            const enJson = await enRes.json();
-            const enMiles = enJson.routes && enJson.routes[0] ? (enJson.routes[0].distance / 1000 * 0.621371).toFixed(1) : 5;
-            document.getElementById("req_enroute").value = enMiles;
+            const destRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destination)}&limit=1`);
+            const destJson = await destRes.json();
+            if (destJson.length === 0) throw new Error();
+            const destLat = destJson[0].lat;
+            const destLon = destJson[0].lon;
 
-            let towMiles = 0;
-            if (destination) {
-                const destRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destination)}&limit=1`);
-                const destJson = await destRes.json();
-                if (destJson.length > 0) {
-                    const destLat = destJson[0].lat;
-                    const destLon = destJson[0].lon;
-                    const towRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${locLon},${locLat};${destLon},${destLat}?overview=false`);
-                    const towJson = await towRes.json();
-                    towMiles = towJson.routes && towJson.routes[0] ? (towJson.routes[0].distance / 1000 * 0.621371).toFixed(1) : 0;
-                }
-            }
+            const towRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${locLon},${locLat};${destLon},${destLat}?overview=false`);
+            const towJson = await towRes.json();
+            const towMiles = towJson.routes && towJson.routes[0] ? (towJson.routes[0].distance / 1000 * 0.621371).toFixed(1) : 0;
             document.getElementById("req_tow").value = towMiles;
 
+            bar.textContent = `Estimated tow distance: ${towMiles} miles (you can edit if needed)`;
             calculateTotal();
 
         } catch (err) {
-            alert("Auto calculation failed. Using defaults.");
-            document.getElementById("req_enroute").value = 5;
-            document.getElementById("req_tow").value = 0;
-            calculateTotal();
+            bar.textContent = "Auto estimate failed. Enter tow miles manually.";
         }
     }
 
-    // Use Current Location
+    // Trigger on destination change
+    document.getElementById("towDestination").addEventListener("input", autoCalculateMiles);
+
+    // Current Location
     function getCurrentLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(async (position) => {
@@ -589,6 +585,7 @@
                     const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18`);
                     const data = await res.json();
                     document.getElementById("vehicleLocation").value = data.display_name;
+                    autoCalculateMiles();
                 } catch {
                     document.getElementById("vehicleLocation").value = `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
                 }
@@ -596,7 +593,7 @@
         }
     }
 
-    // Submit (unchanged)
+    // Submit
     function handleRequestSubmit(e) {
         e.preventDefault();
         const formData = {
