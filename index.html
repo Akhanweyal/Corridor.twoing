@@ -162,6 +162,8 @@
             .menu-toggle { display: block; }
             nav ul { display: none; flex-direction: column; width: 100%; background: #0b3d91; padding: 1rem 0; position: absolute; top: 100%; left: 0; z-index: 999; }
             nav ul.show { display: flex; }
+            nav li { width: 100%; text-align: center; }
+            nav a { display: block; padding: 1.2rem 0; font-size: 1.1rem; }
             .hero { padding: 4rem 1rem; }
             .hero h1 { font-size: 2rem; }
             .pricing-table { grid-template-columns: 1fr; }
@@ -180,7 +182,7 @@
             </div>
             <div class="company-name">Corridor Towing & Transportation</div>
         </div>
-        <div class="menu-toggle" onclick="toggleMenu()">Menu</div>
+        <div class="menu-toggle" onclick="toggleMenu()">☰ Menu</div>
         <nav>
             <ul id="nav-menu">
                 <li><a href="#home" class="active">Home</a></li>
@@ -246,12 +248,12 @@
     </div>
 </section>
 
-<!-- ALL FORMS IN ONE DROPDOWN -->
+<!-- SERVICE TOOLS -->
 <section id="forms" class="request">
     <div class="container">
         <h2 class="section-title">Service Tools</h2>
 
-        <!-- Request Tow (Updated with Auto Calc and Payment Selection) -->
+        <!-- Request Tow -->
         <div id="request-form" class="form-dropdown">
             <div class="dropdown-header" onclick="toggleDropdown(this)">
                 Request Towing Service <i class="fas fa-chevron-down"></i>
@@ -262,19 +264,19 @@
                     <div class="form-group"><label>Phone *</label><input type="tel" id="req_phone" required></div>
                     <div class="form-group"><label>Email (for receipt) *</label><input type="email" id="req_email" required></div>
                     <div class="form-group">
-                        <label>Current Location *</label>
-                        <input type="text" id="requestLocation" required placeholder="Enter address">
-                        <button type="button" class="location-btn" onclick="getLocationForRequest()">Share Location</button>
+                        <label>Vehicle Location *</label>
+                        <input type="text" id="vehicleLocation" required placeholder="Enter address">
+                        <button type="button" class="location-btn" onclick="getCurrentLocation()">Use My Current Location</button>
                     </div>
                     <div class="form-group">
                         <label>Tow Destination (optional for roadside)</label>
                         <input type="text" id="towDestination" placeholder="Enter destination address">
                     </div>
                     <div class="form-group">
-                        <button type="button" class="location-btn" onclick="calculateMilesAndTotal()">Auto Calculate Miles & Total</button>
+                        <button type="button" class="location-btn" onclick="autoCalculateMiles()">Auto Calculate Miles & Total</button>
                     </div>
                     <div class="form-group"><label>Service Needed *</label>
-                        <select id="req_service" required onchange="calculateMilesAndTotal()">
+                        <select id="req_service" required>
                             <option value="">Select</option>
                             <option value="light-tow" data-base="60">Light Duty Tow ($60+)</option>
                             <option value="medium-tow" data-base="70">Medium Duty Tow ($70+)</option>
@@ -286,12 +288,12 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Enroute Miles (auto or manual, first 5 free)</label>
-                        <input type="number" id="req_enroute" step="0.1" min="0" value="5" onchange="calculateMilesAndTotal()">
+                        <label>Enroute Miles (first 5 free)</label>
+                        <input type="number" id="req_enroute" step="0.1" min="0" value="5">
                     </div>
                     <div class="form-group">
-                        <label>Tow Miles (loaded, auto or manual)</label>
-                        <input type="number" id="req_tow" step="0.1" min="0" value="0" onchange="calculateMilesAndTotal()">
+                        <label>Tow Miles (loaded)</label>
+                        <input type="number" id="req_tow" step="0.1" min="0" value="0">
                     </div>
                     <div class="form-group">
                         <label>Total Amount ($) *</label>
@@ -304,9 +306,9 @@
                             <option value="pay-now">Pay now (deposit/full)</option>
                         </select>
                     </div>
-                    <div id="payMethodGroup" class="form-group" style="display:none;">
+                    <div id="payMethodGroup" class="form-group">
                         <label>Select Payment Method *</label>
-                        <select id="payMethod" required>
+                        <select id="payMethod">
                             <option value="">Select</option>
                             <option value="venmo">Venmo (@corridortowing)</option>
                             <option value="cashapp">Cash App ($corridortowing)</option>
@@ -315,20 +317,121 @@
                         </select>
                     </div>
                     <div class="payment-note">
-                        Payment Options: Cash, card, Venmo, Cash App, PayPal. First 5 enroute miles free; additional $2/mi. Tow miles $5/mi.
+                        <strong>Payment Info:</strong> First 5 enroute miles are free. Additional enroute $2/mile. Tow miles $5/mile. Pay on arrival or securely now.
                     </div>
                     <button type="submit" class="submit-btn">Send Request</button>
                 </form>
-                <div id="confirmation" style="display:none; margin-top:1rem; padding:1rem; background:#d4edda; border-radius:8px; text-align:center;">Request and payment confirmed! We'll call you soon.</div>
+                <div id="confirmation" style="display:none; margin-top:1rem; padding:1rem; background:#d4edda; border-radius:8px; text-align:center; font-weight:bold;">Request sent successfully! We'll call you shortly. Thank you!</div>
             </div>
         </div>
 
-        <!-- (Estimate and Receipt forms unchanged) -->
+        <!-- Estimate Calculator -->
+        <div class="form-dropdown">
+            <div class="dropdown-header" onclick="toggleDropdown(this)">
+                Get Towing Estimate <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="dropdown-content">
+                <div class="form-group">
+                    <label>Service Type</label>
+                    <select id="towType">
+                        <option value="light-tow">Light Duty Tow ($60 base)</option>
+                        <option value="medium">Medium Duty Tow ($70 base)</option>
+                        <option value="light-service">General Light Service / Roadside ($50 flat)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Customer Location *</label>
+                    <input type="text" id="location" placeholder="Enter address or use button">
+                    <button type="button" class="location-btn" onclick="getLocation()">Share Location</button>
+                    <button type="button" class="location-btn" onclick="calculateEnrouteFromBase()" style="margin-left:8px;">Auto Enroute from Base</button>
+                </div>
+                <div class="form-group" id="enrouteGroup">
+                    <label>Enroute Miles (from base)</label>
+                    <input type="number" id="enrouteMiles" placeholder="Auto-filled or enter manually" step="0.1">
+                </div>
+                <div class="form-group" id="towGroup">
+                    <label>Tow Miles (loaded)</label>
+                    <input type="number" id="towMiles" placeholder="e.g. 15" min="0">
+                </div>
+                <button class="calc-btn" onclick="calculateTow()">Calculate Estimate</button>
+                <div id="calcResult" class="calc-result"></div>
+            </div>
+        </div>
 
+        <!-- Issue Receipt -->
+        <div class="form-dropdown">
+            <div class="dropdown-header" onclick="toggleDropdown(this)">
+                Issue Receipt (Driver Use) <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="dropdown-content">
+                <form onsubmit="generateReceipt(event)">
+                    <div class="form-group"><label>Customer Name *</label><input type="text" id="r_name" required></div>
+                    <div class="form-group"><label>Customer Email *</label><input type="email" id="r_email" required></div>
+                    <div class="form-group"><label>Service Provided *</label>
+                        <select id="r_service" required onchange="calcTotal()">
+                            <option value="Light Duty Tow">Light Duty Tow ($60)</option>
+                            <option value="Medium Duty Tow">Medium Duty Tow ($70)</option>
+                            <option value="Jumpstart">Jumpstart ($50)</option>
+                            <option value="Lockout">Lockout ($50)</option>
+                            <option value="Tire Change">Tire Change ($50)</option>
+                            <option value="Fuel Delivery">Fuel Delivery ($50 + fuel)</option>
+                            <option value="Extraction">Extraction / Winch Out ($60)</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Enroute Miles</label><input type="number" id="r_enroute" min="0" value="0" onchange="calcTotal()"></div>
+                    <div class="form-group"><label>Tow Miles (loaded)</label><input type="number" id="r_tow" min="0" value="0" onchange="calcTotal()"></div>
+                    <div class="form-group"><label>Total Amount ($)*</label><input type="number" id="r_amount" step="0.01" required readonly style="background:#f0f0f0;"></div>
+                    <button type="submit" class="send-receipt">Generate & Send Receipt</button>
+                    <div id="receiptPreview" class="receipt-preview"></div>
+                </form>
+            </div>
+        </div>
     </div>
 </section>
 
-<!-- Payment Section with PayPal -->
+<!-- GALLERY -->
+<section id="gallery" class="services">
+    <div class="container">
+        <h2 class="section-title">Our Services in Action</h2>
+        <div class="services-gallery">
+            <div class="service-img">
+                <img src="https://img.icons8.com/color/96/000000/tow-truck.png" alt="Towing">
+                <p><strong>Light & Medium Duty Towing</strong><br>Flatbed & Wheel Lift</p>
+            </div>
+            <div class="service-img">
+                <img src="https://img.icons8.com/color/96/000000/car-battery.png" alt="Jumpstart">
+                <p><strong>Jumpstart</strong><br>Dead battery? We’re on it!</p>
+            </div>
+            <div class="service-img">
+                <img src="https://img.icons8.com/color/96/000000/lock.png" alt="Lockout">
+                <p><strong>Lockout Service</strong><br>Locked out? No damage!</p>
+            </div>
+            <div class="service-img">
+                <img src="https://img.icons8.com/color/96/000000/flat-tire.png" alt="Tire Change">
+                <p><strong>Tire Change</strong><br>Spare installed fast</p>
+            </div>
+            <div class="service-img">
+                <img src="https://img.icons8.com/color/96/000000/gas-station.png" alt="Fuel Delivery">
+                <p><strong>Fuel Delivery</strong><br>Out of gas? We bring it</p>
+            </div>
+            <div class="service-img">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="45" fill="#0b3d91" stroke="#ffcc00" stroke-width="3"/>
+                    <path d="M30 40 L50 60 L70 40" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round"/>
+                    <path d="M50 60 L50 75" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+                    <rect x="35" y="75" width="30" height="10" rx="2" fill="#ffcc00"/>
+                    <circle cx="40" cy="80" r="5" fill="#333"/>
+                    <circle cx="60" cy="80" r="5" fill="#333"/>
+                    <path d="M25 35 Q20 30 25 25" stroke="#ffcc00" stroke-width="4" fill="none"/>
+                    <path d="M75 35 Q80 30 75 25" stroke="#ffcc00" stroke-width="4" fill="none"/>
+                </svg>
+                <p><strong>Extraction / Winch Out</strong><br>Stuck in mud or ditch? We pull you out!</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PAYMENT -->
 <section id="payment" class="payment">
     <div class="container">
         <h2 class="section-title">Pay for Your Service</h2>
@@ -342,123 +445,217 @@
     </div>
 </section>
 
-<!-- (Gallery, Contact, Footer unchanged) -->
+<!-- CONTACT -->
+<section id="contact">
+    <div class="container contact-info">
+        <h2>Contact Us</h2>
+        <p><strong>Phone:</strong> <a href="tel:8042928414">(804) 292-8414</a> (24/7 Emergency)</p>
+        <p><strong>Email:</strong> <a href="mailto:corridor.towing@gmail.com">corridor.towing@gmail.com</a></p>
+        <p><strong>Address:</strong> 4100 Tomlynn St, Richmond, VA 23230</p>
+        <p><strong>Service Area:</strong> Richmond, Henrico, Chesterfield, Glen Allen, Short Pump, Mechanicsville & surrounding areas</p>
+        <p>We respond fast — call or use the <a href="#request-form">Request Service</a> form above!</p>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <p>© 2025 Corridor Towing and Transportation Services. All rights reserved.</p>
+        <p>Licensed & Insured | 24/7 Emergency Service | Richmond, VA</p>
+    </div>
+</footer>
 
 <script>
-    // (All previous script)
+    const BASE_ADDRESS = "4100 Tomlynn St, Richmond, VA 23230";
 
-    // Toggle Pay Method Selection
+    // Mobile Menu - restored full items and better mobile display
+    const menuToggle = document.querySelector('.menu-toggle');
+    const navMenu = document.getElementById('nav-menu');
+
+    function toggleMenu() {
+        navMenu.classList.toggle('show');
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!menuToggle.contains(e.target) && !navMenu.contains(e.target)) {
+            navMenu.classList.remove('show');
+        }
+    });
+
+    navMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            navMenu.classList.remove('show');
+        });
+    });
+
+    window.addEventListener('scroll', () => {
+        navMenu.classList.remove('show');
+    });
+
+    // Dropdown Toggle
+    function toggleDropdown(header) {
+        const content = header.nextElementSibling;
+        const isActive = content.classList.contains('active');
+        document.querySelectorAll('.dropdown-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.dropdown-header').forEach(h => h.classList.remove('active'));
+        if (!isActive) {
+            content.classList.add('active');
+            header.classList.add('active');
+        }
+    }
+
+    // Toggle Pay Method
     function togglePayMethod() {
         const preference = document.getElementById("paymentPreference").value;
         document.getElementById("payMethodGroup").style.display = preference === "pay-now" ? "block" : "none";
     }
 
+    // Calculate Total - now updates instantly
+    function calculateTotal() {
+        const serviceSelect = document.getElementById("req_service");
+        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+        const base = selectedOption && selectedOption.dataset ? parseFloat(selectedOption.dataset.base) || 0 : 0;
+        const enroute = parseFloat(document.getElementById("req_enroute").value) || 5;
+        const tow = parseFloat(document.getElementById("req_tow").value) || 0;
+        const enCharge = Math.max(0, enroute - 5) * 2;
+        const towCharge = tow * 5;
+        const total = base + enCharge + towCharge;
+        document.getElementById("req_amount").value = total.toFixed(2);
+    }
+
+    // Attach events to update total
+    document.getElementById("req_service").addEventListener("change", calculateTotal);
+    document.getElementById("req_enroute").addEventListener("input", calculateTotal);
+    document.getElementById("req_tow").addEventListener("input", calculateTotal);
+
     // Auto Calculate Miles
-    async function calculateMilesAndTotal() {
-        const location = document.getElementById("requestLocation").value.trim();
+    async function autoCalculateMiles() {
+        const location = document.getElementById("vehicleLocation").value.trim();
         const destination = document.getElementById("towDestination").value.trim();
 
-        if (!location) return;
+        if (!location) {
+            alert("Please enter vehicle location first.");
+            return;
+        }
 
         try {
             const baseRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(BASE_ADDRESS)}&limit=1`);
-            const baseData = await baseRes.json();
-            const baseLat = baseData[0].lat;
-            const baseLon = baseData[0].lon;
+            const baseJson = await baseRes.json();
+            if (baseJson.length === 0) throw new Error();
+            const baseLat = baseJson[0].lat;
+            const baseLon = baseJson[0].lon;
 
             const locRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1`);
-            const locData = await locRes.json();
-            const locLat = locData[0].lat;
-            const locLon = locData[0].lon;
+            const locJson = await locRes.json();
+            if (locJson.length === 0) throw new Error();
+            const locLat = locJson[0].lat;
+            const locLon = locJson[0].lon;
 
             const enRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${baseLon},${baseLat};${locLon},${locLat}?overview=false`);
-            const enData = await enRes.json();
-            let enMiles = (enData.routes[0].distance / 1000 * 0.621371).toFixed(1) || 5;
+            const enJson = await enRes.json();
+            const enMiles = enJson.routes && enJson.routes[0] ? (enJson.routes[0].distance / 1000 * 0.621371).toFixed(1) : 5;
             document.getElementById("req_enroute").value = enMiles;
 
             let towMiles = 0;
             if (destination) {
                 const destRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destination)}&limit=1`);
-                const destData = await destRes.json;
-                const destLat = destData[0].lat;
-                const destLon = destData[0].lon;
-
-                const towRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${locLon},${locLat};${destLon},${destLat}?overview=false`);
-                const towData = await towRes.json();
-                towMiles = (towData.routes[0].distance / 1000 * 0.621371).toFixed(1) || 0;
+                const destJson = await destRes.json();
+                if (destJson.length > 0) {
+                    const destLat = destJson[0].lat;
+                    const destLon = destJson[0].lon;
+                    const towRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${locLon},${locLat};${destLon},${destLat}?overview=false`);
+                    const towJson = await towRes.json();
+                    towMiles = towJson.routes && towJson.routes[0] ? (towJson.routes[0].distance / 1000 * 0.621371).toFixed(1) : 0;
+                }
             }
             document.getElementById("req_tow").value = towMiles;
 
-            // Calculate total
-            const service = document.getElementById("req_service");
-            const base = parseFloat(service.options[service.selectedIndex]?.dataset.base) || 0;
-            const enCharge = Math.max(enMiles - 5, 0) * 2;
-            const towCharge = towMiles * 5;
-            const total = base + enCharge + towCharge;
-            document.getElementById("req_amount").value = total.toFixed(2);
+            calculateTotal();
 
-        } catch {
-            alert("Auto calc failed. Using defaults.");
+        } catch (err) {
+            alert("Auto calculation failed. Using defaults.");
             document.getElementById("req_enroute").value = 5;
             document.getElementById("req_tow").value = 0;
-            const service = document.getElementById("req_service");
-            const base = parseFloat(service.options[service.selectedIndex]?.dataset.base) || 0;
-            document.getElementById("req_amount").value = base.toFixed(2);
+            calculateTotal();
         }
     }
 
-    // Handle Submit
+    // Use Current Location
+    function getCurrentLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18`);
+                    const data = await res.json();
+                    document.getElementById("vehicleLocation").value = data.display_name;
+                } catch {
+                    document.getElementById("vehicleLocation").value = `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
+                }
+            }, () => alert("Location denied."));
+        }
+    }
+
+    // Submit (unchanged)
     function handleRequestSubmit(e) {
         e.preventDefault();
         const formData = {
             name: document.getElementById("req_name").value,
             phone: document.getElementById("req_phone").value,
             email: document.getElementById("req_email").value,
-            location: document.getElementById("requestLocation").value,
+            location: document.getElementById("vehicleLocation").value,
             destination: document.getElementById("towDestination").value || 'N/A',
             service: document.getElementById("req_service").value,
             enroute: document.getElementById("req_enroute").value,
             tow: document.getElementById("req_tow").value,
             amount: document.getElementById("req_amount").value,
             payment: document.getElementById("paymentPreference").value,
-            payMethod: document.getElementById("payMethod").value
+            payMethod: document.getElementById("payMethod") ? document.getElementById("payMethod").value : 'N/A'
         };
 
         fetch("https://formspree.io/f/xdkyonjb", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                subject: "New Service Request - " + formData.name,
-                message: `Name: ${formData.name}\nPhone: ${formData.phone}\nEmail: ${formData.email}\nLocation: ${formData.location}\nDestination: ${formData.destination}\nService: ${formData.service}\nEnroute Miles: ${formData.enroute} (first 5 free)\nTow Miles: ${formData.tow}\nTotal: $${formData.amount}\nPayment: ${formData.payment}\nMethod: ${formData.payMethod || 'N/A'}`
+                subject: "New Tow Request - " + formData.name,
+                message: `Name: ${formData.name}\nPhone: ${formData.phone}\nEmail: ${formData.email}\nVehicle Location: ${formData.location}\nDestination: ${formData.destination}\nService: ${formData.service}\nEnroute Miles: ${formData.enroute} (first 5 free)\nTow Miles: ${formData.tow}\nTotal: $${formData.amount}\nPayment: ${formData.payment} (${formData.payMethod})`
             })
         }).then(() => {
             document.getElementById("confirmation").style.display = "block";
-            document.getElementById("confirmation").innerText = "Request sent! We'll call soon. Payment: " + (formData.payment === 'pay-now' ? 'Processed via ' + formData.payMethod : 'On arrival');
             if (formData.payment === 'pay-now') {
-                let paymentUrl = '';
+                let url = '';
                 switch (formData.payMethod) {
-                    case 'venmo': paymentUrl = `https://venmo.com/corridortowing?txn=pay&amount=${formData.amount}`; break;
-                    case 'cashapp': paymentUrl = `https://cash.app/$corridortowing/${formData.amount}`; break;
+                    case 'venmo': url = `https://venmo.com/corridortowing?txn=pay&amount=${formData.amount}`; break;
+                    case 'cashapp': url = `https://cash.app/$corridortowing/${formData.amount}`; break;
                     case 'paypal': 
-                        const paypalForm = document.createElement('form');
-                        paypalForm.method = 'post';
-                        paypalForm.action = 'https://www.paypal.com/cgi-bin/webscr';
-                        paypalForm.innerHTML = `
+                        const ppForm = document.createElement('form');
+                        ppForm.method = 'post';
+                        ppForm.action = 'https://www.paypal.com/cgi-bin/webscr';
+                        ppForm.target = '_blank';
+                        ppForm.innerHTML = `
                             <input type="hidden" name="cmd" value="_xclick">
                             <input type="hidden" name="business" value="drajmalweyal@gmail.com">
                             <input type="hidden" name="item_name" value="Towing Service - ${formData.service}">
                             <input type="hidden" name="amount" value="${formData.amount}">
                             <input type="hidden" name="currency_code" value="USD">
                         `;
-                        document.body.appendChild(paypalForm);
-                        paypalForm.submit();
-                        return;
-                    case 'card': paymentUrl = 'https://square.link/u/YOUR_SQUARE_LINK_HERE?amount=' + formData.amount * 100; break;
+                        document.body.appendChild(ppForm);
+                        ppForm.submit();
+                        break;
+                    case 'card': url = 'https://square.link/u/YOUR_SQUARE_LINK_HERE'; break;
                 }
-                window.open(paymentUrl, '_blank');
+                if (url) window.open(url, '_blank');
             }
         }).catch(() => alert("Error. Call us."));
     }
+
+    // Init
+    window.onload = () => {
+        calculateTotal();
+        const header = document.querySelector('#request-form .dropdown-header');
+        header.classList.add('active');
+        header.nextElementSibling.classList.add('active');
+    };
 </script>
 
 </body>
