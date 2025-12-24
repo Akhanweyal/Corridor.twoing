@@ -166,16 +166,16 @@
                 width: 100%; 
                 background: #0b3d91; 
                 padding: 1rem 0; 
-                position: absolute; 
-                top: 100%; 
+                position: fixed; 
+                top: 80px; 
                 left: 0; 
                 z-index: 999;
-                max-height: 70vh;
+                max-height: calc(100vh - 80px);
                 overflow-y: auto;
             }
             nav ul.show { display: flex; }
             nav li { width: 100%; text-align: center; }
-            nav a { display: block; padding: 1.2rem 0; font-size: 1.2rem; }
+            nav a { display: block; padding: 1.5rem 0; font-size: 1.2rem; }
             .hero { padding: 4rem 1rem; }
             .hero h1 { font-size: 2rem; }
             .pricing-table { grid-template-columns: 1fr; }
@@ -201,7 +201,6 @@
                 <li><a href="#home" class="active">Home</a></li>
                 <li><a href="#request-form">Request Service</a></li>
                 <li><a href="#pricing">Pricing</a></li>
-                <li><a href="#forms">Estimate</a></li>
                 <li><a href="#gallery">Gallery</a></li>
                 <li><a href="#payment">Pay Now</a></li>
                 <li><a href="#contact">Contact</a></li>
@@ -262,12 +261,9 @@
 
 <section id="forms" class="request">
     <div class="container">
-        <h2 class="section-title">Service Tools</h2>
+        <h2 class="section-title">Request Towing Service</h2>
 
         <div id="request-form" class="form-dropdown">
-            <div class="dropdown-header" onclick="toggleDropdown(this)">
-                Request Towing Service <i class="fas fa-chevron-down"></i>
-            </div>
             <div class="dropdown-content active">
                 <form id="requestForm" onsubmit="handleRequestSubmit(event)">
                     <div class="form-group"><label>Full Name *</label><input type="text" id="req_name" required></div>
@@ -280,7 +276,7 @@
                     </div>
                     <div class="form-group">
                         <label>Tow Destination (optional for roadside)</label>
-                        <input type="text" id="towDestination" placeholder="Enter destination address" oninput="autoCalculateMiles()">
+                        <input type="text" id="towDestination" placeholder="Enter destination address" onblur="autoCalculateMiles()">
                     </div>
                     <div id="estimateBar" class="estimate-bar">Enter both addresses to auto-estimate tow miles.</div>
                     <div class="form-group"><label>Service Needed *</label>
@@ -330,68 +326,6 @@
                     <button type="submit" class="submit-btn">Send Request</button>
                 </form>
                 <div id="confirmation" style="display:none; margin-top:1rem; padding:1rem; background:#d4edda; border-radius:8px; text-align:center; font-weight:bold;">Request sent successfully! We'll call you shortly. Thank you!</div>
-            </div>
-        </div>
-
-        <!-- Estimate Calculator -->
-        <div class="form-dropdown">
-            <div class="dropdown-header" onclick="toggleDropdown(this)">
-                Get Towing Estimate <i class="fas fa-chevron-down"></i>
-            </div>
-            <div class="dropdown-content">
-                <div class="form-group">
-                    <label>Service Type</label>
-                    <select id="towType">
-                        <option value="light-tow">Light Duty Tow ($60 base)</option>
-                        <option value="medium">Medium Duty Tow ($70 base)</option>
-                        <option value="light-service">General Light Service / Roadside ($50 flat)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Customer Location *</label>
-                    <input type="text" id="location" placeholder="Enter address or use button">
-                    <button type="button" class="location-btn" onclick="getLocation()">Share Location</button>
-                    <button type="button" class="location-btn" onclick="calculateEnrouteFromBase()" style="margin-left:8px;">Auto Enroute from Base</button>
-                </div>
-                <div class="form-group" id="enrouteGroup">
-                    <label>Enroute Miles (from base)</label>
-                    <input type="number" id="enrouteMiles" placeholder="Auto-filled or enter manually" step="0.1">
-                </div>
-                <div class="form-group" id="towGroup">
-                    <label>Tow Miles (loaded)</label>
-                    <input type="number" id="towMiles" placeholder="e.g. 15" min="0">
-                </div>
-                <button class="calc-btn" onclick="calculateTow()">Calculate Estimate</button>
-                <div id="calcResult" class="calc-result"></div>
-            </div>
-        </div>
-
-        <!-- Issue Receipt -->
-        <div class="form-dropdown">
-            <div class="dropdown-header" onclick="toggleDropdown(this)">
-                Issue Receipt (Driver Use) <i class="fas fa-chevron-down"></i>
-            </div>
-            <div class="dropdown-content">
-                <form onsubmit="generateReceipt(event)">
-                    <div class="form-group"><label>Customer Name *</label><input type="text" id="r_name" required></div>
-                    <div class="form-group"><label>Customer Email *</label><input type="email" id="r_email" required></div>
-                    <div class="form-group"><label>Service Provided *</label>
-                        <select id="r_service" required onchange="calcTotal()">
-                            <option value="Light Duty Tow">Light Duty Tow ($60)</option>
-                            <option value="Medium Duty Tow">Medium Duty Tow ($70)</option>
-                            <option value="Jumpstart">Jumpstart ($50)</option>
-                            <option value="Lockout">Lockout ($50)</option>
-                            <option value="Tire Change">Tire Change ($50)</option>
-                            <option value="Fuel Delivery">Fuel Delivery ($50 + fuel)</option>
-                            <option value="Extraction">Extraction / Winch Out ($60)</option>
-                        </select>
-                    </div>
-                    <div class="form-group"><label>Enroute Miles</label><input type="number" id="r_enroute" min="0" value="0" onchange="calcTotal()"></div>
-                    <div class="form-group"><label>Tow Miles (loaded)</label><input type="number" id="r_tow" min="0" value="0" onchange="calcTotal()"></div>
-                    <div class="form-group"><label>Total Amount ($)*</label><input type="number" id="r_amount" step="0.01" required readonly style="background:#f0f0f0;"></div>
-                    <button type="submit" class="send-receipt">Generate & Send Receipt</button>
-                    <div id="receiptPreview" class="receipt-preview"></div>
-                </form>
             </div>
         </div>
     </div>
@@ -458,7 +392,7 @@
         <p><strong>Email:</strong> <a href="mailto:corridor.towing@gmail.com">corridor.towing@gmail.com</a></p>
         <p><strong>Address:</strong> 4100 Tomlynn St, Richmond, VA 23230</p>
         <p><strong>Service Area:</strong> Richmond, Henrico, Chesterfield, Glen Allen, Short Pump, Mechanicsville & surrounding areas</p>
-        <p>We respond fast — call or use the <a href="#request-form">Request Service</a> form above!</p>
+        <p>We respond fast — call or use the request form above!</p>
     </div>
 </section>
 
@@ -472,7 +406,7 @@
 <script>
     const BASE_ADDRESS = "4100 Tomlynn St, Richmond, VA 23230";
 
-    // Mobile Menu
+    // Mobile Menu - fixed scrolling
     const menuToggle = document.querySelector('.menu-toggle');
     const navMenu = document.getElementById('nav-menu');
 
@@ -492,20 +426,9 @@
         });
     });
 
-    // Prevent close on scroll inside menu
-    navMenu.addEventListener('wheel', (e) => e.stopPropagation());
-
-    // Dropdown Toggle
-    function toggleDropdown(header) {
-        const content = header.nextElementSibling;
-        const isActive = content.classList.contains('active');
-        document.querySelectorAll('.dropdown-content').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.dropdown-header').forEach(h => h.classList.remove('active'));
-        if (!isActive) {
-            content.classList.add('active');
-            header.classList.add('active');
-        }
-    }
+    // Prevent menu close on scroll
+    navMenu.addEventListener('touchmove', (e) => e.stopPropagation(), { passive: true });
+    navMenu.addEventListener('wheel', (e) => e.stopPropagation(), { passive: true });
 
     // Toggle Pay Method
     function togglePayMethod() {
@@ -531,7 +454,7 @@
     document.getElementById("req_enroute").addEventListener("input", calculateTotal);
     document.getElementById("req_tow").addEventListener("input", calculateTotal);
 
-    // Background auto calculate tow miles
+    // Auto calculate tow miles on blur (when user finishes typing destination)
     async function autoCalculateMiles() {
         const location = document.getElementById("vehicleLocation").value.trim();
         const destination = document.getElementById("towDestination").value.trim();
@@ -540,7 +463,7 @@
         bar.style.display = "block";
 
         if (!location || !destination) {
-            bar.textContent = "Enter both addresses for auto tow miles estimate.";
+            bar.textContent = "Enter both addresses to auto-estimate tow miles.";
             return;
         }
 
@@ -564,7 +487,7 @@
             const towMiles = towJson.routes && towJson.routes[0] ? (towJson.routes[0].distance / 1000 * 0.621371).toFixed(1) : 0;
             document.getElementById("req_tow").value = towMiles;
 
-            bar.textContent = `Estimated tow distance: ${towMiles} miles (you can edit if needed)`;
+            bar.textContent = `Estimated tow distance: ${towMiles} miles (editable if needed)`;
             calculateTotal();
 
         } catch (err) {
@@ -572,8 +495,8 @@
         }
     }
 
-    // Trigger on destination change
-    document.getElementById("towDestination").addEventListener("input", autoCalculateMiles);
+    // Trigger on blur (when user leaves destination field)
+    document.getElementById("towDestination").addEventListener("blur", autoCalculateMiles);
 
     // Current Location
     function getCurrentLocation() {
@@ -649,9 +572,6 @@
     // Init
     window.onload = () => {
         calculateTotal();
-        const header = document.querySelector('#request-form .dropdown-header');
-        header.classList.add('active');
-        header.nextElementSibling.classList.add('active');
     };
 </script>
 
