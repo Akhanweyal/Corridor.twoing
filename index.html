@@ -181,6 +181,20 @@
         .payment-btn:hover { background: #0b3d91; color: #fff; }
         .payment-btn i { font-size: 1.6rem; display: block; margin-bottom: .4rem; }
 
+        /* CONTACT SECTION */
+        #contact {
+            background: #0b3d91;
+            color: #fff;
+            text-align: center;
+        }
+        .contact-info {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .contact-info h2 { margin-bottom: 1.5rem; font-size: 2rem; }
+        .contact-info p { margin-bottom: 1rem; font-size: 1.1rem; }
+        .contact-info a { color: #ffcc00; font-weight: bold; }
+
         footer { background:#0b3d91; color:#fff; text-align:center; padding:2rem 0; font-size:0.9rem; }
 
         @media (max-width: 768px) {
@@ -430,6 +444,18 @@
     </div>
 </section>
 
+<!-- CONTACT SECTION -->
+<section id="contact">
+    <div class="container contact-info">
+        <h2>Contact Us</h2>
+        <p><strong>Phone:</strong> <a href="tel:8042928414">(804) 292-8414</a> (24/7 Emergency)</p>
+        <p><strong>Email:</strong> <a href="mailto:corridor.towing@gmail.com">corridor.towing@gmail.com</a></p>
+        <p><strong>Address:</strong> 4100 Tomlynn St, Richmond, VA 23230</p>
+        <p><strong>Service Area:</strong> Richmond, Henrico, Chesterfield, Glen Allen, Short Pump, Mechanicsville & surrounding areas</p>
+        <p>We respond fast — call or use the <a href="#request-form">Request Service</a> form above!</p>
+    </div>
+</section>
+
 <footer>
     <div class="container">
         <p>© 2025 Corridor Towing and Transportation Services. All rights reserved.</p>
@@ -462,8 +488,11 @@
     window.onload = () => {
         calcTotal();
         document.getElementById("towType").dispatchEvent(new Event("change"));
-        document.querySelector('#request-form .dropdown-header').classList.add('active');
-        document.querySelector('#request-form .dropdown-content').classList.add('active');
+        const requestHeader = document.querySelector('#request-form .dropdown-header');
+        if (requestHeader) {
+            requestHeader.classList.add('active');
+            requestHeader.nextElementSibling.classList.add('active');
+        }
     };
 
     // Update Estimate Fields
@@ -506,7 +535,6 @@
         }
 
         try {
-            // Step 1: Geocode customer location
             const customerRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationInput)}&limit=1`);
             const customerData = await customerRes.json();
             if (!customerData.length) throw new Error("Customer location not found");
@@ -514,7 +542,6 @@
             const custLat = customerData[0].lat;
             const custLon = customerData[0].lon;
 
-            // Step 2: Geocode base
             const baseRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(BASE_ADDRESS)}&limit=1`);
             const baseData = await baseRes.json();
             if (!baseData.length) throw new Error("Base address not found");
@@ -522,7 +549,6 @@
             const baseLat = baseData[0].lat;
             const baseLon = baseData[0].lon;
 
-            // Step 3: Get driving distance via OSRM
             const routeRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${baseLon},${baseLat};${custLon},${custLat}?overview=false&alternatives=false`);
             const routeData = await routeRes.json();
             if (!routeData.routes || !routeData.routes[0]) throw new Error("No route found");
@@ -530,10 +556,7 @@
             const distanceKm = routeData.routes[0].distance / 1000;
             const distanceMiles = distanceKm * 0.621371;
 
-            // Auto-fill enroute
             document.getElementById("enrouteMiles").value = distanceMiles.toFixed(1);
-
-            // Auto-calculate total
             calculateTow();
 
         } catch (err) {
@@ -558,7 +581,7 @@
         }
     }
 
-    // Share Location for Request Form (separate to avoid conflict)
+    // Share Location for Request Form
     function getLocationForRequest() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(async (pos) => {
