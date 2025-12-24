@@ -278,7 +278,7 @@
                         <label>Tow Destination (optional for roadside)</label>
                         <input type="text" id="towDestination" placeholder="Enter destination address" onblur="autoCalculateMiles()">
                     </div>
-                    <div id="estimateBar" class="estimate-bar">Enter both addresses to auto-estimate tow miles.</div>
+                    <div id="estimateBar" class="estimate-bar">Enter destination and leave field to auto-estimate tow miles.</div>
                     <div class="form-group"><label>Service Needed *</label>
                         <select id="req_service" required onchange="calculateTotal()">
                             <option value="">Select</option>
@@ -323,7 +323,7 @@
                     <div class="payment-note">
                         <strong>Payment Info:</strong> First 5 enroute miles are free. Additional enroute $2/mile. Tow miles $5/mile. Pay on arrival or securely now.
                     </div>
-                    <button type="submit" class="submit-btn">Send Request</button>
+                    <button type="submit" class="submit-btn">Submit Request</button>
                 </form>
                 <div id="confirmation" style="display:none; margin-top:1rem; padding:1rem; background:#d4edda; border-radius:8px; text-align:center; font-weight:bold;">Request sent successfully! We'll call you shortly. Thank you!</div>
             </div>
@@ -406,7 +406,7 @@
 <script>
     const BASE_ADDRESS = "4100 Tomlynn St, Richmond, VA 23230";
 
-    // Mobile Menu - fixed scrolling
+    // Mobile Menu
     const menuToggle = document.querySelector('.menu-toggle');
     const navMenu = document.getElementById('nav-menu');
 
@@ -426,9 +426,11 @@
         });
     });
 
-    // Prevent menu close on scroll
+    // Prevent menu close on scroll inside menu
     navMenu.addEventListener('touchmove', (e) => e.stopPropagation(), { passive: true });
     navMenu.addEventListener('wheel', (e) => e.stopPropagation(), { passive: true });
+
+    // Dropdown Toggle - removed since no dropdowns left
 
     // Toggle Pay Method
     function togglePayMethod() {
@@ -454,29 +456,28 @@
     document.getElementById("req_enroute").addEventListener("input", calculateTotal);
     document.getElementById("req_tow").addEventListener("input", calculateTotal);
 
-    // Auto calculate tow miles on blur (when user finishes typing destination)
+    // Auto calculate tow miles on blur
     async function autoCalculateMiles() {
         const location = document.getElementById("vehicleLocation").value.trim();
         const destination = document.getElementById("towDestination").value.trim();
 
         const bar = document.getElementById("estimateBar");
         bar.style.display = "block";
+        bar.textContent = "Estimating...";
 
         if (!location || !destination) {
-            bar.textContent = "Enter both addresses to auto-estimate tow miles.";
+            bar.textContent = "Enter both addresses for auto estimate.";
             return;
         }
 
-        bar.textContent = "Estimating tow miles...";
-
         try {
-            const locRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1`);
+            const locRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1&countrycodes=us`);
             const locJson = await locRes.json();
             if (locJson.length === 0) throw new Error();
             const locLat = locJson[0].lat;
             const locLon = locJson[0].lon;
 
-            const destRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destination)}&limit=1`);
+            const destRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destination)}&limit=1&countrycodes=us`);
             const destJson = await destRes.json();
             if (destJson.length === 0) throw new Error();
             const destLat = destJson[0].lat;
@@ -495,10 +496,7 @@
         }
     }
 
-    // Trigger on blur (when user leaves destination field)
-    document.getElementById("towDestination").addEventListener("blur", autoCalculateMiles);
-
-    // Current Location
+    // Get Current Location
     function getCurrentLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(async (position) => {
@@ -543,30 +541,11 @@
         }).then(() => {
             document.getElementById("confirmation").style.display = "block";
             if (formData.payment === 'pay-now') {
-                let url = '';
-                switch (formData.payMethod) {
-                    case 'venmo': url = `https://venmo.com/corridortowing?txn=pay&amount=${formData.amount}`; break;
-                    case 'cashapp': url = `https://cash.app/$corridortowing/${formData.amount}`; break;
-                    case 'paypal': 
-                        const ppForm = document.createElement('form');
-                        ppForm.method = 'post';
-                        ppForm.action = 'https://www.paypal.com/cgi-bin/webscr';
-                        ppForm.target = '_blank';
-                        ppForm.innerHTML = `
-                            <input type="hidden" name="cmd" value="_xclick">
-                            <input type="hidden" name="business" value="drajmalweyal@gmail.com">
-                            <input type="hidden" name="item_name" value="Towing Service - ${formData.service}">
-                            <input type="hidden" name="amount" value="${formData.amount}">
-                            <input type="hidden" name="currency_code" value="USD">
-                        `;
-                        document.body.appendChild(ppForm);
-                        ppForm.submit();
-                        break;
-                    case 'card': url = 'https://square.link/u/YOUR_SQUARE_LINK_HERE'; break;
-                }
-                if (url) window.open(url, '_blank');
+                setTimeout(() => {
+                    window.location.href = "#payment";
+                }, 1500);
             }
-        }).catch(() => alert("Error. Call us."));
+        }).catch(() => alert("Error sending request. Please call us."));
     }
 
     // Init
