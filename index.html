@@ -333,14 +333,16 @@
 
                     <div class="form-group">
                         <label>Vehicle Location *</label>
-                        <input type="text" id="vehicleLocation" required placeholder="Enter address">
+                        <input type="text" id="vehicleLocation" required placeholder="Enter full address (street, city, state, ZIP)">
+                        <div class="help-text">Please enter a complete, accurate address for best estimate and fast service.</div>
                         <button type="button" class="location-btn" onclick="getCurrentLocation()">Use My Current Location</button>
                     </div>
                     <div class="form-group">
                         <label>Tow Destination (optional for roadside)</label>
-                        <input type="text" id="towDestination" placeholder="Enter destination address" onblur="autoCalculateMiles()">
+                        <input type="text" id="towDestination" placeholder="Enter full destination address">
+                        <div class="help-text">Full address helps us give accurate estimate.</div>
                     </div>
-                    <div id="estimateBar" class="estimate-bar">Enter both addresses to auto-estimate tow miles.</div>
+                    <div id="estimateBar" class="estimate-bar">Enter both addresses above for auto tow miles estimate.</div>
 
                     <div class="form-group">
                         <label>Enroute Miles (first 5 free)</label>
@@ -381,20 +383,6 @@
                 <div id="confirmation"></div>
             </div>
         </div>
-    </div>
-</section>
-<section id="payment" class="payment">
-    <div class="container">
-        <h2 class="section-title">Pay for Your Service</h2>
-        <p style="text-align:center; margin-bottom:1.5rem;">Total due: <strong id="paymentAmountDisplay">$0.00</strong></p>
-        <div class="payment-options">
-            <a href="https://venmo.com/corridortowing" class="payment-btn" target="_blank"><i class="fab fa-venmo"></i> Venmo</a>
-            <a href="https://cash.app/$corridortowing" class="payment-btn" target="_blank"><i class="fas fa-dollar-sign"></i> Cash App</a>
-            <a href="https://square.link/u/YOUR_SQUARE_LINK_HERE" class="payment-btn" target="_blank"><i class="fas fa-credit-card"></i> Pay with Card</a>
-            <a href="https://paypal.me/CorridorTowing" class="payment-btn" target="_blank"><i class="fab fa-paypal"></i> PayPal</a>
-            <div class="payment-btn"><i class="fas fa-money-bill-wave"></i> Cash on Arrival</div>
-        </div>
-        <p style="text-align:center; margin-top:1.5rem; font-size:0.95rem;">After payment, your service request will be confirmed.</p>
     </div>
 </section>
 
@@ -439,6 +427,20 @@
     </div>
 </section>
 
+<section id="payment" class="payment">
+    <div class="container">
+        <h2 class="section-title">Pay for Your Service</h2>
+        <p style="text-align:center; margin-bottom:1.5rem;">Total due: <strong id="paymentAmountDisplay">$0.00</strong></p>
+        <div class="payment-options">
+            <a href="https://venmo.com/corridortowing" class="payment-btn" target="_blank"><i class="fab fa-venmo"></i> Venmo</a>
+            <a href="https://cash.app/$corridortowing" class="payment-btn" target="_blank"><i class="fas fa-dollar-sign"></i> Cash App</a>
+            <a href="https://square.link/u/YOUR_SQUARE_LINK_HERE" class="payment-btn" target="_blank"><i class="fas fa-credit-card"></i> Pay with Card</a>
+            <a href="https://paypal.me/CorridorTowing" class="payment-btn" target="_blank"><i class="fab fa-paypal"></i> PayPal</a>
+            <div class="payment-btn"><i class="fas fa-money-bill-wave"></i> Cash on Arrival</div>
+        </div>
+        <p style="text-align:center; margin-top:1.5rem; font-size:0.95rem;">After payment, your service request will be confirmed.</p>
+    </div>
+</section>
 
 <section id="contact">
     <div class="container contact-info">
@@ -507,10 +509,10 @@
     document.getElementById("req_enroute").addEventListener("input", calculateTotal);
     document.getElementById("req_tow").addEventListener("input", calculateTotal);
 
-    // Auto calculate tow miles
+    // Auto calculate tow miles on blur (no Google API needed)
     async function autoCalculateMiles() {
-        const location = document.getElementById("vehicleLocation").value.trim();
-        const destination = document.getElementById("towDestination").value.trim();
+        let location = document.getElementById("vehicleLocation").value.trim();
+        let destination = document.getElementById("towDestination").value.trim();
 
         const bar = document.getElementById("estimateBar");
         bar.style.display = "block";
@@ -523,15 +525,19 @@
         bar.textContent = "Estimating tow miles...";
 
         try {
+            // Normalize addresses (trim, handle case/comma variations)
+            location = location.replace(/,\s*$/, '').trim();
+            destination = destination.replace(/,\s*$/, '').trim();
+
             const locRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1&countrycodes=us`);
             const locJson = await locRes.json();
-            if (locJson.length === 0) throw new Error();
+            if (locJson.length === 0) throw new Error("Location not found");
             const locLat = locJson[0].lat;
             const locLon = locJson[0].lon;
 
             const destRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destination)}&limit=1&countrycodes=us`);
             const destJson = await destRes.json();
-            if (destJson.length === 0) throw new Error();
+            if (destJson.length === 0) throw new Error("Destination not found");
             const destLat = destJson[0].lat;
             const destLon = destJson[0].lon;
 
@@ -544,7 +550,7 @@
             calculateTotal();
 
         } catch (err) {
-            bar.textContent = "Auto estimate failed. Enter tow miles manually.";
+            bar.textContent = "Auto estimate failed — please enter tow miles manually or double-check addresses.";
         }
     }
 
@@ -564,11 +570,11 @@
                 } catch {
                     document.getElementById("vehicleLocation").value = `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
                 }
-            }, () => alert("Location denied."));
+            }, () => alert("Location access denied."));
         }
     }
 
-    // Submit Request
+    // Submit Request - friendly email
     function handleRequestSubmit(e) {
         e.preventDefault();
 
@@ -583,7 +589,7 @@
             attended: document.getElementById("req_attended").value,
             location: document.getElementById("vehicleLocation").value,
             destination: document.getElementById("towDestination").value || 'N/A',
-            service: document.getElementById("req_service").value,
+            service: document.getElementById("req_service").options[document.getElementById("req_service").selectedIndex].text,
             enroute: document.getElementById("req_enroute").value,
             tow: document.getElementById("req_tow").value,
             amount: document.getElementById("req_amount").value,
@@ -591,33 +597,52 @@
             payMethod: document.getElementById("payMethod") ? document.getElementById("payMethod").value : 'N/A'
         };
 
+        const message = `New Towing Request!
+
+Customer: ${formData.name}
+Phone: ${formData.phone}
+Email: ${formData.email}
+
+Vehicle: ${formData.vehicle}
+Starts: ${formData.starts} | Neutral/Park: ${formData.neutral} | Attended: ${formData.attended}
+Preferred Tow Method: ${formData.towmethod}
+
+Service Requested: ${formData.service}
+Pickup Location: ${formData.location}
+Destination: ${formData.destination}
+Enroute Miles: ${formData.enroute} (first 5 free)
+Tow Miles: ${formData.tow}
+
+Estimated Total: $${formData.amount}
+
+Payment: ${formData.payment === 'pay-now' ? 'Pay now via ' + formData.payMethod : 'Pay on arrival'}
+
+Please call the customer to confirm and dispatch. Thank you!`;
+
         fetch("https://formspree.io/f/xdkyonjb", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                subject: "New Tow Request - " + formData.name,
-                message: `Name: ${formData.name}\nPhone: ${formData.phone}\nEmail: ${formData.email}\nVehicle: ${formData.vehicle}\nPreferred Tow Method: ${formData.towmethod}\nStarts: ${formData.starts}\nNeutral/Park: ${formData.neutral}\nAttended: ${formData.attended}\nLocation: ${formData.location}\nDestination: ${formData.destination}\nService: ${formData.service}\nEnroute Miles: ${formData.enroute}\nTow Miles: ${formData.tow}\nTotal: $${formData.amount}\nPayment: ${formData.payment} (${formData.payMethod})`
+                subject: `New Tow Request - ${formData.name}`,
+                message: message
             })
         }).then(() => {
             document.getElementById("confirmation").style.display = "block";
-            document.getElementById("confirmation").innerHTML = "<strong>Request received!</strong> We'll call you shortly to confirm.";
+            document.getElementById("confirmation").innerHTML = "<strong>Thank you!</strong> Your request has been sent. We'll call you shortly to confirm.";
 
             if (formData.payment === 'pay-now') {
                 document.getElementById("paymentAmountDisplay").textContent = "$" + formData.amount;
-                document.getElementById("confirmation").innerHTML += "<br><br><strong>Please complete payment below to finalize your request.</strong>";
+                document.getElementById("confirmation").innerHTML += "<br><br><strong>Please complete payment below to finalize.</strong>";
                 setTimeout(() => {
-                    window.location.href = "#payment";
                     window.scrollTo({ top: document.querySelector("#payment").offsetTop - 100, behavior: 'smooth' });
                 }, 1500);
-            } else {
-                document.getElementById("confirmation").innerHTML += "<br><br>Payment will be collected on arrival.";
             }
 
             document.getElementById("submitBtn").disabled = true;
             document.getElementById("submitBtn").textContent = "Request Sent";
 
         }).catch(() => {
-            alert("Error sending request. Please call us at (804) 292-8414.");
+            alert("Error sending request. Please call us directly at (804) 292-8414.");
         });
     }
 
