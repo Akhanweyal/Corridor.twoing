@@ -124,18 +124,14 @@
         label { display: block; margin-bottom: .5rem; font-weight: bold; color: #0b3d91; }
         input, select, textarea { width: 100%; padding: .75rem; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; }
         textarea { resize: vertical; height: 90px; }
-        .submit-btn, .calc-btn, .send-receipt {
+        .submit-btn {
             background: #0b3d91; color: #fff; padding: .8rem 2rem; border: none; border-radius: 50px;
             font-weight: bold; cursor: pointer; transition: background .3s; font-size: 1.1rem; width: 100%; margin-top: .5rem;
         }
-        .submit-btn:hover, .calc-btn:hover, .send-receipt:hover { background: #093070; }
+        .submit-btn:hover { background: #093070; }
         .location-btn { background: #ffcc00; color: #0b3d91; padding: .8rem 1.5rem; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: .5rem; }
 
         .payment-note { margin-top: 1rem; padding: 1rem; background: #fff8e1; border-radius: 8px; font-size: 0.95rem; color: #555; }
-
-        .calc-result { margin-top: 1rem; padding: 1rem; background: #d4edda; border-radius: 8px; font-weight: bold; text-align: center; color: #155724; display: none; }
-
-        .receipt-preview { background: #fff; border: 2px solid #0b3d91; padding: 1.5rem; margin-top: 1.5rem; border-radius: 12px; font-family: 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; white-space: pre-line; color: #000; box-shadow: 0 4px 12px rgba(0,0,0,.1); display: none; }
 
         .services-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
         .service-img { border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,.1); transition: transform .3s; text-align: center; background: #fff8e1; padding: 1rem; }
@@ -182,6 +178,10 @@
         }
         #payMethodGroup { display: none; }
         .estimate-bar { margin: 1rem 0; padding: 0.8rem; background: #e6f3ff; border-radius: 8px; font-size: 0.95rem; color: #0b3d91; display: none; }
+        #confirmation { display:none; margin-top:1rem; padding:1rem; background:#d4edda; border-radius:8px; text-align:center; font-weight:bold; }
+        .vehicle-group { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .vehicle-group .form-group { flex: 1; min-width: 200px; }
+        .help-text { font-size: 0.85rem; color: #555; margin-top: 0.3rem; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -221,6 +221,10 @@
 <section id="pricing" class="services">
     <div class="container">
         <h2 class="section-title">Our Services & Pricing</h2>
+        <p style="text-align:center; margin-bottom:1.5rem; font-size:1rem; color:#555;">
+            <strong>How to choose:</strong> Light Duty for most passenger cars and small SUVs (e.g. Corolla, Civic, Camry). 
+            Medium Duty for larger vehicles like full-size trucks (e.g. F-150), vans, box trucks, or RVs.
+        </p>
         <div class="pricing-table">
             <div class="price-card">
                 <h3>Light Duty Tow</h3>
@@ -229,7 +233,8 @@
                     <li>Pickup: $60</li>
                     <li>Enroute: $2/mile (first 5 free)</li>
                     <li>Tow (loaded): $5/mile</li>
-                    <li>Cars, SUVs, small trucks</li>
+                    <li>Most sedans, SUVs, small trucks</li>
+                    <li>Examples: Corolla, Civic, Camry, most passenger cars</li>
                     <li>Up to 10,000 lbs</li>
                 </ul>
             </div>
@@ -240,7 +245,8 @@
                     <li>Pickup: $70</li>
                     <li>Enroute: $2/mile (first 5 free)</li>
                     <li>Tow (loaded): $5/mile</li>
-                    <li>Vans, box trucks, RVs</li>
+                    <li>Larger vehicles: full-size trucks, vans, box trucks, RVs</li>
+                    <li>Examples: F-150, Transit vans, Sprinter, larger SUVs</li>
                     <li>Up to 26,000 lbs</li>
                 </ul>
             </div>
@@ -269,6 +275,62 @@
                     <div class="form-group"><label>Full Name *</label><input type="text" id="req_name" required></div>
                     <div class="form-group"><label>Phone *</label><input type="tel" id="req_phone" required></div>
                     <div class="form-group"><label>Email (for receipt) *</label><input type="email" id="req_email" required></div>
+
+                    <div class="form-group"><label>Service Needed *</label>
+                        <select id="req_service" required onchange="calculateTotal()">
+                            <option value="">Select service</option>
+                            <option value="light-tow" data-base="60">Light Duty Tow ($60+) - sedans, SUVs, small trucks</option>
+                            <option value="medium-tow" data-base="70">Medium Duty Tow ($70+) - full-size trucks, vans, RVs</option>
+                            <option value="jumpstart" data-base="50">Jumpstart ($50)</option>
+                            <option value="lockout" data-base="50">Lockout ($50)</option>
+                            <option value="tire" data-base="50">Tire Change ($50)</option>
+                            <option value="fuel" data-base="50">Fuel Delivery ($50 + fuel cost)</option>
+                            <option value="extraction" data-base="60">Extraction / Winch Out ($60)</option>
+                        </select>
+                        <div class="help-text">Examples: Corolla/Civic/Camry = Light Duty • F-150/vans = Medium Duty</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Preferred Tow Method (optional)</label>
+                        <select id="req_towmethod">
+                            <option value="any">Any available (recommended)</option>
+                            <option value="flatbed">Flatbed only</option>
+                            <option value="wheellift">Wheel Lift only</option>
+                        </select>
+                        <div class="help-text">Flatbed is safest for most vehicles. We'll choose the best unless specified.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Vehicle Make & Model</label>
+                        <input type="text" id="req_vehicle" placeholder="e.g. Toyota Camry 2018">
+                    </div>
+
+                    <div class="vehicle-group">
+                        <div class="form-group">
+                            <label>Does it start?</label>
+                            <select id="req_starts">
+                                <option value="yes">Yes</option>
+                                <option value="no" selected>No</option>
+                                <option value="unknown">Unknown</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>In neutral / park?</label>
+                            <select id="req_neutral">
+                                <option value="yes">Yes</option>
+                                <option value="no" selected>No</option>
+                                <option value="unknown">Unknown</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Attended?</label>
+                            <select id="req_attended">
+                                <option value="yes" selected>Yes (someone there)</option>
+                                <option value="no">No (unattended)</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label>Vehicle Location *</label>
                         <input type="text" id="vehicleLocation" required placeholder="Enter address">
@@ -279,18 +341,7 @@
                         <input type="text" id="towDestination" placeholder="Enter destination address" onblur="autoCalculateMiles()">
                     </div>
                     <div id="estimateBar" class="estimate-bar">Enter both addresses to auto-estimate tow miles.</div>
-                    <div class="form-group"><label>Service Needed *</label>
-                        <select id="req_service" required onchange="calculateTotal()">
-                            <option value="">Select</option>
-                            <option value="light-tow" data-base="60">Light Duty Tow ($60+)</option>
-                            <option value="medium-tow" data-base="70">Medium Duty Tow ($70+)</option>
-                            <option value="jumpstart" data-base="50">Jumpstart ($50)</option>
-                            <option value="lockout" data-base="50">Lockout ($50)</option>
-                            <option value="tire" data-base="50">Tire Change ($50)</option>
-                            <option value="fuel" data-base="50">Fuel Delivery ($50 + fuel)</option>
-                            <option value="extraction" data-base="60">Extraction / Winch Out ($60)</option>
-                        </select>
-                    </div>
+
                     <div class="form-group">
                         <label>Enroute Miles (first 5 free)</label>
                         <input type="number" id="req_enroute" step="0.1" min="0" value="5" onchange="calculateTotal()">
@@ -303,6 +354,7 @@
                         <label>Total Amount ($) *</label>
                         <input type="number" id="req_amount" step="0.01" required readonly style="background:#f0f0f0;">
                     </div>
+
                     <div class="form-group">
                         <label>Payment Preference *</label>
                         <select id="paymentPreference" required onchange="togglePayMethod()">
@@ -320,14 +372,29 @@
                             <option value="card">Card (Square)</option>
                         </select>
                     </div>
+
                     <div class="payment-note">
-                        <strong>Payment Info:</strong> First 5 enroute miles are free. Additional enroute $2/mile. Tow miles $5/mile. Pay on arrival or securely now.
+                        <strong>Payment Info:</strong> First 5 enroute miles are free. Additional enroute $2/mile. Tow miles $5/mile.
                     </div>
-                    <button type="submit" class="submit-btn">Send Request</button>
+                    <button type="submit" class="submit-btn" id="submitBtn">Send Request</button>
                 </form>
-                <div id="confirmation" style="display:none; margin-top:1rem; padding:1rem; background:#d4edda; border-radius:8px; text-align:center; font-weight:bold;">Request sent successfully! We'll call you shortly. Thank you!</div>
+                <div id="confirmation"></div>
             </div>
         </div>
+    </div>
+</section>
+<section id="payment" class="payment">
+    <div class="container">
+        <h2 class="section-title">Pay for Your Service</h2>
+        <p style="text-align:center; margin-bottom:1.5rem;">Total due: <strong id="paymentAmountDisplay">$0.00</strong></p>
+        <div class="payment-options">
+            <a href="https://venmo.com/corridortowing" class="payment-btn" target="_blank"><i class="fab fa-venmo"></i> Venmo</a>
+            <a href="https://cash.app/$corridortowing" class="payment-btn" target="_blank"><i class="fas fa-dollar-sign"></i> Cash App</a>
+            <a href="https://square.link/u/YOUR_SQUARE_LINK_HERE" class="payment-btn" target="_blank"><i class="fas fa-credit-card"></i> Pay with Card</a>
+            <a href="https://paypal.me/CorridorTowing" class="payment-btn" target="_blank"><i class="fab fa-paypal"></i> PayPal</a>
+            <div class="payment-btn"><i class="fas fa-money-bill-wave"></i> Cash on Arrival</div>
+        </div>
+        <p style="text-align:center; margin-top:1.5rem; font-size:0.95rem;">After payment, your service request will be confirmed.</p>
     </div>
 </section>
 
@@ -372,18 +439,6 @@
     </div>
 </section>
 
-<section id="payment" class="payment">
-    <div class="container">
-        <h2 class="section-title">Pay for Your Service</h2>
-        <div class="payment-options">
-            <a href="https://venmo.com/corridortowing" class="payment-btn" target="_blank"><i class="fab fa-venmo"></i> Venmo</a>
-            <a href="https://cash.app/$corridortowing" class="payment-btn" target="_blank"><i class="fas fa-dollar-sign"></i> Cash App</a>
-            <a href="https://square.link/u/YOUR_SQUARE_LINK_HERE" class="payment-btn" target="_blank"><i class="fas fa-credit-card"></i> Pay with Card</a>
-            <a href="https://paypal.me/CorridorTowing" class="payment-btn" target="_blank"><i class="fab fa-paypal"></i> PayPal</a>
-            <div class="payment-btn"><i class="fas fa-money-bill-wave"></i> Cash on Arrival</div>
-        </div>
-    </div>
-</section>
 
 <section id="contact">
     <div class="container contact-info">
@@ -406,7 +461,7 @@
 <script>
     const BASE_ADDRESS = "4100 Tomlynn St, Richmond, VA 23230";
 
-    // Mobile Menu - fixed scrolling
+    // Mobile Menu
     const menuToggle = document.querySelector('.menu-toggle');
     const navMenu = document.getElementById('nav-menu');
 
@@ -426,7 +481,6 @@
         });
     });
 
-    // Prevent menu close on scroll
     navMenu.addEventListener('touchmove', (e) => e.stopPropagation(), { passive: true });
     navMenu.addEventListener('wheel', (e) => e.stopPropagation(), { passive: true });
 
@@ -449,12 +503,11 @@
         document.getElementById("req_amount").value = total.toFixed(2);
     }
 
-    // Events for total update
     document.getElementById("req_service").addEventListener("change", calculateTotal);
     document.getElementById("req_enroute").addEventListener("input", calculateTotal);
     document.getElementById("req_tow").addEventListener("input", calculateTotal);
 
-    // Auto calculate tow miles on blur (when user finishes typing destination)
+    // Auto calculate tow miles
     async function autoCalculateMiles() {
         const location = document.getElementById("vehicleLocation").value.trim();
         const destination = document.getElementById("towDestination").value.trim();
@@ -470,13 +523,13 @@
         bar.textContent = "Estimating tow miles...";
 
         try {
-            const locRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1`);
+            const locRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1&countrycodes=us`);
             const locJson = await locRes.json();
             if (locJson.length === 0) throw new Error();
             const locLat = locJson[0].lat;
             const locLon = locJson[0].lon;
 
-            const destRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destination)}&limit=1`);
+            const destRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destination)}&limit=1&countrycodes=us`);
             const destJson = await destRes.json();
             if (destJson.length === 0) throw new Error();
             const destLat = destJson[0].lat;
@@ -495,7 +548,6 @@
         }
     }
 
-    // Trigger on blur (when user leaves destination field)
     document.getElementById("towDestination").addEventListener("blur", autoCalculateMiles);
 
     // Current Location
@@ -516,13 +568,19 @@
         }
     }
 
-    // Submit
+    // Submit Request
     function handleRequestSubmit(e) {
         e.preventDefault();
+
         const formData = {
             name: document.getElementById("req_name").value,
             phone: document.getElementById("req_phone").value,
             email: document.getElementById("req_email").value,
+            vehicle: document.getElementById("req_vehicle").value || 'Not provided',
+            towmethod: document.getElementById("req_towmethod").value,
+            starts: document.getElementById("req_starts").value,
+            neutral: document.getElementById("req_neutral").value,
+            attended: document.getElementById("req_attended").value,
             location: document.getElementById("vehicleLocation").value,
             destination: document.getElementById("towDestination").value || 'N/A',
             service: document.getElementById("req_service").value,
@@ -538,35 +596,29 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 subject: "New Tow Request - " + formData.name,
-                message: `Name: ${formData.name}\nPhone: ${formData.phone}\nEmail: ${formData.email}\nVehicle Location: ${formData.location}\nDestination: ${formData.destination}\nService: ${formData.service}\nEnroute Miles: ${formData.enroute} (first 5 free)\nTow Miles: ${formData.tow}\nTotal: $${formData.amount}\nPayment: ${formData.payment} (${formData.payMethod})`
+                message: `Name: ${formData.name}\nPhone: ${formData.phone}\nEmail: ${formData.email}\nVehicle: ${formData.vehicle}\nPreferred Tow Method: ${formData.towmethod}\nStarts: ${formData.starts}\nNeutral/Park: ${formData.neutral}\nAttended: ${formData.attended}\nLocation: ${formData.location}\nDestination: ${formData.destination}\nService: ${formData.service}\nEnroute Miles: ${formData.enroute}\nTow Miles: ${formData.tow}\nTotal: $${formData.amount}\nPayment: ${formData.payment} (${formData.payMethod})`
             })
         }).then(() => {
             document.getElementById("confirmation").style.display = "block";
+            document.getElementById("confirmation").innerHTML = "<strong>Request received!</strong> We'll call you shortly to confirm.";
+
             if (formData.payment === 'pay-now') {
-                let url = '';
-                switch (formData.payMethod) {
-                    case 'venmo': url = `https://venmo.com/corridortowing?txn=pay&amount=${formData.amount}`; break;
-                    case 'cashapp': url = `https://cash.app/$corridortowing/${formData.amount}`; break;
-                    case 'paypal': 
-                        const ppForm = document.createElement('form');
-                        ppForm.method = 'post';
-                        ppForm.action = 'https://www.paypal.com/cgi-bin/webscr';
-                        ppForm.target = '_blank';
-                        ppForm.innerHTML = `
-                            <input type="hidden" name="cmd" value="_xclick">
-                            <input type="hidden" name="business" value="drajmalweyal@gmail.com">
-                            <input type="hidden" name="item_name" value="Towing Service - ${formData.service}">
-                            <input type="hidden" name="amount" value="${formData.amount}">
-                            <input type="hidden" name="currency_code" value="USD">
-                        `;
-                        document.body.appendChild(ppForm);
-                        ppForm.submit();
-                        break;
-                    case 'card': url = 'https://square.link/u/YOUR_SQUARE_LINK_HERE'; break;
-                }
-                if (url) window.open(url, '_blank');
+                document.getElementById("paymentAmountDisplay").textContent = "$" + formData.amount;
+                document.getElementById("confirmation").innerHTML += "<br><br><strong>Please complete payment below to finalize your request.</strong>";
+                setTimeout(() => {
+                    window.location.href = "#payment";
+                    window.scrollTo({ top: document.querySelector("#payment").offsetTop - 100, behavior: 'smooth' });
+                }, 1500);
+            } else {
+                document.getElementById("confirmation").innerHTML += "<br><br>Payment will be collected on arrival.";
             }
-        }).catch(() => alert("Error. Call us."));
+
+            document.getElementById("submitBtn").disabled = true;
+            document.getElementById("submitBtn").textContent = "Request Sent";
+
+        }).catch(() => {
+            alert("Error sending request. Please call us at (804) 292-8414.");
+        });
     }
 
     // Init
