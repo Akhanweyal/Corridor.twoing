@@ -559,22 +559,46 @@
     document.getElementById("towDestination").addEventListener("blur", autoCalculateMiles);
 
     // Current Location
-    function getCurrentLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18`);
-                    const data = await res.json();
-                    document.getElementById("vehicleLocation").value = data.display_name;
-                    autoCalculateMiles();
-                } catch {
-                    document.getElementById("vehicleLocation").value = `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
-                }
-            }, () => alert("Location access denied."));
-        }
+  function getCurrentLocation() {
+    if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
     }
+
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18`);
+                const data = await res.json();
+                document.getElementById("vehicleLocation").value = data.display_name || `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
+                autoCalculateMiles(); // Trigger estimate if destination filled
+            } catch {
+                document.getElementById("vehicleLocation").value = `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
+            }
+        },
+        (error) => {
+            let message = "Unable to get your location: ";
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    message += "Permission denied. Please allow location access in browser settings.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    message += "Location information unavailable.";
+                    break;
+                case error.TIMEOUT:
+                    message += "Request timed out. Try again.";
+                    break;
+                default:
+                    message += "Unknown error.";
+                    break;
+            }
+            alert(message);
+        },
+        { timeout: 10000, enableHighAccuracy: true } // Better options
+    );
+}
 
     // Submit Request - friendly email
     function handleRequestSubmit(e) {
