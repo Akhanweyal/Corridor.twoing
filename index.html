@@ -9,7 +9,6 @@
     <link rel="apple-touch-icon" href="images/logo.jpeg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config={corePlugins:{preflight:false}}</script>
-    <!-- SheetJS for Excel export -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -22,7 +21,11 @@
         .logo-container{display:flex;align-items:center;gap:12px}
         .logo img{height:60px;width:auto;border-radius:8px}
         .company-name{font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:.5px;white-space:nowrap}
+        .header-actions{display:flex;align-items:center;gap:10px}
         .menu-toggle{display:none;font-size:1.8rem;cursor:pointer;color:#fff}
+        .driver-portal-btn{display:flex;align-items:center;gap:6px;background:rgba(255,204,0,.15);border:1.5px solid #ffcc00;color:#ffcc00;padding:8px 16px;border-radius:50px;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .3s;white-space:nowrap;font-family:inherit}
+        .driver-portal-btn:hover{background:#ffcc00;color:#0b3d91}
+        .driver-portal-btn i{font-size:1rem}
         nav ul{display:flex;gap:1.5rem;list-style:none;flex-wrap:wrap}
         nav a{color:#fff;font-weight:600;font-size:1rem;padding:.5rem 0;transition:color .3s;cursor:pointer}
         nav a:hover,nav a.active{color:#ffcc00}
@@ -66,7 +69,32 @@
         .contact-info p{margin-bottom:1rem;font-size:1.1rem}
         .contact-info a{color:#ffcc00;font-weight:bold}
         footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:.9rem}
-        @media(max-width:768px){body{padding-top:90px}.logo img{height:50px}.company-name{font-size:.95rem}.menu-toggle{display:block}nav ul{display:none;flex-direction:column;width:100%;background:#0b3d91;padding:1rem 0;position:fixed;top:80px;left:0;z-index:999;max-height:calc(100vh - 80px);overflow-y:auto}nav ul.show{display:flex}nav li{width:100%;text-align:center}nav a{display:block;padding:1.5rem 0;font-size:1.2rem}.hero{padding:4rem 1rem}.hero h1{font-size:2rem}.pricing-table{grid-template-columns:1fr}}
+
+        /* Mobile responsive */
+        @media(max-width:768px){
+            body{padding-top:90px}
+            .logo img{height:50px}
+            .company-name{font-size:.85rem}
+            .menu-toggle{display:block}
+            .driver-portal-btn{padding:6px 12px;font-size:.75rem}
+            .driver-portal-btn .btn-text{display:none}
+            .driver-portal-btn i{font-size:1.15rem}
+            .header-actions{order:2}
+            .logo-container{flex:1;min-width:0}
+            nav ul{display:none;flex-direction:column;width:100%;background:#0b3d91;padding:1rem 0;position:fixed;top:80px;left:0;z-index:999;max-height:calc(100vh - 80px);overflow-y:auto}
+            nav ul.show{display:flex}
+            nav li{width:100%;text-align:center}
+            nav a{display:block;padding:1.2rem 0;font-size:1.1rem}
+            .nav-driver-item{border-top:2px solid #ffcc00;margin-top:.5rem;padding-top:.5rem}
+            .nav-driver-item a{color:#ffcc00;font-weight:800;font-size:1.15rem}
+            .hero{padding:4rem 1rem}
+            .hero h1{font-size:2rem}
+            .pricing-table{grid-template-columns:1fr}
+        }
+        @media(min-width:769px){
+            .driver-portal-btn .btn-text{display:inline}
+        }
+
         #payMethodGroup{display:none}
         .estimate-bar{margin:1rem 0;padding:.8rem;background:#e6f3ff;border-radius:8px;font-size:.95rem;color:#0b3d91;display:none}
         #confirmation{display:none;margin-top:1rem;padding:1rem;background:#d4edda;border-radius:8px;text-align:center;font-weight:bold}
@@ -135,7 +163,34 @@
 
 <!-- ========== PUBLIC WEBSITE ========== -->
 <div id="public-site">
-    <header id="main-header"><div class="container header-inner"><div class="logo-container"><div class="logo"><img src="images/logo.jpeg" alt="Corridor Towing Logo"></div><div class="company-name">Corridor Towing & Transportation</div></div><div class="menu-toggle" onclick="toggleMenu()">☰ Menu</div><nav><ul id="nav-menu"><li><a href="#home" class="active">Home</a></li><li><a href="#forms">Request Service</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#gallery">Gallery</a></li><li><a href="#payment">Pay Now</a></li><li><a href="#contact">Contact</a></li><li><a onclick="openDP()" style="color:#ffcc00;cursor:pointer"><i class="fas fa-id-badge"></i> Driver Portal</a></li></ul></nav></div></header>
+    <header id="main-header">
+        <div class="container header-inner">
+            <div class="logo-container">
+                <div class="logo"><img src="images/logo.jpeg" alt="Corridor Towing Logo"></div>
+                <div class="company-name">Corridor Towing & Transportation</div>
+            </div>
+            <div class="header-actions">
+                <!-- DRIVER PORTAL BUTTON - Always visible on ALL screen sizes -->
+                <button class="driver-portal-btn" onclick="openDP()">
+                    <i class="fas fa-id-badge"></i>
+                    <span class="btn-text">Driver Portal</span>
+                </button>
+                <!-- Mobile menu toggle -->
+                <div class="menu-toggle" onclick="toggleMenu()">☰ Menu</div>
+            </div>
+            <nav>
+                <ul id="nav-menu">
+                    <li><a href="#home" class="active">Home</a></li>
+                    <li><a href="#forms">Request Service</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#gallery">Gallery</a></li>
+                    <li><a href="#payment">Pay Now</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li class="nav-driver-item"><a onclick="openDP()" style="cursor:pointer"><i class="fas fa-id-badge"></i> Driver Portal</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
     <section id="home" class="hero"><div class="container"><h1>24/7 Towing & Transportation</h1><p>Fast, reliable, and professional service in Richmond, VA. We're on the way — just call or request online!</p><a href="tel:8042928414" class="cta-btn">Call Now: (804) 292-8414</a><a href="#forms" class="cta-btn">Request Service Online</a></div></section>
 
@@ -148,7 +203,7 @@
     <section id="payment" class="payment"><div class="container"><h2 class="section-title">Pay for Your Service</h2><p style="text-align:center;margin-bottom:1.5rem">Total due: <strong id="paymentAmountDisplay">$0.00</strong></p><div class="payment-options"><a href="https://venmo.com/corridortowing" class="payment-btn" target="_blank"><i class="fab fa-venmo"></i> Venmo</a><a href="https://cash.app/$corridortowing" class="payment-btn" target="_blank"><i class="fas fa-dollar-sign"></i> Cash App</a><a href="https://square.link/u/YOUR_SQUARE_LINK_HERE" class="payment-btn" target="_blank"><i class="fas fa-credit-card"></i> Pay with Card</a><a href="https://paypal.me/CorridorTowing" class="payment-btn" target="_blank"><i class="fab fa-paypal"></i> PayPal</a><div class="payment-btn"><i class="fas fa-money-bill-wave"></i> Cash on Arrival</div></div><p style="text-align:center;margin-top:1.5rem;font-size:.95rem">After payment, your service request will be confirmed.</p></div></section>
 
     <section id="contact"><div class="container contact-info"><h2>Contact Us</h2><p><strong>Phone:</strong> <a href="tel:8042928414">(804) 292-8414</a> (24/7 Emergency)</p><p><strong>Email:</strong> <a href="mailto:corridor.towing@gmail.com">corridor.towing@gmail.com</a></p><p><strong>Address:</strong> 4100 Tomlynn St, Richmond, VA 23230</p><p><strong>Service Area:</strong> Richmond, Henrico, Chesterfield, Glen Allen, Short Pump, Mechanicsville & surrounding areas</p><p>We respond fast — call or use the request form above!</p></div></section>
-    <footer><div class="container"><p>© 2025 Corridor Towing and Transportation Services. All rights reserved.</p><p>Licensed & Insured | 24/7 Emergency Service | Richmond, VA</p></div></footer>
+    <footer><div class="container"><p>&copy; 2025 Corridor Towing and Transportation Services. All rights reserved.</p><p>Licensed & Insured | 24/7 Emergency Service | Richmond, VA</p></div></footer>
 </div>
 
 <!-- ========== DRIVER PORTAL ========== -->
@@ -169,10 +224,8 @@
 
     <!-- HISTORY -->
     <div id="tt-scr-hist" class="tt-screen"><div class="px-5 pt-5 pb-4"><h2 class="text-2xl font-extrabold mb-0.5">Work History</h2><p class="text-sm mb-5" style="color:#6b6b6b">Your daily hours log with period totals</p>
-        <!-- DRIVER NAME BADGE -->
         <div id="tt-hist-driver" class="tt-driver-badge mb-4"><div id="tt-hist-avatar" class="tt-driver-avatar"></div><div><p class="text-xs font-medium uppercase tracking-wider" style="color:#6b6b6b">Driver</p><p id="tt-hist-dname" class="text-xl font-black"></p></div></div>
         <div class="flex gap-2 mb-4 flex-wrap" id="tt-ptabs"><button class="tt-pt on" data-p="first">1st - 15th</button><button class="tt-pt" data-p="second">16th - End</button><button class="tt-pt" data-p="all">All Time</button></div>
-        <!-- Period Summary Cards -->
         <div class="grid grid-cols-2 gap-3 mb-4">
             <div class="tt-card text-center"><p class="uppercase tracking-wider" style="font-size:10px;color:#6b6b6b">1st - 15th Hours</p><p id="tt-h-first" class="text-2xl font-black tt-mono" style="color:#10b981">0.0</p></div>
             <div class="tt-card text-center"><p class="uppercase tracking-wider" style="font-size:10px;color:#6b6b6b">16th - End Hours</p><p id="tt-h-second" class="text-2xl font-black tt-mono" style="color:#f59e0b">0.0</p></div>
@@ -183,7 +236,6 @@
 
     <!-- REPORTS -->
     <div id="tt-scr-rpt" class="tt-screen"><div class="px-5 pt-5 pb-4"><h2 class="text-2xl font-extrabold mb-0.5">Payroll Reports</h2><p class="text-sm mb-5" style="color:#6b6b6b">Biweekly summaries sent to company</p>
-        <!-- DRIVER NAME BADGE -->
         <div id="tt-rpt-driver" class="tt-driver-badge mb-5"><div id="tt-rpt-avatar" class="tt-driver-avatar"></div><div><p class="text-xs font-medium uppercase tracking-wider" style="color:#6b6b6b">Driver</p><p id="tt-rpt-dname" class="text-xl font-black"></p></div></div>
         <div class="tt-card mb-4"><div class="flex items-center justify-between mb-2"><h3 class="font-bold text-base">Current Pay Period</h3><span class="px-3 py-1 rounded-full font-bold uppercase tracking-wider" style="font-size:10px;background:rgba(245,158,11,.2);color:#f59e0b">Active</span></div><p id="tt-rp-cur" class="tt-mono text-xs mb-4" style="color:#6b6b6b"></p><div class="grid grid-cols-2 gap-4"><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Total Hours</p><p id="tt-rp-ch" class="text-3xl font-black tt-mono" style="color:#f59e0b">0.0</p></div><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Days Worked</p><p id="tt-rp-cd" class="text-3xl font-black tt-mono">0</p></div></div></div>
         <div class="tt-card mb-5"><div class="flex items-center justify-between mb-2"><h3 class="font-bold text-base">Previous Pay Period</h3><span class="px-3 py-1 rounded-full font-bold uppercase tracking-wider" style="font-size:10px;background:#1e1e1e;color:#6b6b6b">Closed</span></div><p id="tt-rp-prev" class="tt-mono text-xs mb-4" style="color:#6b6b6b"></p><div class="grid grid-cols-2 gap-4"><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Total Hours</p><p id="tt-rp-ph" class="text-3xl font-black tt-mono">0.0</p></div><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Days Worked</p><p id="tt-rp-pd" class="text-3xl font-black tt-mono">0</p></div></div></div>
@@ -209,21 +261,21 @@ function openDP(){document.getElementById('public-site').style.display='none';do
 function closeDP(){document.getElementById('driver-app').style.display='none';document.getElementById('public-site').style.display='block';document.getElementById('main-header').style.display='block';document.body.style.paddingTop='100px';document.body.style.background='#f9f9fb';window.scrollTo(0,0);window.location.hash='';initTT_done=false}
 window.addEventListener('load',function(){var h=window.location.hash.replace('#','');if(h==='driverPortal'||h==='driverlog'){openDP()}});
 window.addEventListener('hashchange',function(){var h=window.location.hash.replace('#','');if(h==='driverPortal'||h==='driverlog'){if(!document.getElementById('driver-app').style.display||document.getElementById('driver-app').style.display==='none'){document.getElementById('public-site').style.display='none';document.getElementById('driver-app').style.display='block';document.getElementById('main-header').style.display='none';document.body.style.paddingTop='0';document.body.style.background='#0a0a0a';initTT()}}else{if(document.getElementById('driver-app').style.display==='block'){document.getElementById('driver-app').style.display='none';document.getElementById('public-site').style.display='block';document.getElementById('main-header').style.display='block';document.body.style.paddingTop='100px';document.body.style.background='#f9f9fb'}}});
-const mT=document.querySelector('.menu-toggle'),nM=document.getElementById('nav-menu');
+var mT=document.querySelector('.menu-toggle'),nM=document.getElementById('nav-menu');
 function toggleMenu(){nM.classList.toggle('show')}
-document.addEventListener('click',e=>{if(!mT.contains(e.target)&&!nM.contains(e.target))nM.classList.remove('show')});
-nM.querySelectorAll('a').forEach(l=>l.addEventListener('click',()=>nM.classList.remove('show')));
-nM.addEventListener('touchmove',e=>e.stopPropagation(),{passive:true});
-nM.addEventListener('wheel',e=>e.stopPropagation(),{passive:true});
-document.querySelectorAll('#public-site a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t){const h=document.querySelector('header').offsetHeight;window.scrollTo({top:t.offsetTop-h-20,behavior:'smooth'})}})});
+document.addEventListener('click',function(e){if(!mT.contains(e.target)&&!nM.contains(e.target)&&!e.target.closest('.driver-portal-btn'))nM.classList.remove('show')});
+nM.querySelectorAll('a').forEach(function(l){l.addEventListener('click',function(){nM.classList.remove('show')})});
+nM.addEventListener('touchmove',function(e){e.stopPropagation()},{passive:true});
+nM.addEventListener('wheel',function(e){e.stopPropagation()},{passive:true});
+document.querySelectorAll('#public-site a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var t=document.querySelector(this.getAttribute('href'));if(t){var h=document.querySelector('header').offsetHeight;window.scrollTo({top:t.offsetTop-h-20,behavior:'smooth'})}})});
 function togglePayMethod(){document.getElementById("payMethodGroup").style.display=document.getElementById("paymentPreference").value==="pay-now"?"block":"none"}
-function calculateTotal(){const s=document.getElementById("req_service"),o=s.options[s.selectedIndex];const b=o&&o.dataset?parseFloat(o.dataset.base)||0:0;const en=parseFloat(document.getElementById("req_enroute").value)||5;const tw=parseFloat(document.getElementById("req_tow").value)||0;document.getElementById("req_amount").value=(b+Math.max(0,en-5)*2+tw*5).toFixed(2)}
+function calculateTotal(){var s=document.getElementById("req_service"),o=s.options[s.selectedIndex];var b=o&&o.dataset?parseFloat(o.dataset.base)||0:0;var en=parseFloat(document.getElementById("req_enroute").value)||5;var tw=parseFloat(document.getElementById("req_tow").value)||0;document.getElementById("req_amount").value=(b+Math.max(0,en-5)*2+tw*5).toFixed(2)}
 document.getElementById("req_service").addEventListener("change",calculateTotal);document.getElementById("req_enroute").addEventListener("input",calculateTotal);document.getElementById("req_tow").addEventListener("input",calculateTotal);
-async function autoCalcMiles(){let l=document.getElementById("vehicleLocation").value.trim(),d=document.getElementById("towDestination").value.trim(),b=document.getElementById("estimateBar");b.style.display="block";if(!l||!d){b.textContent="Enter both addresses.";return}b.textContent="Estimating...";try{l=l.replace(/,\s*$/,'').trim();d=d.replace(/,\s*$/,'').trim();const lr=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(l)}&limit=1&countrycodes=us`),lj=await lr.json();if(!lj.length)throw 0;const dr=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(d)}&limit=1&countrycodes=us`),dj=await dr.json();if(!dj.length)throw 0;const tr=await fetch(`https://router.project-osrm.org/route/v1/driving/${lj[0].lon},${lj[0].lat};${dj[0].lon},${dj[0].lat}?overview=false`),tj=await tr.json();const m=tj.routes&&tj.routes[0]?(tj.routes[0].distance/1000*.621371).toFixed(1):0;document.getElementById("req_tow").value=m;b.textContent=`Estimated: ${m} miles`;calculateTotal()}catch{b.textContent="Auto estimate failed — enter manually."}}
+async function autoCalcMiles(){var l=document.getElementById("vehicleLocation").value.trim(),d=document.getElementById("towDestination").value.trim(),b=document.getElementById("estimateBar");b.style.display="block";if(!l||!d){b.textContent="Enter both addresses.";return}b.textContent="Estimating...";try{l=l.replace(/,\s*$/,'').trim();d=d.replace(/,\s*$/,'').trim();var lr=await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(l)+'&limit=1&countrycodes=us'),lj=await lr.json();if(!lj.length)throw 0;var dr=await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(d)+'&limit=1&countrycodes=us'),dj=await dr.json();if(!dj.length)throw 0;var tr=await fetch('https://router.project-osrm.org/route/v1/driving/'+lj[0].lon+','+lj[0].lat+';'+dj[0].lon+','+dj[0].lat+'?overview=false'),tj=await tr.json();var m=tj.routes&&tj.routes[0]?(tj.routes[0].distance/1000*.621371).toFixed(1):0;document.getElementById("req_tow").value=m;b.textContent='Estimated: '+m+' miles';calculateTotal()}catch(e){b.textContent="Auto estimate failed \u2014 enter manually."}}
 document.getElementById("towDestination").addEventListener("blur",autoCalcMiles);
-function getCurrentLocation(){if(!navigator.geolocation){alert("Not supported.");return}navigator.geolocation.getCurrentPosition(async p=>{try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${p.coords.latitude}&lon=${p.coords.longitude}&zoom=18`);const d=await r.json();document.getElementById("vehicleLocation").value=d.display_name||`Lat: ${p.coords.latitude.toFixed(6)}, Lon: ${p.coords.longitude.toFixed(6)}`;autoCalcMiles()}catch{document.getElementById("vehicleLocation").value=`Lat: ${p.coords.latitude.toFixed(6)}, Lon: ${p.coords.longitude.toFixed(6)}`}},e=>{let m="Location error: ";if(e.code===1)m+="Permission denied.";else if(e.code===2)m+="Unavailable.";else if(e.code===3)m+="Timed out.";else m+="Unknown.";alert(m)},{timeout:10000,enableHighAccuracy:true})}
-function handleRequestSubmit(e){e.preventDefault();const fd={name:document.getElementById("req_name").value,phone:document.getElementById("req_phone").value,email:document.getElementById("req_email").value,vehicle:document.getElementById("req_vehicle").value||'Not provided',towmethod:document.getElementById("req_towmethod").value,starts:document.getElementById("req_starts").value,neutral:document.getElementById("req_neutral").value,attended:document.getElementById("req_attended").value,location:document.getElementById("vehicleLocation").value,destination:document.getElementById("towDestination").value||'N/A',service:document.getElementById("req_service").options[document.getElementById("req_service").selectedIndex].text,enroute:document.getElementById("req_enroute").value,tow:document.getElementById("req_tow").value,amount:document.getElementById("req_amount").value,payment:document.getElementById("paymentPreference").value,payMethod:document.getElementById("payMethod")?document.getElementById("payMethod").value:'N/A'};const msg=`New Towing Request!\n\nCustomer: ${fd.name}\nPhone: ${fd.phone}\nEmail: ${fd.email}\n\nVehicle: ${fd.vehicle}\nStarts: ${fd.starts} | Neutral: ${fd.neutral} | Attended: ${fd.attended}\nTow Method: ${fd.towmethod}\n\nService: ${fd.service}\nPickup: ${fd.location}\nDestination: ${fd.destination}\nEnroute: ${fd.enroute} mi (first 5 free)\nTow: ${fd.tow} mi\n\nTotal: $${fd.amount}\nPayment: ${fd.payment==='pay-now'?'Pay now via '+fd.payMethod:'Pay on arrival'}\n\nPlease call to confirm!`;fetch("https://formspree.io/f/xdkyonjb",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subject:`New Tow Request - ${fd.name}`,message:msg})}).then(()=>{document.getElementById("confirmation").style.display="block";document.getElementById("confirmation").innerHTML="<strong>Thank you!</strong> Request sent. We'll call shortly.";if(fd.payment==='pay-now'){document.getElementById("paymentAmountDisplay").textContent="$"+fd.amount;document.getElementById("confirmation").innerHTML+="<br><br><strong>Complete payment below.</strong>";setTimeout(()=>window.scrollTo({top:document.querySelector("#payment").offsetTop-100,behavior:'smooth'}),1500)}document.getElementById("submitBtn").disabled=true;document.getElementById("submitBtn").textContent="Request Sent"}).catch(()=>alert("Error. Call (804) 292-8414."))}
-window.onload=()=>calculateTotal();
+function getCurrentLocation(){if(!navigator.geolocation){alert("Not supported.");return}navigator.geolocation.getCurrentPosition(async function(p){try{var r=await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+p.coords.latitude+'&lon='+p.coords.longitude+'&zoom=18');var d=await r.json();document.getElementById("vehicleLocation").value=d.display_name||'Lat: '+p.coords.latitude.toFixed(6)+', Lon: '+p.coords.longitude.toFixed(6);autoCalcMiles()}catch(e){document.getElementById("vehicleLocation").value='Lat: '+p.coords.latitude.toFixed(6)+', Lon: '+p.coords.longitude.toFixed(6)}},function(e){var m="Location error: ";if(e.code===1)m+="Permission denied.";else if(e.code===2)m+="Unavailable.";else if(e.code===3)m+="Timed out.";else m+="Unknown.";alert(m)},{timeout:10000,enableHighAccuracy:true})}
+function handleRequestSubmit(e){e.preventDefault();var fd={name:document.getElementById("req_name").value,phone:document.getElementById("req_phone").value,email:document.getElementById("req_email").value,vehicle:document.getElementById("req_vehicle").value||'Not provided',towmethod:document.getElementById("req_towmethod").value,starts:document.getElementById("req_starts").value,neutral:document.getElementById("req_neutral").value,attended:document.getElementById("req_attended").value,location:document.getElementById("vehicleLocation").value,destination:document.getElementById("towDestination").value||'N/A',service:document.getElementById("req_service").options[document.getElementById("req_service").selectedIndex].text,enroute:document.getElementById("req_enroute").value,tow:document.getElementById("req_tow").value,amount:document.getElementById("req_amount").value,payment:document.getElementById("paymentPreference").value,payMethod:document.getElementById("payMethod")?document.getElementById("payMethod").value:'N/A'};var msg='New Towing Request!\n\nCustomer: '+fd.name+'\nPhone: '+fd.phone+'\nEmail: '+fd.email+'\n\nVehicle: '+fd.vehicle+'\nStarts: '+fd.starts+' | Neutral: '+fd.neutral+' | Attended: '+fd.attended+'\nTow Method: '+fd.towmethod+'\n\nService: '+fd.service+'\nPickup: '+fd.location+'\nDestination: '+fd.destination+'\nEnroute: '+fd.enroute+' mi (first 5 free)\nTow: '+fd.tow+' mi\n\nTotal: $'+fd.amount+'\nPayment: '+(fd.payment==='pay-now'?'Pay now via '+fd.payMethod:'Pay on arrival')+'\n\nPlease call to confirm!';fetch("https://formspree.io/f/xdkyonjb",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subject:'New Tow Request - '+fd.name,message:msg})}).then(function(){document.getElementById("confirmation").style.display="block";document.getElementById("confirmation").innerHTML="<strong>Thank you!</strong> Request sent. We'll call shortly.";if(fd.payment==='pay-now'){document.getElementById("paymentAmountDisplay").textContent="$"+fd.amount;document.getElementById("confirmation").innerHTML+="<br><br><strong>Complete payment below.</strong>";setTimeout(function(){window.scrollTo({top:document.querySelector("#payment").offsetTop-100,behavior:'smooth'})},1500)}document.getElementById("submitBtn").disabled=true;document.getElementById("submitBtn").textContent="Request Sent"}).catch(function(){alert("Error. Call (804) 292-8414.")})}
+window.onload=function(){calculateTotal()};
 </script>
 
 <!-- ========== DRIVER PORTAL JS ========== -->
@@ -303,39 +355,25 @@ function getFirstPeriodRecs(yr,mo){return ttD.records.filter(function(r){var d=p
 function getSecondPeriodRecs(yr,mo){return ttD.records.filter(function(r){var d=pDK(r.date);return d.getFullYear()===yr&&d.getMonth()===mo&&d.getDate()>=16})}
 
 function rH(){
-    // Driver name badge
     document.getElementById('tt-hist-avatar').textContent=initials(ttD.driverName);
     document.getElementById('tt-hist-dname').textContent=ttD.driverName;
-    
     var now=new Date(),yr=now.getFullYear(),mo=now.getMonth();
     var allRecs=ttD.records.slice().sort(function(a,b){return b.date.localeCompare(a.date)});
-    
-    // Calculate hours for both periods
     var firstRecs=getFirstPeriodRecs(yr,mo);
     var secondRecs=getSecondPeriodRecs(yr,mo);
     var firstHrs=0,secondHrs=0;
     firstRecs.forEach(function(r){if(r.hours!=null)firstHrs+=r.hours});
     secondRecs.forEach(function(r){if(r.hours!=null)secondHrs+=r.hours});
-    
     document.getElementById('tt-h-first').textContent=firstHrs.toFixed(1);
     document.getElementById('tt-h-second').textContent=secondHrs.toFixed(1);
-    
-    // Filter based on selected period
     var recs;
-    if(hp==='first'){
-        recs=firstRecs.slice().sort(function(a,b){return b.date.localeCompare(a.date)});
-    }else if(hp==='second'){
-        recs=secondRecs.slice().sort(function(a,b){return b.date.localeCompare(a.date)});
-    }else{
-        recs=allRecs;
-    }
-    
+    if(hp==='first'){recs=firstRecs.slice().sort(function(a,b){return b.date.localeCompare(a.date)})}
+    else if(hp==='second'){recs=secondRecs.slice().sort(function(a,b){return b.date.localeCompare(a.date)})}
+    else{recs=allRecs}
     var th=0,td=0;recs.forEach(function(r){if(r.hours!=null)th+=r.hours;if(r.checkIn)td++});document.getElementById('tt-h-hrs').textContent=th.toFixed(1);document.getElementById('tt-h-days').textContent=td;
-    
     var tb=document.getElementById('tt-h-tb');if(!recs.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#6b6b6b;padding:40px 0">No records for this period</td></tr>';return}
     var h='';recs.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric'}),ws=d.toLocaleDateString('en-US',{weekday:'short'});var iT=r.checkIn?fTs(r.checkIn.time):'--',oT=r.checkOut?fTs(r.checkOut.time):'--',hr=r.hours!=null?r.hours.toFixed(1):'<span style="color:#f59e0b;font-size:11px;font-weight:700">OPEN</span>';
     h+='<tr><td style="font-weight:600;color:#f59e0b;font-size:12px">'+ttD.driverName+'</td><td><span style="font-weight:600">'+ds+'</span><br><span style="font-size:10px;color:#6b6b6b">'+ws+'</span></td><td class="tt-mono" style="font-size:12px">'+iT+'</td><td class="tt-mono" style="font-size:12px">'+oT+'</td><td class="tt-mono" style="font-weight:700">'+hr+'</td><td><div style="display:flex;gap:4px;align-items:center"><img id="thi-'+r.id+'" class="tt-pth" src="" style="display:none"><img id="tho-'+r.id+'" class="tt-pth" src="" style="display:none"><span id="thn-'+r.id+'" style="color:#6b6b6b;font-size:11px">--</span></div></td></tr>'});
-    // Add total row
     h+='<tr class="tt-total-row"><td colspan="4" style="text-align:right">TOTAL HOURS:</td><td class="tt-mono" style="font-size:16px">'+th.toFixed(1)+'</td><td></td></tr>';
     tb.innerHTML=h;recs.forEach(function(r){var ie=document.getElementById('thi-'+r.id),oe=document.getElementById('tho-'+r.id),ne=document.getElementById('thn-'+r.id);var l=0;if(r.checkIn)gP(r.id+'_in').then(function(d){if(d&&ie){ie.src=d;ie.style.display='inline-block';ie.onclick=function(){vP(d)};l++;if(ne)ne.style.display='none'}});if(r.checkOut)gP(r.id+'_out').then(function(d){if(d&&oe){oe.src=d;oe.style.display='inline-block';oe.onclick=function(){vP(d)};l++;if(ne)ne.style.display='none'}})})}
 
@@ -347,13 +385,11 @@ function ppv(){var n=new Date();if(n.getDate()<=15){var l=new Date(n.getFullYear
 function rp(p){var sk=dK(p.s.getTime()),ek=dK(p.e.getTime());return ttD.records.filter(function(r){return r.date>=sk&&r.date<=ek})}
 
 function rR(){var cu=cp(),pv=ppv();
-// Driver name badge
 document.getElementById('tt-rpt-avatar').textContent=initials(ttD.driverName);
 document.getElementById('tt-rpt-dname').textContent=ttD.driverName;
 document.getElementById('tt-rp-cur').textContent=fD(cu.s.getTime())+' \u2014 '+fD(cu.e.getTime());document.getElementById('tt-rp-prev').textContent=fD(pv.s.getTime())+' \u2014 '+fD(pv.e.getTime());
 var cr=rp(cu),pr=rp(pv),ch=0,cd=cr.length;cr.forEach(function(r){if(r.hours!=null)ch+=r.hours});document.getElementById('tt-rp-ch').textContent=ch.toFixed(1);document.getElementById('tt-rp-cd').textContent=cd;var ph=0,pd=pr.length;pr.forEach(function(r){if(r.hours!=null)ph+=r.hours});document.getElementById('tt-rp-ph').textContent=ph.toFixed(1);document.getElementById('tt-rp-pd').textContent=pd;
 var tb=document.getElementById('tt-rp-tb'),so=cr.slice().sort(function(a,b){return a.date.localeCompare(b.date)});if(!so.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#6b6b6b;padding:30px 0">No entries</td></tr>'}else{var h='';so.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});var iT=r.checkIn?fTs(r.checkIn.time):'--',oT=r.checkOut?fTs(r.checkOut.time):'--',hr=r.hours!=null?r.hours.toFixed(1):'<span style="color:#f59e0b;font-size:11px;font-weight:700">OPEN</span>';h+='<tr><td style="font-weight:600;color:#f59e0b;font-size:12px">'+ttD.driverName+'</td><td>'+ds+'</td><td class="tt-mono" style="font-size:12px">'+iT+'</td><td class="tt-mono" style="font-size:12px">'+oT+'</td><td class="tt-mono" style="font-weight:700">'+hr+'</td></tr>'});
-// Add total row to reports
 h+='<tr class="tt-total-row"><td colspan="4" style="text-align:right">TOTAL HOURS:</td><td class="tt-mono" style="font-size:16px">'+ch.toFixed(1)+'</td></tr>';
 tb.innerHTML=h}}
 
@@ -361,114 +397,31 @@ function rptT(pl,per){var rs=rp(per).slice().sort(function(a,b){return a.date.lo
 l.push('===========================================================');l.push('       CORRIDOR TOWING & TRANSPORTATION SERVICES');l.push('              PAYROLL / HOURS REPORT');l.push('===========================================================');l.push('');l.push('  DRIVER NAME:   '+ttD.driverName.toUpperCase());l.push('  PERIOD:        '+pl);l.push('  DATE RANGE:    '+fD(per.s.getTime())+' - '+fD(per.e.getTime()));l.push('  TOTAL HOURS:   '+th.toFixed(1));l.push('  DAYS WORKED:   '+rs.length);l.push('');l.push('-----------------------------------------------------------');l.push('  DRIVER          DATE            CHECK IN        CHECK OUT      HOURS');l.push('-----------------------------------------------------------');rs.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});var iT=r.checkIn?fT(r.checkIn.time):'N/A',oT=r.checkOut?fT(r.checkOut.time):'N/A',hr=r.hours!=null?r.hours.toFixed(1):'OPEN';
 l.push('  '+ttD.driverName.substring(0,14).padEnd(16)+ds+'    '+iT+'      '+oT+'    '+hr)});l.push('-----------------------------------------------------------');l.push('');l.push('  REPORT SENT TO: '+COMPANY_EMAIL);l.push('  GENERATED:      '+new Date().toLocaleString());return l.join('\n')}
 
-// Email report - company email only
 document.getElementById('tt-btn-email').addEventListener('click',function(){
     var cu=cp(),pl='Current Period ('+fD(cu.s.getTime())+' - '+fD(cu.e.getTime())+')',bd=rptT(pl,cu),sb='Payroll Report - '+ttD.driverName+' - '+fD(cu.s.getTime())+' to '+fD(cu.e.getTime());
     tT('Sending report to company...','info');
     fetch("https://formspree.io/f/xdkyonjb",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subject:sb,message:bd})}).then(function(){tT('Report sent to '+COMPANY_EMAIL+'!','success')}).catch(function(){tT('Failed to send report','error')})});
 
-// ===== EXCEL DOWNLOAD using SheetJS =====
 document.getElementById('tt-btn-excel').addEventListener('click',function(){
     if(typeof XLSX==='undefined'){tT('Excel library not loaded. Check internet connection.','error');return}
-    var cu=cp(),pv=ppv();
-
-    // Create workbook
-    var wb=XLSX.utils.book_new();
-
-    // === Sheet 1: Current Period ===
-    var cr=rp(cu).slice().sort(function(a,b){return a.date.localeCompare(b.date)});
-    var curHrs=0;cr.forEach(function(r){if(r.hours!=null)curHrs+=r.hours});
-
-    var curData=[
-        ['CORRIDOR TOWING & TRANSPORTATION SERVICES'],
-        ['PAYROLL / HOURS REPORT'],
-        [''],
-        ['Driver Name:', ttD.driverName],
-        ['Period:', 'Current Period'],
-        ['Date Range:', fD(cu.s.getTime())+' - '+fD(cu.e.getTime())],
-        ['Total Hours:', curHrs.toFixed(1)],
-        ['Days Worked:', cr.length],
-        [''],
-        ['Driver','Date','Check In','Check Out','Hours']
-    ];
-    cr.forEach(function(r){
-        var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-        var iT=r.checkIn?fT(r.checkIn.time):'N/A',oT=r.checkOut?fT(r.checkOut.time):'N/A',hr=r.hours!=null?r.hours.toFixed(2):'';
-        curData.push([ttD.driverName,ds,iT,oT,hr?parseFloat(hr):'']);
-    });
-    // Add total row
+    var cu=cp(),pv=ppv();var wb=XLSX.utils.book_new();
+    var cr=rp(cu).slice().sort(function(a,b){return a.date.localeCompare(b.date)});var curHrs=0;cr.forEach(function(r){if(r.hours!=null)curHrs+=r.hours});
+    var curData=[['CORRIDOR TOWING & TRANSPORTATION SERVICES'],['PAYROLL / HOURS REPORT'],[''],['Driver Name:',ttD.driverName],['Period:','Current Period'],['Date Range:',fD(cu.s.getTime())+' - '+fD(cu.e.getTime())],['Total Hours:',curHrs.toFixed(1)],['Days Worked:',cr.length],[''],['Driver','Date','Check In','Check Out','Hours']];
+    cr.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});var iT=r.checkIn?fT(r.checkIn.time):'N/A',oT=r.checkOut?fT(r.checkOut.time):'N/A',hr=r.hours!=null?r.hours.toFixed(2):'';curData.push([ttD.driverName,ds,iT,oT,hr?parseFloat(hr):''])});
     curData.push(['','','','TOTAL:',curHrs.toFixed(2)]);
-
-    var curWs=XLSX.utils.aoa_to_sheet(curData);
-    // Column widths
-    curWs['!cols']=[{wch:22},{wch:22},{wch:16},{wch:16},{wch:10}];
-    // Merge company name header
-    curWs['!merges']=[{s:{r:0,c:0},e:{r:0,c:4}},{s:{r:1,c:0},e:{r:1,c:4}}];
-    XLSX.utils.book_append_sheet(wb,curWs,'Current Period');
-
-    // === Sheet 2: Previous Period ===
-    var pr=rp(pv).slice().sort(function(a,b){return a.date.localeCompare(b.date)});
-    var prevHrs=0;pr.forEach(function(r){if(r.hours!=null)prevHrs+=r.hours});
-
-    var prevData=[
-        ['CORRIDOR TOWING & TRANSPORTATION SERVICES'],
-        ['PAYROLL / HOURS REPORT'],
-        [''],
-        ['Driver Name:', ttD.driverName],
-        ['Period:', 'Previous Period'],
-        ['Date Range:', fD(pv.s.getTime())+' - '+fD(pv.e.getTime())],
-        ['Total Hours:', prevHrs.toFixed(1)],
-        ['Days Worked:', pr.length],
-        [''],
-        ['Driver','Date','Check In','Check Out','Hours']
-    ];
-    pr.forEach(function(r){
-        var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-        var iT=r.checkIn?fT(r.checkIn.time):'N/A',oT=r.checkOut?fT(r.checkOut.time):'N/A',hr=r.hours!=null?r.hours.toFixed(2):'';
-        prevData.push([ttD.driverName,ds,iT,oT,hr?parseFloat(hr):'']);
-    });
-    // Add total row
+    var curWs=XLSX.utils.aoa_to_sheet(curData);curWs['!cols']=[{wch:22},{wch:22},{wch:16},{wch:16},{wch:10}];curWs['!merges']=[{s:{r:0,c:0},e:{r:0,c:4}},{s:{r:1,c:0},e:{r:1,c:4}}];XLSX.utils.book_append_sheet(wb,curWs,'Current Period');
+    var pr=rp(pv).slice().sort(function(a,b){return a.date.localeCompare(b.date)});var prevHrs=0;pr.forEach(function(r){if(r.hours!=null)prevHrs+=r.hours});
+    var prevData=[['CORRIDOR TOWING & TRANSPORTATION SERVICES'],['PAYROLL / HOURS REPORT'],[''],['Driver Name:',ttD.driverName],['Period:','Previous Period'],['Date Range:',fD(pv.s.getTime())+' - '+fD(pv.e.getTime())],['Total Hours:',prevHrs.toFixed(1)],['Days Worked:',pr.length],[''],['Driver','Date','Check In','Check Out','Hours']];
+    pr.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});var iT=r.checkIn?fT(r.checkIn.time):'N/A',oT=r.checkOut?fT(r.checkOut.time):'N/A',hr=r.hours!=null?r.hours.toFixed(2):'';prevData.push([ttD.driverName,ds,iT,oT,hr?parseFloat(hr):''])});
     prevData.push(['','','','TOTAL:',prevHrs.toFixed(2)]);
-
-    var prevWs=XLSX.utils.aoa_to_sheet(prevData);
-    prevWs['!cols']=[{wch:22},{wch:22},{wch:16},{wch:16},{wch:10}];
-    prevWs['!merges']=[{s:{r:0,c:0},e:{r:0,c:4}},{s:{r:1,c:0},e:{r:1,c:4}}];
-    XLSX.utils.book_append_sheet(wb,prevWs,'Previous Period');
-
-    // === Sheet 3: All Records ===
-    var allRecs=ttD.records.slice().sort(function(a,b){return a.date.localeCompare(b.date)});
-    var allHrs=0;allRecs.forEach(function(r){if(r.hours!=null)allHrs+=r.hours});
-
-    var allData=[
-        ['CORRIDOR TOWING & TRANSPORTATION SERVICES'],
-        ['COMPLETE WORK LOG'],
-        [''],
-        ['Driver Name:', ttD.driverName],
-        ['Total Hours (All Time):', allHrs.toFixed(1)],
-        ['Total Days:', allRecs.length],
-        [''],
-        ['Driver','Date','Check In','Check Out','Hours']
-    ];
-    allRecs.forEach(function(r){
-        var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-        var iT=r.checkIn?fT(r.checkIn.time):'N/A',oT=r.checkOut?fT(r.checkOut.time):'N/A',hr=r.hours!=null?r.hours.toFixed(2):'';
-        allData.push([ttD.driverName,ds,iT,oT,hr?parseFloat(hr):'']);
-    });
-    // Add total row
+    var prevWs=XLSX.utils.aoa_to_sheet(prevData);prevWs['!cols']=[{wch:22},{wch:22},{wch:16},{wch:16},{wch:10}];prevWs['!merges']=[{s:{r:0,c:0},e:{r:0,c:4}},{s:{r:1,c:0},e:{r:1,c:4}}];XLSX.utils.book_append_sheet(wb,prevWs,'Previous Period');
+    var allRecs=ttD.records.slice().sort(function(a,b){return a.date.localeCompare(b.date)});var allHrs=0;allRecs.forEach(function(r){if(r.hours!=null)allHrs+=r.hours});
+    var allData=[['CORRIDOR TOWING & TRANSPORTATION SERVICES'],['COMPLETE WORK LOG'],[''],['Driver Name:',ttD.driverName],['Total Hours (All Time):',allHrs.toFixed(1)],['Total Days:',allRecs.length],[''],['Driver','Date','Check In','Check Out','Hours']];
+    allRecs.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});var iT=r.checkIn?fT(r.checkIn.time):'N/A',oT=r.checkOut?fT(r.checkOut.time):'N/A',hr=r.hours!=null?r.hours.toFixed(2):'';allData.push([ttD.driverName,ds,iT,oT,hr?parseFloat(hr):''])});
     allData.push(['','','','TOTAL:',allHrs.toFixed(2)]);
+    var allWs=XLSX.utils.aoa_to_sheet(allData);allWs['!cols']=[{wch:22},{wch:22},{wch:16},{wch:16},{wch:10}];allWs['!merges']=[{s:{r:0,c:0},e:{r:0,c:4}},{s:{r:1,c:0},e:{r:1,c:4}}];XLSX.utils.book_append_sheet(wb,allWs,'All Records');
+    var fname='TowTrack_Payroll_'+ttD.driverName.replace(/\s+/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.xlsx';XLSX.writeFile(wb,fname);tT('Excel file downloaded!','success')});
 
-    var allWs=XLSX.utils.aoa_to_sheet(allData);
-    allWs['!cols']=[{wch:22},{wch:22},{wch:16},{wch:16},{wch:10}];
-    allWs['!merges']=[{s:{r:0,c:0},e:{r:0,c:4}},{s:{r:1,c:0},e:{r:1,c:4}}];
-    XLSX.utils.book_append_sheet(wb,allWs,'All Records');
-
-    // Download
-    var fname='TowTrack_Payroll_'+ttD.driverName.replace(/\s+/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.xlsx';
-    XLSX.writeFile(wb,fname);
-    tT('Excel file downloaded!','success');
-});
-
-// Copy report text
 document.getElementById('tt-btn-copy').addEventListener('click',function(){var cu=cp(),txt=rptT('Current Period',cu);navigator.clipboard.writeText(txt).then(function(){tT('Copied!','success')}).catch(function(){tT('Copy failed','error')})});
 
 function rS(){document.getElementById('tt-set-n').value=ttD.driverName}
