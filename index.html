@@ -9,6 +9,8 @@
     <link rel="apple-touch-icon" href="images/logo.jpeg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config={corePlugins:{preflight:false}}</script>
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         body{font-family:'Helvetica','Arial',sans-serif;line-height:1.6;color:#333;background:#f9f9fb;margin:0}
@@ -121,6 +123,10 @@
         @keyframes tt-bk{0%,100%{opacity:1}50%{opacity:.3}}
         .tt-topbar{background:linear-gradient(135deg,#0b3d91,#093070);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
         .tt-locked{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:8px 12px;font-size:12px;color:#fca5a5;display:flex;align-items:center;gap:6px}
+        .tt-driver-badge{background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(245,158,11,.04));border:1px solid rgba(245,158,11,.25);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px}
+        .tt-driver-avatar{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#000;flex-shrink:0}
+        .tt-total-row{background:rgba(245,158,11,.08);border-top:2px solid rgba(245,158,11,.3)}
+        .tt-total-row td{font-weight:700;color:#f59e0b;font-size:14px}
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -162,13 +168,30 @@
     </div></div>
 
     <!-- HISTORY -->
-    <div id="tt-scr-hist" class="tt-screen"><div class="px-5 pt-5 pb-4"><h2 class="text-2xl font-extrabold mb-0.5">Work History</h2><p class="text-sm mb-5" style="color:#6b6b6b">Your daily hours log</p><div class="flex gap-2 mb-5" id="tt-ptabs"><button class="tt-pt on" data-p="week">This Week</button><button class="tt-pt" data-p="month">This Month</button><button class="tt-pt" data-p="all">All Time</button></div><div class="tt-card mb-5 flex items-center justify-between"><div><p class="uppercase tracking-wider" style="font-size:10px;color:#6b6b6b">Total Hours</p><p id="tt-h-hrs" class="text-4xl font-black tt-mono" style="color:#f59e0b">0.0</p></div><div class="text-right"><p class="uppercase tracking-wider" style="font-size:10px;color:#6b6b6b">Days Worked</p><p id="tt-h-days" class="text-4xl font-black tt-mono">0</p></div></div><div class="rounded-2xl overflow-hidden border" style="border-color:#262626"><div class="overflow-x-auto max-h-[55vh] overflow-y-auto"><table class="tt-dtb"><thead><tr><th>Date</th><th>In</th><th>Out</th><th>Hrs</th><th>Proof</th></tr></thead><tbody id="tt-h-tb"></tbody></table></div></div></div></div>
+    <div id="tt-scr-hist" class="tt-screen"><div class="px-5 pt-5 pb-4"><h2 class="text-2xl font-extrabold mb-0.5">Work History</h2><p class="text-sm mb-5" style="color:#6b6b6b">Your daily hours log with period totals</p>
+        <!-- DRIVER NAME BADGE -->
+        <div id="tt-hist-driver" class="tt-driver-badge mb-4"><div id="tt-hist-avatar" class="tt-driver-avatar"></div><div><p class="text-xs font-medium uppercase tracking-wider" style="color:#6b6b6b">Driver</p><p id="tt-hist-dname" class="text-xl font-black"></p></div></div>
+        <div class="flex gap-2 mb-4 flex-wrap" id="tt-ptabs"><button class="tt-pt on" data-p="first">1st - 15th</button><button class="tt-pt" data-p="second">16th - End</button><button class="tt-pt" data-p="all">All Time</button></div>
+        <!-- Period Summary Cards -->
+        <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="tt-card text-center"><p class="uppercase tracking-wider" style="font-size:10px;color:#6b6b6b">1st - 15th Hours</p><p id="tt-h-first" class="text-2xl font-black tt-mono" style="color:#10b981">0.0</p></div>
+            <div class="tt-card text-center"><p class="uppercase tracking-wider" style="font-size:10px;color:#6b6b6b">16th - End Hours</p><p id="tt-h-second" class="text-2xl font-black tt-mono" style="color:#f59e0b">0.0</p></div>
+        </div>
+        <div class="tt-card mb-4 flex items-center justify-between"><div><p class="uppercase tracking-wider" style="font-size:10px;color:#6b6b6b">Selected Period Total</p><p id="tt-h-hrs" class="text-4xl font-black tt-mono" style="color:#f59e0b">0.0</p></div><div class="text-right"><p class="uppercase tracking-wider" style="font-size:10px;color:#6b6b6b">Days Worked</p><p id="tt-h-days" class="text-4xl font-black tt-mono">0</p></div></div>
+        <div class="rounded-2xl overflow-hidden border" style="border-color:#262626"><div class="overflow-x-auto max-h-[45vh] overflow-y-auto"><table class="tt-dtb"><thead><tr><th>Driver</th><th>Date</th><th>In</th><th>Out</th><th>Hours</th><th>Proof</th></tr></thead><tbody id="tt-h-tb"></tbody></table></div></div>
+    </div></div>
 
     <!-- REPORTS -->
-    <div id="tt-scr-rpt" class="tt-screen"><div class="px-5 pt-5 pb-4"><h2 class="text-2xl font-extrabold mb-0.5">Payroll Reports</h2><p class="text-sm mb-5" style="color:#6b6b6b">Biweekly summaries sent to company</p><div class="tt-card mb-4"><div class="flex items-center justify-between mb-2"><h3 class="font-bold text-base">Current Pay Period</h3><span class="px-3 py-1 rounded-full font-bold uppercase tracking-wider" style="font-size:10px;background:rgba(245,158,11,.2);color:#f59e0b">Active</span></div><p id="tt-rp-cur" class="tt-mono text-xs mb-4" style="color:#6b6b6b"></p><div class="grid grid-cols-2 gap-4"><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Total Hours</p><p id="tt-rp-ch" class="text-3xl font-black tt-mono" style="color:#f59e0b">0.0</p></div><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Days Worked</p><p id="tt-rp-cd" class="text-3xl font-black tt-mono">0</p></div></div></div><div class="tt-card mb-5"><div class="flex items-center justify-between mb-2"><h3 class="font-bold text-base">Previous Pay Period</h3><span class="px-3 py-1 rounded-full font-bold uppercase tracking-wider" style="font-size:10px;background:#1e1e1e;color:#6b6b6b">Closed</span></div><p id="tt-rp-prev" class="tt-mono text-xs mb-4" style="color:#6b6b6b"></p><div class="grid grid-cols-2 gap-4"><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Total Hours</p><p id="tt-rp-ph" class="text-3xl font-black tt-mono">0.0</p></div><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Days Worked</p><p id="tt-rp-pd" class="text-3xl font-black tt-mono">0</p></div></div></div><div class="rounded-2xl overflow-hidden border mb-5" style="border-color:#262626"><div class="overflow-x-auto max-h-[35vh] overflow-y-auto"><table class="tt-dtb"><thead><tr><th>Date</th><th>In</th><th>Out</th><th>Hours</th></tr></thead><tbody id="tt-rp-tb"></tbody></table></div></div><div class="flex flex-col gap-3"><button id="tt-btn-email" class="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2.5 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-black transition-all active:scale-[0.97] shadow-lg shadow-amber-500/15"><i class="fas fa-envelope"></i>Email Report to Company</button><button id="tt-btn-csv" class="w-full py-4 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 tt-card transition-all active:scale-[0.97]"><i class="fas fa-file-csv" style="color:#f59e0b"></i>Download CSV</button><button id="tt-btn-copy" class="w-full py-4 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 tt-card transition-all active:scale-[0.97]"><i class="fas fa-copy" style="color:#f59e0b"></i>Copy Report Text</button></div></div></div>
+    <div id="tt-scr-rpt" class="tt-screen"><div class="px-5 pt-5 pb-4"><h2 class="text-2xl font-extrabold mb-0.5">Payroll Reports</h2><p class="text-sm mb-5" style="color:#6b6b6b">Biweekly summaries sent to company</p>
+        <!-- DRIVER NAME BADGE -->
+        <div id="tt-rpt-driver" class="tt-driver-badge mb-5"><div id="tt-rpt-avatar" class="tt-driver-avatar"></div><div><p class="text-xs font-medium uppercase tracking-wider" style="color:#6b6b6b">Driver</p><p id="tt-rpt-dname" class="text-xl font-black"></p></div></div>
+        <div class="tt-card mb-4"><div class="flex items-center justify-between mb-2"><h3 class="font-bold text-base">Current Pay Period</h3><span class="px-3 py-1 rounded-full font-bold uppercase tracking-wider" style="font-size:10px;background:rgba(245,158,11,.2);color:#f59e0b">Active</span></div><p id="tt-rp-cur" class="tt-mono text-xs mb-4" style="color:#6b6b6b"></p><div class="grid grid-cols-2 gap-4"><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Total Hours</p><p id="tt-rp-ch" class="text-3xl font-black tt-mono" style="color:#f59e0b">0.0</p></div><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Days Worked</p><p id="tt-rp-cd" class="text-3xl font-black tt-mono">0</p></div></div></div>
+        <div class="tt-card mb-5"><div class="flex items-center justify-between mb-2"><h3 class="font-bold text-base">Previous Pay Period</h3><span class="px-3 py-1 rounded-full font-bold uppercase tracking-wider" style="font-size:10px;background:#1e1e1e;color:#6b6b6b">Closed</span></div><p id="tt-rp-prev" class="tt-mono text-xs mb-4" style="color:#6b6b6b"></p><div class="grid grid-cols-2 gap-4"><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Total Hours</p><p id="tt-rp-ph" class="text-3xl font-black tt-mono">0.0</p></div><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Days Worked</p><p id="tt-rp-pd" class="text-3xl font-black tt-mono">0</p></div></div></div>
+        <div class="rounded-2xl overflow-hidden border mb-5" style="border-color:#262626"><div class="overflow-x-auto max-h-[30vh] overflow-y-auto"><table class="tt-dtb"><thead><tr><th>Driver</th><th>Date</th><th>In</th><th>Out</th><th>Hours</th></tr></thead><tbody id="tt-rp-tb"></tbody></table></div></div>
+        <div class="flex flex-col gap-3"><button id="tt-btn-email" class="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2.5 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-black transition-all active:scale-[0.97] shadow-lg shadow-amber-500/15"><i class="fas fa-envelope"></i>Email Report to Company</button><button id="tt-btn-excel" class="w-full py-4 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 tt-card transition-all active:scale-[0.97]"><i class="fas fa-file-excel" style="color:#10b981"></i>Download Excel</button><button id="tt-btn-copy" class="w-full py-4 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 tt-card transition-all active:scale-[0.97]"><i class="fas fa-copy" style="color:#f59e0b"></i>Copy Report Text</button></div></div></div>
 
     <!-- SETTINGS -->
-    <div id="tt-scr-set" class="tt-screen"><div class="px-5 pt-5 pb-4"><h2 class="text-2xl font-extrabold mb-0.5">Settings</h2><p class="text-sm mb-5" style="color:#6b6b6b">Manage your profile</p><div class="space-y-4"><div class="tt-card"><label class="block text-xs font-semibold uppercase tracking-wider mb-2" style="color:#6b6b6b">Driver Name</label><input id="tt-set-n" type="text" class="tt-inp"></div><button id="tt-btn-ss" class="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-black transition-all active:scale-[0.97]"><i class="fas fa-check"></i>Save Name</button><div class="tt-locked"><i class="fas fa-lock"></i><span>Reports are sent to <strong>corridor.towing@gmail.com</strong> only. History cannot be deleted or modified.</span></div><div class="text-center pt-6 pb-2"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center mx-auto mb-3" style="transform:rotate(-6deg)"><i class="fas fa-truck-pickup text-xl text-white" style="transform:rotate(6deg)"></i></div><p class="font-extrabold text-lg">TowTrack Pro</p><p class="mt-0.5" style="font-size:10px;color:#6b6b6b">v2.1 — Secure driver logging</p></div></div></div></div>
+    <div id="tt-scr-set" class="tt-screen"><div class="px-5 pt-5 pb-4"><h2 class="text-2xl font-extrabold mb-0.5">Settings</h2><p class="text-sm mb-5" style="color:#6b6b6b">Manage your profile</p><div class="space-y-4"><div class="tt-card"><label class="block text-xs font-semibold uppercase tracking-wider mb-2" style="color:#6b6b6b">Driver Name</label><input id="tt-set-n" type="text" class="tt-inp"></div><button id="tt-btn-ss" class="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-black transition-all active:scale-[0.97]"><i class="fas fa-check"></i>Save Name</button><div class="tt-locked"><i class="fas fa-lock"></i><span>Reports are sent to <strong>corridor.towing@gmail.com</strong> only. History cannot be deleted or modified.</span></div><div class="text-center pt-6 pb-2"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center mx-auto mb-3" style="transform:rotate(-6deg)"><i class="fas fa-truck-pickup text-xl text-white" style="transform:rotate(6deg)"></i></div><p class="font-extrabold text-lg">TowTrack Pro</p><p class="mt-0.5" style="font-size:10px;color:#6b6b6b">v2.2 — Secure driver logging</p></div></div></div></div>
 
     <!-- CAMERA -->
     <div id="tt-camov" class="tt-camov"><div class="flex items-center justify-between px-5" style="padding-top:max(16px,env(safe-area-inset-top))"><div><p id="tt-cam-type" class="font-extrabold text-xl">CHECK IN</p><p id="tt-cam-dt" class="tt-mono text-xs" style="color:#6b6b6b"></p></div><button id="tt-btn-cx" class="w-11 h-11 rounded-full flex items-center justify-center" style="background:#141414"><i class="fas fa-xmark text-lg"></i></button></div><div class="flex-1 flex items-center justify-center px-4 py-3 relative"><video id="tt-cam-vid" autoplay playsinline muted class="w-full max-w-md rounded-2xl" style="transform:scaleX(-1)"></video><canvas id="tt-cam-cv" style="display:none"></canvas><div id="tt-cam-fl" class="absolute inset-0 bg-white pointer-events-none" style="opacity:0"></div></div><div class="flex flex-col items-center pb-6" style="padding-bottom:max(24px,env(safe-area-inset-bottom))"><p class="mb-3" style="font-size:10px;color:#6b6b6b">Make sure your face is clearly visible</p><button id="tt-btn-cap" class="rounded-full flex items-center justify-center transition-all active:scale-90" style="width:76px;height:76px;border:4px solid #f59e0b;background:rgba(245,158,11,.15)"><div class="rounded-full" style="width:56px;height:56px;background:#f59e0b"></div></button></div></div>
@@ -182,14 +205,10 @@
 
 <!-- ========== WEBSITE JS ========== -->
 <script>
-// ===== URL Routing: #driverPortal or #driverlog opens portal directly =====
 function openDP(){document.getElementById('public-site').style.display='none';document.getElementById('driver-app').style.display='block';document.getElementById('main-header').style.display='none';document.body.style.paddingTop='0';document.body.style.background='#0a0a0a';window.scrollTo(0,0);window.location.hash='driverPortal';initTT()}
 function closeDP(){document.getElementById('driver-app').style.display='none';document.getElementById('public-site').style.display='block';document.getElementById('main-header').style.display='block';document.body.style.paddingTop='100px';document.body.style.background='#f9f9fb';window.scrollTo(0,0);window.location.hash='';initTT_done=false}
-// Check URL hash on page load
 window.addEventListener('load',function(){var h=window.location.hash.replace('#','');if(h==='driverPortal'||h==='driverlog'){openDP()}});
-// Handle browser back/forward
 window.addEventListener('hashchange',function(){var h=window.location.hash.replace('#','');if(h==='driverPortal'||h==='driverlog'){if(!document.getElementById('driver-app').style.display||document.getElementById('driver-app').style.display==='none'){document.getElementById('public-site').style.display='none';document.getElementById('driver-app').style.display='block';document.getElementById('main-header').style.display='none';document.body.style.paddingTop='0';document.body.style.background='#0a0a0a';initTT()}}else{if(document.getElementById('driver-app').style.display==='block'){document.getElementById('driver-app').style.display='none';document.getElementById('public-site').style.display='block';document.getElementById('main-header').style.display='block';document.body.style.paddingTop='100px';document.body.style.background='#f9f9fb'}}});
-
 const mT=document.querySelector('.menu-toggle'),nM=document.getElementById('nav-menu');
 function toggleMenu(){nM.classList.toggle('show')}
 document.addEventListener('click',e=>{if(!mT.contains(e.target)&&!nM.contains(e.target))nM.classList.remove('show')});
@@ -204,6 +223,7 @@ async function autoCalcMiles(){let l=document.getElementById("vehicleLocation").
 document.getElementById("towDestination").addEventListener("blur",autoCalcMiles);
 function getCurrentLocation(){if(!navigator.geolocation){alert("Not supported.");return}navigator.geolocation.getCurrentPosition(async p=>{try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${p.coords.latitude}&lon=${p.coords.longitude}&zoom=18`);const d=await r.json();document.getElementById("vehicleLocation").value=d.display_name||`Lat: ${p.coords.latitude.toFixed(6)}, Lon: ${p.coords.longitude.toFixed(6)}`;autoCalcMiles()}catch{document.getElementById("vehicleLocation").value=`Lat: ${p.coords.latitude.toFixed(6)}, Lon: ${p.coords.longitude.toFixed(6)}`}},e=>{let m="Location error: ";if(e.code===1)m+="Permission denied.";else if(e.code===2)m+="Unavailable.";else if(e.code===3)m+="Timed out.";else m+="Unknown.";alert(m)},{timeout:10000,enableHighAccuracy:true})}
 function handleRequestSubmit(e){e.preventDefault();const fd={name:document.getElementById("req_name").value,phone:document.getElementById("req_phone").value,email:document.getElementById("req_email").value,vehicle:document.getElementById("req_vehicle").value||'Not provided',towmethod:document.getElementById("req_towmethod").value,starts:document.getElementById("req_starts").value,neutral:document.getElementById("req_neutral").value,attended:document.getElementById("req_attended").value,location:document.getElementById("vehicleLocation").value,destination:document.getElementById("towDestination").value||'N/A',service:document.getElementById("req_service").options[document.getElementById("req_service").selectedIndex].text,enroute:document.getElementById("req_enroute").value,tow:document.getElementById("req_tow").value,amount:document.getElementById("req_amount").value,payment:document.getElementById("paymentPreference").value,payMethod:document.getElementById("payMethod")?document.getElementById("payMethod").value:'N/A'};const msg=`New Towing Request!\n\nCustomer: ${fd.name}\nPhone: ${fd.phone}\nEmail: ${fd.email}\n\nVehicle: ${fd.vehicle}\nStarts: ${fd.starts} | Neutral: ${fd.neutral} | Attended: ${fd.attended}\nTow Method: ${fd.towmethod}\n\nService: ${fd.service}\nPickup: ${fd.location}\nDestination: ${fd.destination}\nEnroute: ${fd.enroute} mi (first 5 free)\nTow: ${fd.tow} mi\n\nTotal: $${fd.amount}\nPayment: ${fd.payment==='pay-now'?'Pay now via '+fd.payMethod:'Pay on arrival'}\n\nPlease call to confirm!`;fetch("https://formspree.io/f/xdkyonjb",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subject:`New Tow Request - ${fd.name}`,message:msg})}).then(()=>{document.getElementById("confirmation").style.display="block";document.getElementById("confirmation").innerHTML="<strong>Thank you!</strong> Request sent. We'll call shortly.";if(fd.payment==='pay-now'){document.getElementById("paymentAmountDisplay").textContent="$"+fd.amount;document.getElementById("confirmation").innerHTML+="<br><br><strong>Complete payment below.</strong>";setTimeout(()=>window.scrollTo({top:document.querySelector("#payment").offsetTop-100,behavior:'smooth'}),1500)}document.getElementById("submitBtn").disabled=true;document.getElementById("submitBtn").textContent="Request Sent"}).catch(()=>alert("Error. Call (804) 292-8414."))}
+window.onload=()=>calculateTotal();
 </script>
 
 <!-- ========== DRIVER PORTAL JS ========== -->
@@ -212,7 +232,7 @@ var initTT_done=false,ttD={driverName:'',records:[]},ttCS=null,ttCM=null,ttDB=nu
 var COMPANY_EMAIL='corridor.towing@gmail.com';
 
 function initTT(){if(initTT_done)return;initTT_done=true;
-var SK='tt_meta_v5';
+var SK='tt_meta_v6';
 
 function oDB(){return new Promise(function(r,j){if(ttDB){r(ttDB);return}var q=indexedDB.open('TowTrackPhotos',1);q.onupgradeneeded=function(e){var d=e.target.result;if(!d.objectStoreNames.contains('photos'))d.createObjectStore('photos',{keyPath:'id'})};q.onsuccess=function(e){ttDB=e.target.result;r(ttDB)};q.onerror=function(e){j(e.target.error)}})}
 function sP(id,d){return oDB().then(function(db){return new Promise(function(r,j){var tx=db.transaction('photos','readwrite');tx.objectStore('photos').put({id:id,data:d});tx.oncomplete=function(){r()};tx.onerror=function(e){j(e.target.error)}})})}
@@ -227,6 +247,7 @@ function dK(t){var d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+
 function tK(){return dK(Date.now())}
 function cH(a,b){return Math.round((b-a)/36e5)/100}
 function pDK(dk){var p=dk.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
+function initials(name){var p=name.trim().split(/\s+/);return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():name.substring(0,2).toUpperCase()}
 
 function tT(msg,type){type=type||'info';var ic={success:'fa-check-circle text-emerald-400',error:'fa-circle-exclamation text-red-400',warning:'fa-triangle-exclamation text-amber-400',info:'fa-circle-info text-sky-400'};var el=document.createElement('div');el.className='tt-ti';el.innerHTML='<i class="fas '+(ic[type]||ic.info)+'"></i><span>'+msg+'</span>';document.getElementById('tt-tbox').appendChild(el);setTimeout(function(){if(el.parentNode)el.remove()},3200)}
 function sS(){var el=document.getElementById('tt-spop');el.classList.add('active');setTimeout(function(){el.classList.remove('active')},900)}
@@ -236,18 +257,10 @@ document.getElementById('tt-pvw').addEventListener('click',function(){this.class
 
 function go(id){document.querySelectorAll('.tt-screen').forEach(function(s){s.classList.remove('active')});var sc=document.getElementById('tt-scr-'+id);if(sc)sc.classList.add('active');document.querySelectorAll('.tt-ni').forEach(function(n){n.classList.toggle('active',n.dataset.s===id)});if(id==='dash')rD();if(id==='hist')rH();if(id==='rpt')rR();if(id==='set')rS()}
 
-document.getElementById('tt-btn-setup').addEventListener('click',function(){
-    var n=document.getElementById('tt-inp-name').value.trim();
-    if(!n){tT('Enter your name','error');return}
-    ttD.driverName=n;sv();
-    document.getElementById('tt-nav').style.display='block';go('dash');tT('Welcome, '+n+'!','success');
-    reqCam(function(){});
-});
-
+document.getElementById('tt-btn-setup').addEventListener('click',function(){var n=document.getElementById('tt-inp-name').value.trim();if(!n){tT('Enter your name','error');return}ttD.driverName=n;sv();document.getElementById('tt-nav').style.display='block';go('dash');tT('Welcome, '+n+'!','success');reqCam(function(){})});
 function reqCam(cb){if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){tT('Camera requires HTTPS','error');cb(false);return}navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false}).then(function(s){s.getTracks().forEach(function(t){t.stop()});cb(true)}).catch(function(e){var m='Camera error.';if(e.name==='NotAllowedError')m='Camera permission denied. Allow in browser settings and try again.';else if(e.name==='NotFoundError')m='No camera found.';tT(m,'error');cb(false)})}
 
 function startClk(){function t(){var n=new Date();var te=document.getElementById('tt-d-time'),de=document.getElementById('tt-d-date');if(te)te.textContent=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});if(de)de.textContent=n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});var cd=document.getElementById('tt-cam-dt');if(cd)cd.textContent=n.toLocaleString()}t();setInterval(t,1000)}
-
 function autoCl(){var tk=tK(),ch=false;ttD.records.forEach(function(r){if(r.checkIn&&!r.checkOut&&r.date!==tk){var ci=new Date(r.checkIn.time);r.checkOut={time:new Date(ci.getFullYear(),ci.getMonth(),ci.getDate(),23,59,59).getTime()};r.hours=cH(r.checkIn.time,r.checkOut.time);ch=true}});if(ch){sv();tT('Previous check-in auto-closed','warning')}}
 
 function rD(){autoCl();document.getElementById('tt-d-name').textContent=ttD.driverName;
@@ -284,13 +297,48 @@ document.getElementById('tt-btn-act').addEventListener('click',function(){var oR
 document.getElementById('tt-btn-cap').addEventListener('click',capPhoto);
 document.getElementById('tt-btn-cx').addEventListener('click',function(){closeCam();ttCM=null});
 
-var hp='week';
-function rH(){var now=new Date();var recs=ttD.records.slice().sort(function(a,b){return b.date.localeCompare(a.date)});if(hp==='week'){var wa=new Date(now);wa.setDate(wa.getDate()-7);recs=recs.filter(function(r){return r.date>=dK(wa.getTime())})}else if(hp==='month'){var mk=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');recs=recs.filter(function(r){return r.date.startsWith(mk)})}
-var th=0,td=0;recs.forEach(function(r){if(r.hours!=null)th+=r.hours;if(r.checkIn)td++});document.getElementById('tt-h-hrs').textContent=th.toFixed(1);document.getElementById('tt-h-days').textContent=td;
-var tb=document.getElementById('tt-h-tb');if(!recs.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#6b6b6b;padding:40px 0">No records</td></tr>';return}
-var h='';recs.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric'}),ws=d.toLocaleDateString('en-US',{weekday:'short'});var iT=r.checkIn?fTs(r.checkIn.time):'--',oT=r.checkOut?fTs(r.checkOut.time):'--',hr=r.hours!=null?r.hours.toFixed(1):'<span style="color:#f59e0b;font-size:11px;font-weight:700">OPEN</span>';
-h+='<tr><td><span style="font-weight:600">'+ds+'</span><br><span style="font-size:10px;color:#6b6b6b">'+ws+'</span></td><td class="tt-mono" style="font-size:12px">'+iT+'</td><td class="tt-mono" style="font-size:12px">'+oT+'</td><td class="tt-mono" style="font-weight:700">'+hr+'</td><td><div style="display:flex;gap:4px;align-items:center"><img id="thi-'+r.id+'" class="tt-pth" src="" style="display:none"><img id="tho-'+r.id+'" class="tt-pth" src="" style="display:none"><span id="thn-'+r.id+'" style="color:#6b6b6b;font-size:11px">--</span></div></td></tr>'});
-tb.innerHTML=h;recs.forEach(function(r){var ie=document.getElementById('thi-'+r.id),oe=document.getElementById('tho-'+r.id),ne=document.getElementById('thn-'+r.id);var l=0;if(r.checkIn)gP(r.id+'_in').then(function(d){if(d&&ie){ie.src=d;ie.style.display='inline-block';ie.onclick=function(){vP(d)};l++;if(ne)ne.style.display='none'}});if(r.checkOut)gP(r.id+'_out').then(function(d){if(d&&oe){oe.src=d;oe.style.display='inline-block';oe.onclick=function(){vP(d)};l++;if(ne)ne.style.display='none'}})})}
+// ===== HISTORY WITH PERIOD-BASED HOURS =====
+var hp='first';
+function getFirstPeriodRecs(yr,mo){return ttD.records.filter(function(r){var d=pDK(r.date);return d.getFullYear()===yr&&d.getMonth()===mo&&d.getDate()<=15})}
+function getSecondPeriodRecs(yr,mo){return ttD.records.filter(function(r){var d=pDK(r.date);return d.getFullYear()===yr&&d.getMonth()===mo&&d.getDate()>=16})}
+
+function rH(){
+    // Driver name badge
+    document.getElementById('tt-hist-avatar').textContent=initials(ttD.driverName);
+    document.getElementById('tt-hist-dname').textContent=ttD.driverName;
+    
+    var now=new Date(),yr=now.getFullYear(),mo=now.getMonth();
+    var allRecs=ttD.records.slice().sort(function(a,b){return b.date.localeCompare(a.date)});
+    
+    // Calculate hours for both periods
+    var firstRecs=getFirstPeriodRecs(yr,mo);
+    var secondRecs=getSecondPeriodRecs(yr,mo);
+    var firstHrs=0,secondHrs=0;
+    firstRecs.forEach(function(r){if(r.hours!=null)firstHrs+=r.hours});
+    secondRecs.forEach(function(r){if(r.hours!=null)secondHrs+=r.hours});
+    
+    document.getElementById('tt-h-first').textContent=firstHrs.toFixed(1);
+    document.getElementById('tt-h-second').textContent=secondHrs.toFixed(1);
+    
+    // Filter based on selected period
+    var recs;
+    if(hp==='first'){
+        recs=firstRecs.slice().sort(function(a,b){return b.date.localeCompare(a.date)});
+    }else if(hp==='second'){
+        recs=secondRecs.slice().sort(function(a,b){return b.date.localeCompare(a.date)});
+    }else{
+        recs=allRecs;
+    }
+    
+    var th=0,td=0;recs.forEach(function(r){if(r.hours!=null)th+=r.hours;if(r.checkIn)td++});document.getElementById('tt-h-hrs').textContent=th.toFixed(1);document.getElementById('tt-h-days').textContent=td;
+    
+    var tb=document.getElementById('tt-h-tb');if(!recs.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#6b6b6b;padding:40px 0">No records for this period</td></tr>';return}
+    var h='';recs.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric'}),ws=d.toLocaleDateString('en-US',{weekday:'short'});var iT=r.checkIn?fTs(r.checkIn.time):'--',oT=r.checkOut?fTs(r.checkOut.time):'--',hr=r.hours!=null?r.hours.toFixed(1):'<span style="color:#f59e0b;font-size:11px;font-weight:700">OPEN</span>';
+    h+='<tr><td style="font-weight:600;color:#f59e0b;font-size:12px">'+ttD.driverName+'</td><td><span style="font-weight:600">'+ds+'</span><br><span style="font-size:10px;color:#6b6b6b">'+ws+'</span></td><td class="tt-mono" style="font-size:12px">'+iT+'</td><td class="tt-mono" style="font-size:12px">'+oT+'</td><td class="tt-mono" style="font-weight:700">'+hr+'</td><td><div style="display:flex;gap:4px;align-items:center"><img id="thi-'+r.id+'" class="tt-pth" src="" style="display:none"><img id="tho-'+r.id+'" class="tt-pth" src="" style="display:none"><span id="thn-'+r.id+'" style="color:#6b6b6b;font-size:11px">--</span></div></td></tr>'});
+    // Add total row
+    h+='<tr class="tt-total-row"><td colspan="4" style="text-align:right">TOTAL HOURS:</td><td class="tt-mono" style="font-size:16px">'+th.toFixed(1)+'</td><td></td></tr>';
+    tb.innerHTML=h;recs.forEach(function(r){var ie=document.getElementById('thi-'+r.id),oe=document.getElementById('tho-'+r.id),ne=document.getElementById('thn-'+r.id);var l=0;if(r.checkIn)gP(r.id+'_in').then(function(d){if(d&&ie){ie.src=d;ie.style.display='inline-block';ie.onclick=function(){vP(d)};l++;if(ne)ne.style.display='none'}});if(r.checkOut)gP(r.id+'_out').then(function(d){if(d&&oe){oe.src=d;oe.style.display='inline-block';oe.onclick=function(){vP(d)};l++;if(ne)ne.style.display='none'}})})}
+
 document.getElementById('tt-ptabs').addEventListener('click',function(e){var b=e.target.closest('.tt-pt');if(!b)return;hp=b.dataset.p;document.querySelectorAll('.tt-pt').forEach(function(t){t.classList.remove('on')});b.classList.add('on');rH()});
 
 function pp(ts){var d=new Date(ts),dy=d.getDate(),mo=d.getMonth(),yr=d.getFullYear();if(dy<=15)return{s:new Date(yr,mo,1),e:new Date(yr,mo,15,23,59,59)};var l=new Date(yr,mo+1,0).getDate();return{s:new Date(yr,mo,16),e:new Date(yr,mo,l,23,59,59)}}
@@ -298,25 +346,135 @@ function cp(){return pp(Date.now())}
 function ppv(){var n=new Date();if(n.getDate()<=15){var l=new Date(n.getFullYear(),n.getMonth(),0).getDate();return{s:new Date(n.getFullYear(),n.getMonth()-1,16),e:new Date(n.getFullYear(),n.getMonth()-1,l,23,59,59)}}return{s:new Date(n.getFullYear(),n.getMonth(),1),e:new Date(n.getFullYear(),n.getMonth(),15,23,59,59)}}
 function rp(p){var sk=dK(p.s.getTime()),ek=dK(p.e.getTime());return ttD.records.filter(function(r){return r.date>=sk&&r.date<=ek})}
 
-function rR(){var cu=cp(),pv=ppv();document.getElementById('tt-rp-cur').textContent=fD(cu.s.getTime())+' \u2014 '+fD(cu.e.getTime());document.getElementById('tt-rp-prev').textContent=fD(pv.s.getTime())+' \u2014 '+fD(pv.e.getTime());
+function rR(){var cu=cp(),pv=ppv();
+// Driver name badge
+document.getElementById('tt-rpt-avatar').textContent=initials(ttD.driverName);
+document.getElementById('tt-rpt-dname').textContent=ttD.driverName;
+document.getElementById('tt-rp-cur').textContent=fD(cu.s.getTime())+' \u2014 '+fD(cu.e.getTime());document.getElementById('tt-rp-prev').textContent=fD(pv.s.getTime())+' \u2014 '+fD(pv.e.getTime());
 var cr=rp(cu),pr=rp(pv),ch=0,cd=cr.length;cr.forEach(function(r){if(r.hours!=null)ch+=r.hours});document.getElementById('tt-rp-ch').textContent=ch.toFixed(1);document.getElementById('tt-rp-cd').textContent=cd;var ph=0,pd=pr.length;pr.forEach(function(r){if(r.hours!=null)ph+=r.hours});document.getElementById('tt-rp-ph').textContent=ph.toFixed(1);document.getElementById('tt-rp-pd').textContent=pd;
-var tb=document.getElementById('tt-rp-tb'),so=cr.slice().sort(function(a,b){return a.date.localeCompare(b.date)});if(!so.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:#6b6b6b;padding:30px 0">No entries</td></tr>'}else{var h='';so.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});var iT=r.checkIn?fTs(r.checkIn.time):'--',oT=r.checkOut?fTs(r.checkOut.time):'--',hr=r.hours!=null?r.hours.toFixed(1):'<span style="color:#f59e0b;font-size:11px;font-weight:700">OPEN</span>';h+='<tr><td>'+ds+'</td><td class="tt-mono" style="font-size:12px">'+iT+'</td><td class="tt-mono" style="font-size:12px">'+oT+'</td><td class="tt-mono" style="font-weight:700">'+hr+'</td></tr>'});tb.innerHTML=h}}
+var tb=document.getElementById('tt-rp-tb'),so=cr.slice().sort(function(a,b){return a.date.localeCompare(b.date)});if(!so.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#6b6b6b;padding:30px 0">No entries</td></tr>'}else{var h='';so.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});var iT=r.checkIn?fTs(r.checkIn.time):'--',oT=r.checkOut?fTs(r.checkOut.time):'--',hr=r.hours!=null?r.hours.toFixed(1):'<span style="color:#f59e0b;font-size:11px;font-weight:700">OPEN</span>';h+='<tr><td style="font-weight:600;color:#f59e0b;font-size:12px">'+ttD.driverName+'</td><td>'+ds+'</td><td class="tt-mono" style="font-size:12px">'+iT+'</td><td class="tt-mono" style="font-size:12px">'+oT+'</td><td class="tt-mono" style="font-weight:700">'+hr+'</td></tr>'});
+// Add total row to reports
+h+='<tr class="tt-total-row"><td colspan="4" style="text-align:right">TOTAL HOURS:</td><td class="tt-mono" style="font-size:16px">'+ch.toFixed(1)+'</td></tr>';
+tb.innerHTML=h}}
 
-function rptT(pl,per){var rs=rp(per).slice().sort(function(a,b){return a.date.localeCompare(b.date)}),th=0;rs.forEach(function(r){if(r.hours!=null)th+=r.hours});var l=[];l.push('CORRIDOR TOWING - PAYROLL REPORT');l.push('=================================');l.push('Driver: '+ttD.driverName);l.push('Period: '+pl);l.push('Date Range: '+fD(per.s.getTime())+' - '+fD(per.e.getTime()));l.push('Total Hours: '+th.toFixed(1));l.push('Days Worked: '+rs.length);l.push('');l.push('DATE\t\tCHECK IN\tCHECK OUT\tHOURS');l.push('----\t\t--------\t---------\t-----');rs.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});var iT=r.checkIn?fT(r.checkIn.time):'N/A',oT=r.checkOut?fT(r.checkOut.time):'N/A',hr=r.hours!=null?r.hours.toFixed(1):'OPEN';l.push(ds+'\t'+iT+'\t'+oT+'\t'+hr)});l.push('');l.push('Generated: '+new Date().toLocaleString());return l.join('\n')}
+function rptT(pl,per){var rs=rp(per).slice().sort(function(a,b){return a.date.localeCompare(b.date)}),th=0;rs.forEach(function(r){if(r.hours!=null)th+=r.hours});var l=[];
+l.push('===========================================================');l.push('       CORRIDOR TOWING & TRANSPORTATION SERVICES');l.push('              PAYROLL / HOURS REPORT');l.push('===========================================================');l.push('');l.push('  DRIVER NAME:   '+ttD.driverName.toUpperCase());l.push('  PERIOD:        '+pl);l.push('  DATE RANGE:    '+fD(per.s.getTime())+' - '+fD(per.e.getTime()));l.push('  TOTAL HOURS:   '+th.toFixed(1));l.push('  DAYS WORKED:   '+rs.length);l.push('');l.push('-----------------------------------------------------------');l.push('  DRIVER          DATE            CHECK IN        CHECK OUT      HOURS');l.push('-----------------------------------------------------------');rs.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});var iT=r.checkIn?fT(r.checkIn.time):'N/A',oT=r.checkOut?fT(r.checkOut.time):'N/A',hr=r.hours!=null?r.hours.toFixed(1):'OPEN';
+l.push('  '+ttD.driverName.substring(0,14).padEnd(16)+ds+'    '+iT+'      '+oT+'    '+hr)});l.push('-----------------------------------------------------------');l.push('');l.push('  REPORT SENT TO: '+COMPANY_EMAIL);l.push('  GENERATED:      '+new Date().toLocaleString());return l.join('\n')}
 
-// Report ONLY goes to company email - hardcoded
+// Email report - company email only
 document.getElementById('tt-btn-email').addEventListener('click',function(){
     var cu=cp(),pl='Current Period ('+fD(cu.s.getTime())+' - '+fD(cu.e.getTime())+')',bd=rptT(pl,cu),sb='Payroll Report - '+ttD.driverName+' - '+fD(cu.s.getTime())+' to '+fD(cu.e.getTime());
     tT('Sending report to company...','info');
-    fetch("https://formspree.io/f/xdkyonjb",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subject:sb,message:bd})}).then(function(){tT('Report sent to corridor.towing@gmail.com!','success')}).catch(function(){tT('Failed to send report','error')})});
-document.getElementById('tt-btn-csv').addEventListener('click',function(){var cu=cp(),rs=rp(cu).slice().sort(function(a,b){return a.date.localeCompare(b.date)}),csv='Date,Check In,Check Out,Hours\n';rs.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US');var iT=r.checkIn?fT(r.checkIn.time):'',oT=r.checkOut?fT(r.checkOut.time):'',hr=r.hours!=null?r.hours.toFixed(2):'';csv+='"'+ds+'","'+iT+'","'+oT+'","'+hr+'"\n'});var bl=new Blob([csv],{type:'text/csv'}),u=URL.createObjectURL(bl),a=document.createElement('a');a.href=u;a.download='TowTrack_'+ttD.driverName.replace(/\s+/g,'_')+'.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);tT('CSV downloaded!','success')});
+    fetch("https://formspree.io/f/xdkyonjb",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subject:sb,message:bd})}).then(function(){tT('Report sent to '+COMPANY_EMAIL+'!','success')}).catch(function(){tT('Failed to send report','error')})});
+
+// ===== EXCEL DOWNLOAD using SheetJS =====
+document.getElementById('tt-btn-excel').addEventListener('click',function(){
+    if(typeof XLSX==='undefined'){tT('Excel library not loaded. Check internet connection.','error');return}
+    var cu=cp(),pv=ppv();
+
+    // Create workbook
+    var wb=XLSX.utils.book_new();
+
+    // === Sheet 1: Current Period ===
+    var cr=rp(cu).slice().sort(function(a,b){return a.date.localeCompare(b.date)});
+    var curHrs=0;cr.forEach(function(r){if(r.hours!=null)curHrs+=r.hours});
+
+    var curData=[
+        ['CORRIDOR TOWING & TRANSPORTATION SERVICES'],
+        ['PAYROLL / HOURS REPORT'],
+        [''],
+        ['Driver Name:', ttD.driverName],
+        ['Period:', 'Current Period'],
+        ['Date Range:', fD(cu.s.getTime())+' - '+fD(cu.e.getTime())],
+        ['Total Hours:', curHrs.toFixed(1)],
+        ['Days Worked:', cr.length],
+        [''],
+        ['Driver','Date','Check In','Check Out','Hours']
+    ];
+    cr.forEach(function(r){
+        var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+        var iT=r.checkIn?fT(r.checkIn.time):'N/A',oT=r.checkOut?fT(r.checkOut.time):'N/A',hr=r.hours!=null?r.hours.toFixed(2):'';
+        curData.push([ttD.driverName,ds,iT,oT,hr?parseFloat(hr):'']);
+    });
+    // Add total row
+    curData.push(['','','','TOTAL:',curHrs.toFixed(2)]);
+
+    var curWs=XLSX.utils.aoa_to_sheet(curData);
+    // Column widths
+    curWs['!cols']=[{wch:22},{wch:22},{wch:16},{wch:16},{wch:10}];
+    // Merge company name header
+    curWs['!merges']=[{s:{r:0,c:0},e:{r:0,c:4}},{s:{r:1,c:0},e:{r:1,c:4}}];
+    XLSX.utils.book_append_sheet(wb,curWs,'Current Period');
+
+    // === Sheet 2: Previous Period ===
+    var pr=rp(pv).slice().sort(function(a,b){return a.date.localeCompare(b.date)});
+    var prevHrs=0;pr.forEach(function(r){if(r.hours!=null)prevHrs+=r.hours});
+
+    var prevData=[
+        ['CORRIDOR TOWING & TRANSPORTATION SERVICES'],
+        ['PAYROLL / HOURS REPORT'],
+        [''],
+        ['Driver Name:', ttD.driverName],
+        ['Period:', 'Previous Period'],
+        ['Date Range:', fD(pv.s.getTime())+' - '+fD(pv.e.getTime())],
+        ['Total Hours:', prevHrs.toFixed(1)],
+        ['Days Worked:', pr.length],
+        [''],
+        ['Driver','Date','Check In','Check Out','Hours']
+    ];
+    pr.forEach(function(r){
+        var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+        var iT=r.checkIn?fT(r.checkIn.time):'N/A',oT=r.checkOut?fT(r.checkOut.time):'N/A',hr=r.hours!=null?r.hours.toFixed(2):'';
+        prevData.push([ttD.driverName,ds,iT,oT,hr?parseFloat(hr):'']);
+    });
+    // Add total row
+    prevData.push(['','','','TOTAL:',prevHrs.toFixed(2)]);
+
+    var prevWs=XLSX.utils.aoa_to_sheet(prevData);
+    prevWs['!cols']=[{wch:22},{wch:22},{wch:16},{wch:16},{wch:10}];
+    prevWs['!merges']=[{s:{r:0,c:0},e:{r:0,c:4}},{s:{r:1,c:0},e:{r:1,c:4}}];
+    XLSX.utils.book_append_sheet(wb,prevWs,'Previous Period');
+
+    // === Sheet 3: All Records ===
+    var allRecs=ttD.records.slice().sort(function(a,b){return a.date.localeCompare(b.date)});
+    var allHrs=0;allRecs.forEach(function(r){if(r.hours!=null)allHrs+=r.hours});
+
+    var allData=[
+        ['CORRIDOR TOWING & TRANSPORTATION SERVICES'],
+        ['COMPLETE WORK LOG'],
+        [''],
+        ['Driver Name:', ttD.driverName],
+        ['Total Hours (All Time):', allHrs.toFixed(1)],
+        ['Total Days:', allRecs.length],
+        [''],
+        ['Driver','Date','Check In','Check Out','Hours']
+    ];
+    allRecs.forEach(function(r){
+        var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+        var iT=r.checkIn?fT(r.checkIn.time):'N/A',oT=r.checkOut?fT(r.checkOut.time):'N/A',hr=r.hours!=null?r.hours.toFixed(2):'';
+        allData.push([ttD.driverName,ds,iT,oT,hr?parseFloat(hr):'']);
+    });
+    // Add total row
+    allData.push(['','','','TOTAL:',allHrs.toFixed(2)]);
+
+    var allWs=XLSX.utils.aoa_to_sheet(allData);
+    allWs['!cols']=[{wch:22},{wch:22},{wch:16},{wch:16},{wch:10}];
+    allWs['!merges']=[{s:{r:0,c:0},e:{r:0,c:4}},{s:{r:1,c:0},e:{r:1,c:4}}];
+    XLSX.utils.book_append_sheet(wb,allWs,'All Records');
+
+    // Download
+    var fname='TowTrack_Payroll_'+ttD.driverName.replace(/\s+/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.xlsx';
+    XLSX.writeFile(wb,fname);
+    tT('Excel file downloaded!','success');
+});
+
+// Copy report text
 document.getElementById('tt-btn-copy').addEventListener('click',function(){var cu=cp(),txt=rptT('Current Period',cu);navigator.clipboard.writeText(txt).then(function(){tT('Copied!','success')}).catch(function(){tT('Copy failed','error')})});
 
 function rS(){document.getElementById('tt-set-n').value=ttD.driverName}
 document.getElementById('tt-btn-ss').addEventListener('click',function(){var n=document.getElementById('tt-set-n').value.trim();if(!n){tT('Name required','error');return}ttD.driverName=n;sv();tT('Name saved!','success');rD()});
 document.getElementById('tt-nav').addEventListener('click',function(e){var it=e.target.closest('.tt-ni');if(!it)return;go(it.dataset.s)});
 
-// Init
 ld();startClk();oDB().catch(function(){});
 if(ttD.driverName){document.getElementById('tt-nav').style.display='block';go('dash')}
 }
