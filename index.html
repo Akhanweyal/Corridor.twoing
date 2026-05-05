@@ -4,679 +4,318 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Corridor Towing & Transportation Services</title>
-    <!-- Favicon (your logo will now show in browser tab & Google search) -->
     <link rel="icon" href="images/logo.jpeg" type="image/png">
     <link rel="shortcut icon" href="images/logo.jpeg" type="image/png">
     <link rel="apple-touch-icon" href="images/logo.jpeg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={corePlugins:{preflight:false}}</script>
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Helvetica', 'Arial', sans-serif; line-height: 1.6; color: #333; background: #f9f9fb; margin: 0; }
-        a { text-decoration: none; color: inherit; }
-        img, svg { max-width: 100%; height: auto; display: block; }
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Helvetica','Arial',sans-serif;line-height:1.6;color:#333;background:#f9f9fb;margin:0}
+        a{text-decoration:none;color:inherit}
+        img,svg{max-width:100%;height:auto;display:block}
+        .container{max-width:1200px;margin:0 auto;padding:0 15px}
+        header{background:#0b3d91;color:#fff;padding:1rem 0;position:fixed;top:0;left:0;right:0;z-index:1000;transition:transform .3s ease;transform:translateY(0)}
+        .header-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+        .logo-container{display:flex;align-items:center;gap:12px}
+        .logo img{height:60px;width:auto;border-radius:8px}
+        .company-name{font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:.5px;white-space:nowrap}
+        .menu-toggle{display:none;font-size:1.8rem;cursor:pointer;color:#fff}
+        nav ul{display:flex;gap:1.5rem;list-style:none;flex-wrap:wrap}
+        nav a{color:#fff;font-weight:600;font-size:1rem;padding:.5rem 0;transition:color .3s;cursor:pointer}
+        nav a:hover,nav a.active{color:#ffcc00}
+        body{padding-top:100px}
+        .hero{background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),url('https://automanager.blob.core.windows.net/wmphotos/010796/d047f3d22b6785429d510d5b6df71773/56723d1a0f_640.jpg') center/cover no-repeat;color:#fff;text-align:center;padding:5rem 1rem}
+        .hero h1{font-size:2.5rem;margin-bottom:1rem}
+        .hero p{font-size:1.1rem;margin-bottom:1.5rem;max-width:700px;margin-left:auto;margin-right:auto}
+        .cta-btn{display:inline-block;background:#ffcc00;color:#0b3d91;padding:.8rem 2rem;border-radius:50px;font-weight:bold;font-size:1.1rem;transition:background .3s;margin:.5rem}
+        .cta-btn:hover{background:#e6b800}
+        section{padding:3rem 0}
+        .services{background:#fff}
+        .section-title{text-align:center;margin-bottom:2rem;font-size:2rem;color:#0b3d91}
+        .pricing-table{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:1.5rem}
+        .price-card{background:#fff;border:2px solid #0b3d91;border-radius:12px;padding:1.5rem;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:transform .3s}
+        .price-card:hover{transform:translateY(-8px)}
+        .price-card h3{color:#0b3d91;margin-bottom:.5rem;font-size:1.3rem}
+        .price-card .price{font-size:1.8rem;font-weight:bold;color:#ffcc00;margin:1rem 0}
+        .price-card ul{text-align:left;margin:1rem 0;font-size:.95rem}
+        .price-card li{margin:.4rem 0}
+        .form-dropdown{max-width:600px;margin:2rem auto;background:#fff;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.1);overflow:hidden}
+        .dropdown-content{padding:1.8rem;display:block}
+        .form-group{margin-bottom:1rem}
+        label{display:block;margin-bottom:.5rem;font-weight:bold;color:#0b3d91}
+        input,select,textarea{width:100%;padding:.75rem;border:1px solid #ccc;border-radius:5px;font-size:1rem}
+        textarea{resize:vertical;height:90px}
+        .submit-btn{background:#0b3d91;color:#fff;padding:.8rem 2rem;border:none;border-radius:50px;font-weight:bold;cursor:pointer;transition:background .3s;font-size:1.1rem;width:100%;margin-top:.5rem}
+        .submit-btn:hover{background:#093070}
+        .location-btn{background:#ffcc00;color:#0b3d91;padding:.8rem 1.5rem;border:none;border-radius:50px;font-weight:bold;cursor:pointer;margin-top:.5rem}
+        .payment-note{margin-top:1rem;padding:1rem;background:#fff8e1;border-radius:8px;font-size:.95rem;color:#555}
+        .services-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;margin-top:2rem}
+        .service-img{border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:transform .3s;text-align:center;background:#fff8e1;padding:1rem}
+        .service-img:hover{transform:scale(1.03)}
+        .service-img img,.service-img svg{width:100%;height:180px;object-fit:contain}
+        .payment-options{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin:1.5rem 0}
+        .payment-btn{background:#fff;border:2px solid #0b3d91;color:#0b3d91;padding:1rem 1.2rem;border-radius:10px;font-weight:bold;text-align:center;flex:1;min-width:130px;transition:all .3s}
+        .payment-btn:hover{background:#0b3d91;color:#fff}
+        .payment-btn i{font-size:1.6rem;display:block;margin-bottom:.4rem}
+        #contact{background:#0b3d91;color:#fff;text-align:center}
+        .contact-info{max-width:600px;margin:0 auto}
+        .contact-info h2{margin-bottom:1.5rem;font-size:2rem}
+        .contact-info p{margin-bottom:1rem;font-size:1.1rem}
+        .contact-info a{color:#ffcc00;font-weight:bold}
+        footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:.9rem}
+        @media(max-width:768px){body{padding-top:90px}.logo img{height:50px}.company-name{font-size:.95rem}.menu-toggle{display:block}nav ul{display:none;flex-direction:column;width:100%;background:#0b3d91;padding:1rem 0;position:fixed;top:80px;left:0;z-index:999;max-height:calc(100vh - 80px);overflow-y:auto}nav ul.show{display:flex}nav li{width:100%;text-align:center}nav a{display:block;padding:1.5rem 0;font-size:1.2rem}.hero{padding:4rem 1rem}.hero h1{font-size:2rem}.pricing-table{grid-template-columns:1fr}}
+        #payMethodGroup{display:none}
+        .estimate-bar{margin:1rem 0;padding:.8rem;background:#e6f3ff;border-radius:8px;font-size:.95rem;color:#0b3d91;display:none}
+        #confirmation{display:none;margin-top:1rem;padding:1rem;background:#d4edda;border-radius:8px;text-align:center;font-weight:bold}
+        .vehicle-group{display:flex;gap:1rem;flex-wrap:wrap}
+        .vehicle-group .form-group{flex:1;min-width:200px}
+        .help-text{font-size:.85rem;color:#555;margin-top:.3rem}
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
-
-        /* HEADER */
-        header {
-            background: #0b3d91;
-            color: #fff;
-            padding: 1rem 0;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            transition: transform 0.3s ease;
-            transform: translateY(0);
-        }
-        header.hide { transform: translateY(-100%); }
-        .header-inner { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            flex-wrap: wrap; 
-            gap: 0.5rem;
-        }
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .logo img { height: 60px; width: auto; border-radius: 8px; }
-        .company-name {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
-        .menu-toggle { display: none; font-size: 1.8rem; cursor: pointer; color: #fff; }
-
-        nav ul { display: flex; gap: 1.5rem; list-style: none; flex-wrap: wrap; }
-        nav a { color: #fff; font-weight: 600; font-size: 1rem; padding: 0.5rem 0; transition: color .3s; }
-        nav a:hover, nav a.active { color: #ffcc00; }
-
-        body { padding-top: 100px; } /* Extra space for fixed header */
-
-        /* HERO */
-        .hero { 
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
-                        url('https://automanager.blob.core.windows.net/wmphotos/010796/d047f3d22b6785429d510d5b6df71773/56723d1a0f_640.jpg') center/cover no-repeat; 
-            color: #fff; text-align: center; padding: 5rem 1rem; 
-        }
-        .hero h1 { font-size: 2.5rem; margin-bottom: 1rem; }
-        .hero p { font-size: 1.1rem; margin-bottom: 1.5rem; max-width: 700px; margin-left:auto; margin-right:auto; }
-        .cta-btn { display:inline-block; background:#ffcc00; color:#0b3d91; padding:.8rem 2rem; border-radius:50px; font-weight:bold; font-size:1.1rem; transition:background .3s; margin: 0.5rem; }
-        .cta-btn:hover { background:#e6b800; }
-
-        section { padding: 3rem 0; }
-        .services { background:#fff; }
-        .section-title { text-align:center; margin-bottom:2rem; font-size:2rem; color:#0b3d91; }
-
-        /* PRICING TABLE */
-        .pricing-table {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-        .price-card {
-            background: #fff;
-            border: 2px solid #0b3d91;
-            border-radius: 12px;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,.1);
-            transition: transform .3s;
-        }
-        .price-card:hover { transform: translateY(-8px); }
-        .price-card h3 { color: #0b3d91; margin-bottom: .5rem; font-size: 1.3rem; }
-        .price-card .price { font-size: 1.8rem; font-weight: bold; color: #ffcc00; margin: 1rem 0; }
-        .price-card ul { text-align: left; margin: 1rem 0; font-size: 0.95rem; }
-        .price-card li { margin: .4rem 0; }
-
-        /* DROPDOWN FORMS */
-        .form-dropdown {
-            max-width: 600px;
-            margin: 2rem auto;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,.1);
-            overflow: hidden;
-        }
-        .dropdown-content {
-            padding: 1.8rem;
-            display: block;
-        }
-
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; margin-bottom: .5rem; font-weight: bold; color: #0b3d91; }
-        input, select, textarea { width: 100%; padding: .75rem; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; }
-        textarea { resize: vertical; height: 90px; }
-        .submit-btn {
-            background: #0b3d91; color: #fff; padding: .8rem 2rem; border: none; border-radius: 50px;
-            font-weight: bold; cursor: pointer; transition: background .3s; font-size: 1.1rem; width: 100%; margin-top: .5rem;
-        }
-        .submit-btn:hover { background: #093070; }
-        .location-btn { background: #ffcc00; color: #0b3d91; padding: .8rem 1.5rem; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: .5rem; }
-
-        .payment-note { margin-top: 1rem; padding: 1rem; background: #fff8e1; border-radius: 8px; font-size: 0.95rem; color: #555; }
-
-        .services-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
-        .service-img { border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,.1); transition: transform .3s; text-align: center; background: #fff8e1; padding: 1rem; }
-        .service-img:hover { transform: scale(1.03); }
-        .service-img img, .service-img svg { width: 100%; height: 180px; object-fit: contain; }
-
-        .payment-options { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1.5rem 0; }
-        .payment-btn { background: #fff; border: 2px solid #0b3d91; color: #0b3d91; padding: 1rem 1.2rem; border-radius: 10px; font-weight: bold; text-align: center; flex: 1; min-width: 130px; transition: all .3s; }
-        .payment-btn:hover { background: #0b3d91; color: #fff; }
-        .payment-btn i { font-size: 1.6rem; display: block; margin-bottom: .4rem; }
-
-        #contact { background: #0b3d91; color: #fff; text-align: center; }
-        .contact-info { max-width: 600px; margin: 0 auto; }
-        .contact-info h2 { margin-bottom: 1.5rem; font-size: 2rem; }
-        .contact-info p { margin-bottom: 1rem; font-size: 1.1rem; }
-        .contact-info a { color: #ffcc00; font-weight: bold; }
-
-        footer { background:#0b3d91; color:#fff; text-align:center; padding:2rem 0; font-size:0.9rem; }
-
-        @media (max-width: 768px) {
-            body { padding-top: 90px; }
-            .logo img { height: 50px; }
-            .company-name { font-size: 0.95rem; }
-            .menu-toggle { display: block; }
-            nav ul { 
-                display: none; 
-                flex-direction: column; 
-                width: 100%; 
-                background: #0b3d91; 
-                padding: 1rem 0; 
-                position: fixed; 
-                top: 80px; 
-                left: 0; 
-                z-index: 999;
-                max-height: calc(100vh - 80px);
-                overflow-y: auto;
-            }
-            nav ul.show { display: flex; }
-            nav li { width: 100%; text-align: center; }
-            nav a { display: block; padding: 1.5rem 0; font-size: 1.2rem; }
-            .hero { padding: 4rem 1rem; }
-            .hero h1 { font-size: 2rem; }
-            .pricing-table { grid-template-columns: 1fr; }
-        }
-        #payMethodGroup { display: none; }
-        .estimate-bar { margin: 1rem 0; padding: 0.8rem; background: #e6f3ff; border-radius: 8px; font-size: 0.95rem; color: #0b3d91; display: none; }
-        #confirmation { display:none; margin-top:1rem; padding:1rem; background:#d4edda; border-radius:8px; text-align:center; font-weight:bold; }
-        .vehicle-group { display: flex; gap: 1rem; flex-wrap: wrap; }
-        .vehicle-group .form-group { flex: 1; min-width: 200px; }
-        .help-text { font-size: 0.85rem; color: #555; margin-top: 0.3rem; }
+        /* DRIVER PORTAL */
+        #driver-app{display:none;font-family:'Outfit',sans-serif;background:#0a0a0a;color:#f0f0f0;min-height:100vh}
+        .tt-mono{font-family:'JetBrains Mono',monospace}
+        .tt-screen{display:none;min-height:100vh;padding-bottom:88px;position:relative;z-index:1}
+        .tt-screen.active{display:block;animation:tt-fd .3s ease}
+        @keyframes tt-fd{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        .tt-amb{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+        .tt-orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.1;animation:tt-dr 18s ease-in-out infinite}
+        .tt-orb:nth-child(1){width:350px;height:350px;background:#f59e0b;top:-8%;left:-8%}
+        .tt-orb:nth-child(2){width:280px;height:280px;background:#10b981;bottom:-8%;right:-8%;animation-delay:-6s}
+        @keyframes tt-dr{0%,100%{transform:translate(0,0)}50%{transform:translate(25px,-25px)}}
+        .tt-inp{background:#141414;border:1.5px solid #262626;color:#f0f0f0;padding:14px 16px;border-radius:14px;font-size:16px;width:100%;font-family:'Outfit',sans-serif;outline:none;transition:border-color .2s}
+        .tt-inp:focus{border-color:#f59e0b}
+        .tt-inp::placeholder{color:#6b6b6b}
+        .tt-card{background:#141414;border:1px solid #262626;border-radius:18px;padding:20px}
+        .tt-bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(14,14,14,.94);backdrop-filter:blur(20px);border-top:1px solid #262626;padding:6px 0;padding-bottom:max(6px,env(safe-area-inset-bottom));z-index:100}
+        .tt-ni{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 14px;color:#6b6b6b;cursor:pointer;border:none;background:none;font-family:'Outfit',sans-serif;font-size:10px;font-weight:600;transition:color .2s}
+        .tt-ni.active{color:#f59e0b}
+        .tt-ni i{font-size:18px}
+        .tt-camov{position:fixed;inset:0;background:#000;z-index:200;display:none;flex-direction:column}
+        .tt-camov.active{display:flex;animation:tt-sl .25s ease}
+        @keyframes tt-sl{from{transform:translateY(100%)}to{transform:translateY(0)}}
+        .tt-pvw{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:250;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:20px;cursor:pointer}
+        .tt-pvw.active{display:flex}
+        .tt-tbox{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:300;display:flex;flex-direction:column;gap:8px;width:90vw;max-width:360px;pointer-events:none}
+        .tt-ti{background:#1e1e1e;color:#f0f0f0;padding:14px 18px;border-radius:14px;font-size:14px;border:1px solid #262626;box-shadow:0 10px 36px rgba(0,0,0,.5);pointer-events:auto;animation:tt-tin .3s ease,tt-tout .3s ease 2.7s forwards;display:flex;align-items:center;gap:10px}
+        @keyframes tt-tin{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes tt-tout{to{opacity:0;transform:translateY(-10px)}}
+        .tt-cfbg{position:fixed;inset:0;z-index:180;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:20px}
+        .tt-cfbg.active{display:flex}
+        .tt-spop{position:fixed;inset:0;z-index:160;display:none;align-items:center;justify-content:center;pointer-events:none}
+        .tt-spop.active{display:flex}
+        .tt-spc{width:88px;height:88px;border-radius:50%;background:#10b981;display:flex;align-items:center;justify-content:center;animation:tt-pp .35s ease}
+        @keyframes tt-pp{0%{transform:scale(0);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+        .tt-pth{width:36px;height:36px;border-radius:8px;object-fit:cover;cursor:pointer;border:1px solid #262626;transition:transform .2s}
+        .tt-pth:hover{transform:scale(2);z-index:10;position:relative;box-shadow:0 8px 24px rgba(0,0,0,.7)}
+        .tt-dtb{width:100%;border-collapse:separate;border-spacing:0}
+        .tt-dtb th{background:#1e1e1e;padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#6b6b6b;font-weight:600;border-bottom:1px solid #262626;position:sticky;top:0;z-index:2}
+        .tt-dtb td{padding:10px 12px;border-bottom:1px solid #262626;font-size:13px;vertical-align:middle}
+        .tt-pt{padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid #262626;background:#141414;color:#6b6b6b;transition:all .2s}
+        .tt-pt.on{background:#f59e0b;color:#000;border-color:#f59e0b}
+        .tt-pg{animation:tt-pg 2s infinite}
+        .tt-pa{animation:tt-pa 2s infinite}
+        @keyframes tt-pg{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.3)}50%{box-shadow:0 0 0 16px transparent}}
+        @keyframes tt-pa{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.3)}50%{box-shadow:0 0 0 16px transparent}}
+        .tt-bk{animation:tt-bk 2s infinite}
+        @keyframes tt-bk{0%,100%{opacity:1}50%{opacity:.3}}
+        .tt-topbar{background:linear-gradient(135deg,#0b3d91,#093070);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+        .tt-spinner{display:inline-block;width:16px;height:16px;border:2px solid #262626;border-top-color:#f59e0b;border-radius:50%;animation:tt-sp .7s linear infinite}
+        @keyframes tt-sp{to{transform:rotate(360deg)}}
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<header id="main-header">
-    <div class="container header-inner">
-        <div class="logo-container">
-            <div class="logo">
-                <img src="images/logo.jpeg" alt="Corridor Towing Logo">
-            </div>
-            <div class="company-name">Corridor Towing & Transportation</div>
-        </div>
-        <div class="menu-toggle" onclick="toggleMenu()">☰ Menu</div>
-        <nav>
-            <ul id="nav-menu">
-                <li><a href="#home" class="active">Home</a></li>
-                <li><a href="#forms">Request Service</a></li>
-                <li><a href="#pricing">Pricing</a></li>
-                <li><a href="#gallery">Gallery</a></li>
-                <li><a href="#payment">Pay Now</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
-    </div>
-</header>
+<!-- ========== PUBLIC WEBSITE ========== -->
+<div id="public-site">
+    <header id="main-header"><div class="container header-inner"><div class="logo-container"><div class="logo"><img src="images/logo.jpeg" alt="Corridor Towing Logo"></div><div class="company-name">Corridor Towing & Transportation</div></div><div class="menu-toggle" onclick="toggleMenu()">☰ Menu</div><nav><ul id="nav-menu"><li><a href="#home" class="active">Home</a></li><li><a href="#forms">Request Service</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#gallery">Gallery</a></li><li><a href="#payment">Pay Now</a></li><li><a href="#contact">Contact</a></li><li><a onclick="openDP()" style="color:#ffcc00;cursor:pointer"><i class="fas fa-id-badge"></i> Driver Portal</a></li></ul></nav></div></header>
 
-<section id="home" class="hero">
-    <div class="container">
-        <h1>24/7 Towing & Transportation</h1>
-        <p>Fast, reliable, and professional service in Richmond, VA. We're on the way — just call or request online!</p>
-        <a href="tel:8042928414" class="cta-btn">Call Now: (804) 292-8414</a>
-        <a href="#forms" class="cta-btn">Request Service Online</a>
-    </div>
-</section>
+    <section id="home" class="hero"><div class="container"><h1>24/7 Towing & Transportation</h1><p>Fast, reliable, and professional service in Richmond, VA. We're on the way — just call or request online!</p><a href="tel:8042928414" class="cta-btn">Call Now: (804) 292-8414</a><a href="#forms" class="cta-btn">Request Service Online</a></div></section>
 
-<section id="pricing" class="services">
-    <div class="container">
-        <h2 class="section-title">Our Services & Pricing</h2>
-        <p style="text-align:center; margin-bottom:1.5rem; font-size:1rem; color:#555;">
-            <strong>How to choose:</strong> Light Duty for most passenger cars and small SUVs (e.g. Corolla, Civic, Camry). 
-            Medium Duty for larger vehicles like full-size trucks (e.g. F-150), vans, box trucks, or RVs.
-        </p>
-        <div class="pricing-table">
-            <div class="price-card">
-                <h3>Light Duty Tow</h3>
-                <div class="price">$60 base</div>
-                <ul>
-                    <li>Pickup: $60</li>
-                    <li>Enroute: $2/mile (first 5 free)</li>
-                    <li>Tow (loaded): $5/mile</li>
-                    <li>Most sedans, SUVs, small trucks</li>
-                    <li>Examples: Corolla, Civic, Camry, most passenger cars</li>
-                    <li>Up to 10,000 lbs</li>
-                </ul>
-            </div>
-            <div class="price-card">
-                <h3>Medium Duty Tow</h3>
-                <div class="price">$70 base</div>
-                <ul>
-                    <li>Pickup: $70</li>
-                    <li>Enroute: $2/mile (first 5 free)</li>
-                    <li>Tow (loaded): $5/mile</li>
-                    <li>Larger vehicles: full-size trucks, vans, box trucks, RVs</li>
-                    <li>Examples: F-150, Transit vans, Sprinter, larger SUVs</li>
-                    <li>Up to 26,000 lbs</li>
-                </ul>
-            </div>
-            <div class="price-card">
-                <h3>Roadside Assistance</h3>
-                <div class="price">From $50</div>
-                <ul>
-                    <li>Jumpstart: $50</li>
-                    <li>Lockout: $50</li>
-                    <li>Tire Change: $50</li>
-                    <li>Fuel Delivery: $50 + fuel</li>
-                    <li><strong>Extraction / Winch Out: $60</strong></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</section>
+    <section id="pricing" class="services"><div class="container"><h2 class="section-title">Our Services & Pricing</h2><p style="text-align:center;margin-bottom:1.5rem;font-size:1rem;color:#555"><strong>How to choose:</strong> Light Duty for most passenger cars and small SUVs (e.g. Corolla, Civic, Camry). Medium Duty for larger vehicles like full-size trucks (e.g. F-150), vans, box trucks, or RVs.</p><div class="pricing-table"><div class="price-card"><h3>Light Duty Tow</h3><div class="price">$60 base</div><ul><li>Pickup: $60</li><li>Enroute: $2/mile (first 5 free)</li><li>Tow (loaded): $5/mile</li><li>Most sedans, SUVs, small trucks</li><li>Examples: Corolla, Civic, Camry, most passenger cars</li><li>Up to 10,000 lbs</li></ul></div><div class="price-card"><h3>Medium Duty Tow</h3><div class="price">$70 base</div><ul><li>Pickup: $70</li><li>Enroute: $2/mile (first 5 free)</li><li>Tow (loaded): $5/mile</li><li>Larger vehicles: full-size trucks, vans, box trucks, RVs</li><li>Examples: F-150, Transit vans, Sprinter, larger SUVs</li><li>Up to 26,000 lbs</li></ul></div><div class="price-card"><h3>Roadside Assistance</h3><div class="price">From $50</div><ul><li>Jumpstart: $50</li><li>Lockout: $50</li><li>Tire Change: $50</li><li>Fuel Delivery: $50 + fuel</li><li><strong>Extraction / Winch Out: $60</strong></li></ul></div></div></div></section>
 
-<section id="forms" class="request">
-    <div class="container">
-        <h2 class="section-title">Request Towing Service</h2>
+    <section id="forms" class="request"><div class="container"><h2 class="section-title">Request Towing Service</h2><div class="form-dropdown"><div class="dropdown-content"><form id="requestForm" onsubmit="handleRequestSubmit(event)"><div class="form-group"><label>Full Name *</label><input type="text" id="req_name" required></div><div class="form-group"><label>Phone *</label><input type="tel" id="req_phone" required></div><div class="form-group"><label>Email (for receipt) *</label><input type="email" id="req_email" required></div><div class="form-group"><label>Service Needed *</label><select id="req_service" required onchange="calculateTotal()"><option value="">Select service</option><option value="light-tow" data-base="60">Light Duty Tow ($60+) - sedans, SUVs, small trucks</option><option value="medium-tow" data-base="70">Medium Duty Tow ($70+) - full-size trucks, vans, RVs</option><option value="jumpstart" data-base="50">Jumpstart ($50)</option><option value="lockout" data-base="50">Lockout ($50)</option><option value="tire" data-base="50">Tire Change ($50)</option><option value="fuel" data-base="50">Fuel Delivery ($50 + fuel cost)</option><option value="extraction" data-base="60">Extraction / Winch Out ($60)</option></select><div class="help-text">Examples: Corolla/Civic/Camry = Light Duty • F-150/vans = Medium Duty</div></div><div class="form-group"><label>Preferred Tow Method (optional)</label><select id="req_towmethod"><option value="any">Any available (recommended)</option><option value="flatbed">Flatbed only</option><option value="wheellift">Wheel Lift only</option></select><div class="help-text">Flatbed is safest for most vehicles. We'll choose the best unless specified.</div></div><div class="form-group"><label>Vehicle Make & Model</label><input type="text" id="req_vehicle" placeholder="e.g. Toyota Camry 2018"></div><div class="vehicle-group"><div class="form-group"><label>Does it start?</label><select id="req_starts"><option value="yes">Yes</option><option value="no" selected>No</option><option value="unknown">Unknown</option></select></div><div class="form-group"><label>In neutral / park?</label><select id="req_neutral"><option value="yes">Yes</option><option value="no" selected>No</option><option value="unknown">Unknown</option></select></div><div class="form-group"><label>Attended?</label><select id="req_attended"><option value="yes" selected>Yes (someone there)</option><option value="no">No (unattended)</option></select></div></div><div class="form-group"><label>Vehicle Location *</label><input type="text" id="vehicleLocation" required placeholder="Enter full address (street, city, state, ZIP)"><div class="help-text">Please enter a complete, accurate address for best estimate and fast service.</div><button type="button" class="location-btn" onclick="getCurrentLocation()">Use My Current Location</button></div><div class="form-group"><label>Tow Destination (optional for roadside)</label><input type="text" id="towDestination" placeholder="Enter full destination address"><div class="help-text">Full address helps us give accurate estimate.</div></div><div id="estimateBar" class="estimate-bar">Enter both addresses above for auto tow miles estimate.</div><div class="form-group"><label>Enroute Miles (first 5 free)</label><input type="number" id="req_enroute" step="0.1" min="0" value="5" onchange="calculateTotal()"></div><div class="form-group"><label>Tow Miles (loaded, editable)</label><input type="number" id="req_tow" step="0.1" min="0" value="0" onchange="calculateTotal()"></div><div class="form-group"><label>Total Amount ($) *</label><input type="number" id="req_amount" step="0.01" required readonly style="background:#f0f0f0"></div><div class="form-group"><label>Payment Preference *</label><select id="paymentPreference" required onchange="togglePayMethod()"><option value="pay-later">Pay on arrival (cash, card, Venmo, Cash App, PayPal)</option><option value="pay-now">Pay now (deposit/full)</option></select></div><div id="payMethodGroup" class="form-group"><label>Select Payment Method *</label><select id="payMethod"><option value="">Select</option><option value="venmo">Venmo (@corridortowing)</option><option value="cashapp">Cash App ($corridortowing)</option><option value="paypal">PayPal (drajmalweyal@gmail.com)</option><option value="card">Card (Square)</option></select></div><div class="payment-note"><strong>Payment Info:</strong> First 5 enroute miles are free. Additional enroute $2/mile. Tow miles $5/mile.</div><button type="submit" class="submit-btn" id="submitBtn">Send Request</button></form><div id="confirmation"></div></div></div></div></section>
 
-        <div id="request-form" class="form-dropdown">
-            <div class="dropdown-content active">
-                <form id="requestForm" onsubmit="handleRequestSubmit(event)">
-                    <div class="form-group"><label>Full Name *</label><input type="text" id="req_name" required></div>
-                    <div class="form-group"><label>Phone *</label><input type="tel" id="req_phone" required></div>
-                    <div class="form-group"><label>Email (for receipt) *</label><input type="email" id="req_email" required></div>
+    <section id="gallery" class="services"><div class="container"><h2 class="section-title">Our Services in Action</h2><div class="services-gallery"><div class="service-img"><img src="https://img.icons8.com/color/96/000000/tow-truck.png" alt="Towing"><p><strong>Light & Medium Duty Towing</strong><br>Flatbed & Wheel Lift</p></div><div class="service-img"><img src="https://img.icons8.com/color/96/000000/car-battery.png" alt="Jumpstart"><p><strong>Jumpstart</strong><br>Dead battery? We're on it!</p></div><div class="service-img"><img src="https://img.icons8.com/color/96/000000/lock.png" alt="Lockout"><p><strong>Lockout Service</strong><br>Locked out? No damage!</p></div><div class="service-img"><img src="https://img.icons8.com/color/96/000000/flat-tire.png" alt="Tire Change"><p><strong>Tire Change</strong><br>Spare installed fast</p></div><div class="service-img"><img src="https://img.icons8.com/color/96/000000/gas-station.png" alt="Fuel Delivery"><p><strong>Fuel Delivery</strong><br>Out of gas? We bring it</p></div><div class="service-img"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="45" fill="#0b3d91" stroke="#ffcc00" stroke-width="3"/><path d="M30 40 L50 60 L70 40" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M50 60 L50 75" stroke="#fff" stroke-width="6" stroke-linecap="round"/><rect x="35" y="75" width="30" height="10" rx="2" fill="#ffcc00"/><circle cx="40" cy="80" r="5" fill="#333"/><circle cx="60" cy="80" r="5" fill="#333"/><path d="M25 35 Q20 30 25 25" stroke="#ffcc00" stroke-width="4" fill="none"/><path d="M75 35 Q80 30 75 25" stroke="#ffcc00" stroke-width="4" fill="none"/></svg><p><strong>Extraction / Winch Out</strong><br>Stuck in mud or ditch? We pull you out!</p></div></div></div></section>
 
-                    <div class="form-group"><label>Service Needed *</label>
-                        <select id="req_service" required onchange="calculateTotal()">
-                            <option value="">Select service</option>
-                            <option value="light-tow" data-base="60">Light Duty Tow ($60+) - sedans, SUVs, small trucks</option>
-                            <option value="medium-tow" data-base="70">Medium Duty Tow ($70+) - full-size trucks, vans, RVs</option>
-                            <option value="jumpstart" data-base="50">Jumpstart ($50)</option>
-                            <option value="lockout" data-base="50">Lockout ($50)</option>
-                            <option value="tire" data-base="50">Tire Change ($50)</option>
-                            <option value="fuel" data-base="50">Fuel Delivery ($50 + fuel cost)</option>
-                            <option value="extraction" data-base="60">Extraction / Winch Out ($60)</option>
-                        </select>
-                        <div class="help-text">Examples: Corolla/Civic/Camry = Light Duty • F-150/vans = Medium Duty</div>
-                    </div>
+    <section id="payment" class="payment"><div class="container"><h2 class="section-title">Pay for Your Service</h2><p style="text-align:center;margin-bottom:1.5rem">Total due: <strong id="paymentAmountDisplay">$0.00</strong></p><div class="payment-options"><a href="https://venmo.com/corridortowing" class="payment-btn" target="_blank"><i class="fab fa-venmo"></i> Venmo</a><a href="https://cash.app/$corridortowing" class="payment-btn" target="_blank"><i class="fas fa-dollar-sign"></i> Cash App</a><a href="https://square.link/u/YOUR_SQUARE_LINK_HERE" class="payment-btn" target="_blank"><i class="fas fa-credit-card"></i> Pay with Card</a><a href="https://paypal.me/CorridorTowing" class="payment-btn" target="_blank"><i class="fab fa-paypal"></i> PayPal</a><div class="payment-btn"><i class="fas fa-money-bill-wave"></i> Cash on Arrival</div></div><p style="text-align:center;margin-top:1.5rem;font-size:.95rem">After payment, your service request will be confirmed.</p></div></section>
 
-                    <div class="form-group">
-                        <label>Preferred Tow Method (optional)</label>
-                        <select id="req_towmethod">
-                            <option value="any">Any available (recommended)</option>
-                            <option value="flatbed">Flatbed only</option>
-                            <option value="wheellift">Wheel Lift only</option>
-                        </select>
-                        <div class="help-text">Flatbed is safest for most vehicles. We'll choose the best unless specified.</div>
-                    </div>
+    <section id="contact"><div class="container contact-info"><h2>Contact Us</h2><p><strong>Phone:</strong> <a href="tel:8042928414">(804) 292-8414</a> (24/7 Emergency)</p><p><strong>Email:</strong> <a href="mailto:corridor.towing@gmail.com">corridor.towing@gmail.com</a></p><p><strong>Address:</strong> 4100 Tomlynn St, Richmond, VA 23230</p><p><strong>Service Area:</strong> Richmond, Henrico, Chesterfield, Glen Allen, Short Pump, Mechanicsville & surrounding areas</p><p>We respond fast — call or use the request form above!</p></div></section>
+    <footer><div class="container"><p>© 2025 Corridor Towing and Transportation Services. All rights reserved.</p><p>Licensed & Insured | 24/7 Emergency Service | Richmond, VA</p></div></footer>
+</div>
 
-                    <div class="form-group">
-                        <label>Vehicle Make & Model</label>
-                        <input type="text" id="req_vehicle" placeholder="e.g. Toyota Camry 2018">
-                    </div>
+<!-- ========== DRIVER PORTAL ========== -->
+<div id="driver-app">
+    <div class="tt-amb"><div class="tt-orb"></div><div class="tt-orb"></div></div>
+    <div class="tt-topbar"><div style="display:flex;align-items:center;gap:10px"><img src="images/logo.jpeg" style="height:32px;border-radius:6px"><span style="font-weight:700;font-size:14px">Corridor Towing</span></div><button onclick="closeDP()" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px"><i class="fas fa-arrow-left"></i> Exit Portal</button></div>
 
-                    <div class="vehicle-group">
-                        <div class="form-group">
-                            <label>Does it start?</label>
-                            <select id="req_starts">
-                                <option value="yes">Yes</option>
-                                <option value="no" selected>No</option>
-                                <option value="unknown">Unknown</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>In neutral / park?</label>
-                            <select id="req_neutral">
-                                <option value="yes">Yes</option>
-                                <option value="no" selected>No</option>
-                                <option value="unknown">Unknown</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Attended?</label>
-                            <select id="req_attended">
-                                <option value="yes" selected>Yes (someone there)</option>
-                                <option value="no">No (unattended)</option>
-                            </select>
-                        </div>
-                    </div>
+    <!-- SETUP -->
+    <div id="tt-scr-setup" class="tt-screen active"><div class="flex flex-col items-center justify-center min-h-screen px-6"><div class="text-center mb-8"><div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-amber-500/20" style="transform:rotate(-8deg)"><i class="fas fa-truck-pickup text-4xl text-white" style="transform:rotate(8deg)"></i></div><h1 class="text-5xl font-black tracking-tight mb-2">TowTrack</h1><p style="color:#6b6b6b" class="text-lg font-light">Driver Check-In System</p></div><div class="w-full max-w-sm space-y-4"><div><label class="block text-xs font-semibold uppercase tracking-wider mb-2" style="color:#6b6b6b">Your Full Name</label><input id="tt-inp-name" type="text" class="tt-inp" placeholder="e.g. Mike Johnson"></div><div><label class="block text-xs font-semibold uppercase tracking-wider mb-2" style="color:#6b6b6b">Boss Email</label><input id="tt-inp-email" type="email" class="tt-inp" value="corridor.towing@gmail.com"></div><button id="tt-btn-setup" class="w-full py-4 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-black font-extrabold text-lg rounded-2xl transition-all active:scale-[0.97] mt-2 shadow-lg shadow-amber-500/20">Continue</button></div></div></div>
 
-                    <div class="form-group">
-                        <label>Vehicle Location *</label>
-                        <input type="text" id="vehicleLocation" required placeholder="Enter full address (street, city, state, ZIP)">
-                        <div class="help-text">Please enter a complete, accurate address for best estimate and fast service.</div>
-                        <button type="button" class="location-btn" onclick="getCurrentLocation()">Use My Current Location</button>
-                    </div>
-                    <div class="form-group">
-                        <label>Tow Destination (optional for roadside)</label>
-                        <input type="text" id="towDestination" placeholder="Enter full destination address">
-                        <div class="help-text">Full address helps us give accurate estimate.</div>
-                    </div>
-                    <div id="estimateBar" class="estimate-bar">Enter both addresses above for auto tow miles estimate.</div>
+    <!-- DASHBOARD -->
+    <div id="tt-scr-dash" class="tt-screen"><div class="px-5 pt-5 pb-4">
+        <div class="flex items-start justify-between mb-4"><div><p class="text-xs font-medium uppercase tracking-wider" style="color:#6b6b6b">Welcome back</p><h2 id="tt-d-name" class="text-2xl font-extrabold mt-0.5"></h2></div><div class="text-right"><p id="tt-d-date" class="text-xs tt-mono" style="color:#6b6b6b"></p><p id="tt-d-time" class="text-2xl font-bold tt-mono" style="color:#f59e0b"></p></div></div>
+        <div id="tt-scard" class="tt-card mb-4"><div class="flex items-center gap-3 mb-1"><span id="tt-s-dot" class="w-3 h-3 rounded-full" style="background:#6b6b6b"></span><span id="tt-s-lbl" class="text-lg font-bold">Checked Out</span></div><p id="tt-s-det" class="text-sm mb-4 ml-6" style="color:#6b6b6b">Ready to start your shift</p><button id="tt-btn-act" class="w-full py-5 rounded-2xl font-extrabold text-xl transition-all active:scale-[0.97] flex items-center justify-center gap-3 tt-pg" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff"><i class="fas fa-camera text-lg"></i><span id="tt-btn-act-t">Check In</span></button></div>
+        <div class="tt-card mb-4"><h3 class="text-xs font-semibold uppercase tracking-wider mb-3" style="color:#6b6b6b">Today's Summary</h3><div class="grid grid-cols-3 gap-3 text-center"><div><p class="uppercase tracking-wider mb-1" style="font-size:10px;color:#6b6b6b">In</p><p id="tt-t-in" class="tt-mono font-bold text-lg">--:--</p></div><div><p class="uppercase tracking-wider mb-1" style="font-size:10px;color:#6b6b6b">Out</p><p id="tt-t-out" class="tt-mono font-bold text-lg">--:--</p></div><div><p class="uppercase tracking-wider mb-1" style="font-size:10px;color:#6b6b6b">Hours</p><p id="tt-t-hrs" class="tt-mono font-bold text-lg" style="color:#f59e0b">0.0</p></div></div></div>
+        <div id="tt-photos" class="tt-card" style="display:none"><h3 class="text-xs font-semibold uppercase tracking-wider mb-3" style="color:#6b6b6b">Verification Photos</h3><div class="flex gap-5 items-center"><div class="text-center"><img id="tt-ph-in" class="rounded-xl object-cover border cursor-pointer" style="width:72px;height:72px;border-color:#262626" src="" alt=""><p class="mt-1.5 font-medium" style="font-size:10px;color:#6b6b6b">CHECK IN</p></div><div class="text-center"><img id="tt-ph-out" class="rounded-xl object-cover border cursor-pointer" style="width:72px;height:72px;border-color:#262626" src="" alt=""><p class="mt-1.5 font-medium" style="font-size:10px;color:#6b6b6b">CHECK OUT</p></div></div></div>
+    </div></div>
 
-                    <div class="form-group">
-                        <label>Enroute Miles (first 5 free)</label>
-                        <input type="number" id="req_enroute" step="0.1" min="0" value="5" onchange="calculateTotal()">
-                    </div>
-                    <div class="form-group">
-                        <label>Tow Miles (loaded, editable)</label>
-                        <input type="number" id="req_tow" step="0.1" min="0" value="0" onchange="calculateTotal()">
-                    </div>
-                    <div class="form-group">
-                        <label>Total Amount ($) *</label>
-                        <input type="number" id="req_amount" step="0.01" required readonly style="background:#f0f0f0;">
-                    </div>
+    <!-- HISTORY -->
+    <div id="tt-scr-hist" class="tt-screen"><div class="px-5 pt-5 pb-4"><h2 class="text-2xl font-extrabold mb-0.5">Work History</h2><p class="text-sm mb-5" style="color:#6b6b6b">Your daily hours breakdown</p><div class="flex gap-2 mb-5" id="tt-ptabs"><button class="tt-pt on" data-p="week">This Week</button><button class="tt-pt" data-p="month">This Month</button><button class="tt-pt" data-p="all">All Time</button></div><div class="tt-card mb-5 flex items-center justify-between"><div><p class="uppercase tracking-wider" style="font-size:10px;color:#6b6b6b">Total Hours</p><p id="tt-h-hrs" class="text-4xl font-black tt-mono" style="color:#f59e0b">0.0</p></div><div class="text-right"><p class="uppercase tracking-wider" style="font-size:10px;color:#6b6b6b">Days Worked</p><p id="tt-h-days" class="text-4xl font-black tt-mono">0</p></div></div><div class="rounded-2xl overflow-hidden border" style="border-color:#262626"><div class="overflow-x-auto max-h-[55vh] overflow-y-auto"><table class="tt-dtb"><thead><tr><th>Date</th><th>In</th><th>Out</th><th>Hrs</th><th>Proof</th></tr></thead><tbody id="tt-h-tb"></tbody></table></div></div></div></div>
 
-                    <div class="form-group">
-                        <label>Payment Preference *</label>
-                        <select id="paymentPreference" required onchange="togglePayMethod()">
-                            <option value="pay-later">Pay on arrival (cash, card, Venmo, Cash App, PayPal)</option>
-                            <option value="pay-now">Pay now (deposit/full)</option>
-                        </select>
-                    </div>
-                    <div id="payMethodGroup" class="form-group">
-                        <label>Select Payment Method *</label>
-                        <select id="payMethod">
-                            <option value="">Select</option>
-                            <option value="venmo">Venmo (@corridortowing)</option>
-                            <option value="cashapp">Cash App ($corridortowing)</option>
-                            <option value="paypal">PayPal (drajmalweyal@gmail.com)</option>
-                            <option value="card">Card (Square)</option>
-                        </select>
-                    </div>
+    <!-- REPORTS -->
+    <div id="tt-scr-rpt" class="tt-screen"><div class="px-5 pt-5 pb-4"><h2 class="text-2xl font-extrabold mb-0.5">Payroll Reports</h2><p class="text-sm mb-5" style="color:#6b6b6b">Biweekly summaries sent to boss</p><div class="tt-card mb-4"><div class="flex items-center justify-between mb-2"><h3 class="font-bold text-base">Current Pay Period</h3><span class="px-3 py-1 rounded-full font-bold uppercase tracking-wider" style="font-size:10px;background:rgba(245,158,11,.2);color:#f59e0b">Active</span></div><p id="tt-rp-cur" class="tt-mono text-xs mb-4" style="color:#6b6b6b"></p><div class="grid grid-cols-2 gap-4"><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Total Hours</p><p id="tt-rp-ch" class="text-3xl font-black tt-mono" style="color:#f59e0b">0.0</p></div><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Days Worked</p><p id="tt-rp-cd" class="text-3xl font-black tt-mono">0</p></div></div></div><div class="tt-card mb-5"><div class="flex items-center justify-between mb-2"><h3 class="font-bold text-base">Previous Pay Period</h3><span class="px-3 py-1 rounded-full font-bold uppercase tracking-wider" style="font-size:10px;background:#1e1e1e;color:#6b6b6b">Closed</span></div><p id="tt-rp-prev" class="tt-mono text-xs mb-4" style="color:#6b6b6b"></p><div class="grid grid-cols-2 gap-4"><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Total Hours</p><p id="tt-rp-ph" class="text-3xl font-black tt-mono">0.0</p></div><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Days Worked</p><p id="tt-rp-pd" class="text-3xl font-black tt-mono">0</p></div></div></div><div class="rounded-2xl overflow-hidden border mb-5" style="border-color:#262626"><div class="overflow-x-auto max-h-[35vh] overflow-y-auto"><table class="tt-dtb"><thead><tr><th>Date</th><th>In</th><th>Out</th><th>Hours</th></tr></thead><tbody id="tt-rp-tb"></tbody></table></div></div><div class="flex flex-col gap-3"><button id="tt-btn-email" class="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2.5 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-black transition-all active:scale-[0.97] shadow-lg shadow-amber-500/15"><i class="fas fa-envelope"></i>Email Report to Boss</button><button id="tt-btn-csv" class="w-full py-4 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 tt-card transition-all active:scale-[0.97]"><i class="fas fa-file-csv" style="color:#f59e0b"></i>Download CSV</button><button id="tt-btn-copy" class="w-full py-4 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 tt-card transition-all active:scale-[0.97]"><i class="fas fa-copy" style="color:#f59e0b"></i>Copy Report Text</button></div></div></div>
 
-                    <div class="payment-note">
-                        <strong>Payment Info:</strong> First 5 enroute miles are free. Additional enroute $2/mile. Tow miles $5/mile.
-                    </div>
-                    <button type="submit" class="submit-btn" id="submitBtn">Send Request</button>
-                </form>
-                <div id="confirmation"></div>
-            </div>
-        </div>
-    </div>
-</section>
+    <!-- SETTINGS -->
+    <div id="tt-scr-set" class="tt-screen"><div class="px-5 pt-5 pb-4"><h2 class="text-2xl font-extrabold mb-0.5">Settings</h2><p class="text-sm mb-5" style="color:#6b6b6b">Manage your profile and data</p><div class="space-y-4"><div class="tt-card"><label class="block text-xs font-semibold uppercase tracking-wider mb-2" style="color:#6b6b6b">Driver Name</label><input id="tt-set-n" type="text" class="tt-inp"></div><div class="tt-card"><label class="block text-xs font-semibold uppercase tracking-wider mb-2" style="color:#6b6b6b">Boss Email</label><input id="tt-set-e" type="email" class="tt-inp"></div><button id="tt-btn-ss" class="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-black transition-all active:scale-[0.97]"><i class="fas fa-check"></i>Save Settings</button><div class="tt-card" style="border-color:rgba(127,29,29,.4)"><h3 class="font-bold mb-3 text-sm" style="color:#ef4444"><i class="fas fa-triangle-exclamation mr-1.5"></i>Danger Zone</h3><button id="tt-btn-clp" class="w-full py-3 rounded-xl font-medium text-sm mb-2 transition-all active:scale-[0.97]" style="background:rgba(127,29,29,.2);border:1px solid rgba(127,29,29,.4);color:#fca5a5"><i class="fas fa-images mr-1.5"></i>Clear All Photos</button><button id="tt-btn-cla" class="w-full py-3 rounded-xl font-medium text-sm transition-all active:scale-[0.97]" style="background:rgba(127,29,29,.2);border:1px solid rgba(127,29,29,.4);color:#fca5a5"><i class="fas fa-trash mr-1.5"></i>Reset All Data</button></div></div></div></div>
 
-<section id="gallery" class="services">
-    <div class="container">
-        <h2 class="section-title">Our Services in Action</h2>
-        <div class="services-gallery">
-            <div class="service-img">
-                <img src="https://img.icons8.com/color/96/000000/tow-truck.png" alt="Towing">
-                <p><strong>Light & Medium Duty Towing</strong><br>Flatbed & Wheel Lift</p>
-            </div>
-            <div class="service-img">
-                <img src="https://img.icons8.com/color/96/000000/car-battery.png" alt="Jumpstart">
-                <p><strong>Jumpstart</strong><br>Dead battery? We’re on it!</p>
-            </div>
-            <div class="service-img">
-                <img src="https://img.icons8.com/color/96/000000/lock.png" alt="Lockout">
-                <p><strong>Lockout Service</strong><br>Locked out? No damage!</p>
-            </div>
-            <div class="service-img">
-                <img src="https://img.icons8.com/color/96/000000/flat-tire.png" alt="Tire Change">
-                <p><strong>Tire Change</strong><br>Spare installed fast</p>
-            </div>
-            <div class="service-img">
-                <img src="https://img.icons8.com/color/96/000000/gas-station.png" alt="Fuel Delivery">
-                <p><strong>Fuel Delivery</strong><br>Out of gas? We bring it</p>
-            </div>
-            <div class="service-img">
-                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="50" cy="50" r="45" fill="#0b3d91" stroke="#ffcc00" stroke-width="3"/>
-                    <path d="M30 40 L50 60 L70 40" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round"/>
-                    <path d="M50 60 L50 75" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
-                    <rect x="35" y="75" width="30" height="10" rx="2" fill="#ffcc00"/>
-                    <circle cx="40" cy="80" r="5" fill="#333"/>
-                    <circle cx="60" cy="80" r="5" fill="#333"/>
-                    <path d="M25 35 Q20 30 25 25" stroke="#ffcc00" stroke-width="4" fill="none"/>
-                    <path d="M75 35 Q80 30 75 25" stroke="#ffcc00" stroke-width="4" fill="none"/>
-                </svg>
-                <p><strong>Extraction / Winch Out</strong><br>Stuck in mud or ditch? We pull you out!</p>
-            </div>
-        </div>
-    </div>
-</section>
+    <!-- CAMERA -->
+    <div id="tt-camov" class="tt-camov"><div class="flex items-center justify-between px-5" style="padding-top:max(16px,env(safe-area-inset-top))"><div><p id="tt-cam-type" class="font-extrabold text-xl">CHECK IN</p><p id="tt-cam-dt" class="tt-mono text-xs" style="color:#6b6b6b"></p></div><button id="tt-btn-cx" class="w-11 h-11 rounded-full flex items-center justify-center" style="background:#141414"><i class="fas fa-xmark text-lg"></i></button></div><div class="flex-1 flex items-center justify-center px-4 py-3 relative"><video id="tt-cam-vid" autoplay playsinline muted class="w-full max-w-md rounded-2xl" style="transform:scaleX(-1)"></video><canvas id="tt-cam-cv" style="display:none"></canvas><div id="tt-cam-fl" class="absolute inset-0 bg-white pointer-events-none" style="opacity:0"></div></div><div class="flex flex-col items-center pb-6" style="padding-bottom:max(24px,env(safe-area-inset-bottom))"><p class="mb-3" style="font-size:10px;color:#6b6b6b">Make sure your face is clearly visible</p><button id="tt-btn-cap" class="rounded-full flex items-center justify-center transition-all active:scale-90" style="width:76px;height:76px;border:4px solid #f59e0b;background:rgba(245,158,11,.15)"><div class="rounded-full" style="width:56px;height:56px;background:#f59e0b"></div></button></div></div>
 
-<section id="payment" class="payment">
-    <div class="container">
-        <h2 class="section-title">Pay for Your Service</h2>
-        <p style="text-align:center; margin-bottom:1.5rem;">Total due: <strong id="paymentAmountDisplay">$0.00</strong></p>
-        <div class="payment-options">
-            <a href="https://venmo.com/corridortowing" class="payment-btn" target="_blank"><i class="fab fa-venmo"></i> Venmo</a>
-            <a href="https://cash.app/$corridortowing" class="payment-btn" target="_blank"><i class="fas fa-dollar-sign"></i> Cash App</a>
-            <a href="https://square.link/u/YOUR_SQUARE_LINK_HERE" class="payment-btn" target="_blank"><i class="fas fa-credit-card"></i> Pay with Card</a>
-            <a href="https://paypal.me/CorridorTowing" class="payment-btn" target="_blank"><i class="fab fa-paypal"></i> PayPal</a>
-            <div class="payment-btn"><i class="fas fa-money-bill-wave"></i> Cash on Arrival</div>
-        </div>
-        <p style="text-align:center; margin-top:1.5rem; font-size:0.95rem;">After payment, your service request will be confirmed.</p>
-    </div>
-</section>
+    <div id="tt-pvw" class="tt-pvw"><img id="tt-pvw-img" src="" alt="" style="max-width:92vw;max-height:70vh;border-radius:12px;border:2px solid #262626"><p class="text-sm" style="color:#6b6b6b">Tap anywhere to close</p></div>
+    <div id="tt-spop" class="tt-spop"><div class="tt-spc"><i class="fas fa-check text-white text-4xl"></i></div></div>
+    <div id="tt-cfbg" class="tt-cfbg"><div class="tt-card w-full max-w-sm"><h3 id="tt-cf-t" class="text-lg font-bold mb-1.5"></h3><p id="tt-cf-m" class="text-sm mb-6" style="color:#6b6b6b"></p><div class="flex gap-3"><button id="tt-cf-no" class="flex-1 py-3 rounded-xl font-semibold text-sm" style="background:#1e1e1e">Cancel</button><button id="tt-cf-yes" class="flex-1 py-3 rounded-xl font-semibold text-sm text-white" style="background:#ef4444">Confirm</button></div></div></div>
+    <div id="tt-tbox" class="tt-tbox"></div>
+    <nav id="tt-nav" class="tt-bnav" style="display:none"><div class="flex items-center justify-around max-w-md mx-auto"><button class="tt-ni active" data-s="dash"><i class="fas fa-house"></i><span>Home</span></button><button class="tt-ni" data-s="hist"><i class="fas fa-clock-rotate-left"></i><span>History</span></button><button class="tt-ni" data-s="rpt"><i class="fas fa-file-lines"></i><span>Reports</span></button><button class="tt-ni" data-s="set"><i class="fas fa-gear"></i><span>Settings</span></button></div></nav>
+</div>
 
-<section id="contact">
-    <div class="container contact-info">
-        <h2>Contact Us</h2>
-        <p><strong>Phone:</strong> <a href="tel:8042928414">(804) 292-8414</a> (24/7 Emergency)</p>
-        <p><strong>Email:</strong> <a href="mailto:corridor.towing@gmail.com">corridor.towing@gmail.com</a></p>
-        <p><strong>Address:</strong> 4100 Tomlynn St, Richmond, VA 23230</p>
-        <p><strong>Service Area:</strong> Richmond, Henrico, Chesterfield, Glen Allen, Short Pump, Mechanicsville & surrounding areas</p>
-        <p>We respond fast — call or use the request form above!</p>
-    </div>
-</section>
-
-<footer>
-    <div class="container">
-        <p>© 2025 Corridor Towing and Transportation Services. All rights reserved.</p>
-        <p>Licensed & Insured | 24/7 Emergency Service | Richmond, VA</p>
-    </div>
-</footer>
-
+<!-- ========== WEBSITE JS ========== -->
 <script>
-    // Mobile Menu
-    const menuToggle = document.querySelector('.menu-toggle');
-    const navMenu = document.getElementById('nav-menu');
-
-    function toggleMenu() {
-        navMenu.classList.toggle('show');
-    }
-
-    document.addEventListener('click', (e) => {
-        if (!menuToggle.contains(e.target) && !navMenu.contains(e.target)) {
-            navMenu.classList.remove('show');
-        }
-    });
-
-    navMenu.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-            navMenu.classList.remove('show');
-        });
-    });
-
-    navMenu.addEventListener('touchmove', (e) => e.stopPropagation(), { passive: true });
-    navMenu.addEventListener('wheel', (e) => e.stopPropagation(), { passive: true });
-
-    // Smooth scroll with header offset
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            const target = document.querySelector(targetId);
-            if (target) {
-                const headerHeight = document.querySelector('header').offsetHeight;
-                window.scrollTo({
-                    top: target.offsetTop - headerHeight - 20,
-                    behavior: 'smooth'
-                });
-            }
-        });
-    });
-
-    // Toggle Pay Method
-    function togglePayMethod() {
-        const preference = document.getElementById("paymentPreference").value;
-        document.getElementById("payMethodGroup").style.display = preference === "pay-now" ? "block" : "none";
-    }
-
-    // Calculate Total
-    function calculateTotal() {
-        const serviceSelect = document.getElementById("req_service");
-        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
-        const base = selectedOption && selectedOption.dataset ? parseFloat(selectedOption.dataset.base) || 0 : 0;
-        const enroute = parseFloat(document.getElementById("req_enroute").value) || 5;
-        const tow = parseFloat(document.getElementById("req_tow").value) || 0;
-        const enCharge = Math.max(0, enroute - 5) * 2;
-        const towCharge = tow * 5;
-        const total = base + enCharge + towCharge;
-        document.getElementById("req_amount").value = total.toFixed(2);
-    }
-
-    document.getElementById("req_service").addEventListener("change", calculateTotal);
-    document.getElementById("req_enroute").addEventListener("input", calculateTotal);
-    document.getElementById("req_tow").addEventListener("input", calculateTotal);
-
-    // Auto calculate tow miles on blur
-    async function autoCalculateMiles() {
-        let location = document.getElementById("vehicleLocation").value.trim();
-        let destination = document.getElementById("towDestination").value.trim();
-
-        const bar = document.getElementById("estimateBar");
-        bar.style.display = "block";
-
-        if (!location || !destination) {
-            bar.textContent = "Enter both addresses to auto-estimate tow miles.";
-            return;
-        }
-
-        bar.textContent = "Estimating tow miles...";
-
-        try {
-            location = location.replace(/,\s*$/, '').trim();
-            destination = destination.replace(/,\s*$/, '').trim();
-
-            const locRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1&countrycodes=us`);
-            const locJson = await locRes.json();
-            if (locJson.length === 0) throw new Error("Location not found");
-            const locLat = locJson[0].lat;
-            const locLon = locJson[0].lon;
-
-            const destRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destination)}&limit=1&countrycodes=us`);
-            const destJson = await destRes.json();
-            if (destJson.length === 0) throw new Error("Destination not found");
-            const destLat = destJson[0].lat;
-            const destLon = destJson[0].lon;
-
-            const towRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${locLon},${locLat};${destLon},${destLat}?overview=false`);
-            const towJson = await towRes.json();
-            const towMiles = towJson.routes && towJson.routes[0] ? (towJson.routes[0].distance / 1000 * 0.621371).toFixed(1) : 0;
-            document.getElementById("req_tow").value = towMiles;
-
-            bar.textContent = `Estimated tow distance: ${towMiles} miles (editable if needed)`;
-            calculateTotal();
-
-        } catch (err) {
-            bar.textContent = "Auto estimate failed — please enter tow miles manually or double-check addresses.";
-        }
-    }
-
-    document.getElementById("towDestination").addEventListener("blur", autoCalculateMiles);
-
-    // Current Location
-  function getCurrentLocation() {
-    if (!navigator.geolocation) {
-        alert("Geolocation is not supported by your browser.");
-        return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-        async (position) => {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18`);
-                const data = await res.json();
-                document.getElementById("vehicleLocation").value = data.display_name || `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
-                autoCalculateMiles(); // Trigger estimate if destination filled
-            } catch {
-                document.getElementById("vehicleLocation").value = `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
-            }
-        },
-        (error) => {
-            let message = "Unable to get your location: ";
-            switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    message += "Permission denied. Please allow location access in browser settings.";
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    message += "Location information unavailable.";
-                    break;
-                case error.TIMEOUT:
-                    message += "Request timed out. Try again.";
-                    break;
-                default:
-                    message += "Unknown error.";
-                    break;
-            }
-            alert(message);
-        },
-        { timeout: 10000, enableHighAccuracy: true } // Better options
-    );
-}
-
-    // Submit Request - friendly email
-    function handleRequestSubmit(e) {
-        e.preventDefault();
-
-        const formData = {
-            name: document.getElementById("req_name").value,
-            phone: document.getElementById("req_phone").value,
-            email: document.getElementById("req_email").value,
-            vehicle: document.getElementById("req_vehicle").value || 'Not provided',
-            towmethod: document.getElementById("req_towmethod").value,
-            starts: document.getElementById("req_starts").value,
-            neutral: document.getElementById("req_neutral").value,
-            attended: document.getElementById("req_attended").value,
-            location: document.getElementById("vehicleLocation").value,
-            destination: document.getElementById("towDestination").value || 'N/A',
-            service: document.getElementById("req_service").options[document.getElementById("req_service").selectedIndex].text,
-            enroute: document.getElementById("req_enroute").value,
-            tow: document.getElementById("req_tow").value,
-            amount: document.getElementById("req_amount").value,
-            payment: document.getElementById("paymentPreference").value,
-            payMethod: document.getElementById("payMethod") ? document.getElementById("payMethod").value : 'N/A'
-        };
-
-        const message = `New Towing Request!
-
-Customer: ${formData.name}
-Phone: ${formData.phone}
-Email: ${formData.email}
-
-Vehicle: ${formData.vehicle}
-Starts: ${formData.starts} | Neutral/Park: ${formData.neutral} | Attended: ${formData.attended}
-Preferred Tow Method: ${formData.towmethod}
-
-Service Requested: ${formData.service}
-Pickup Location: ${formData.location}
-Destination: ${formData.destination}
-Enroute Miles: ${formData.enroute} (first 5 free)
-Tow Miles: ${formData.tow}
-
-Estimated Total: $${formData.amount}
-
-Payment: ${formData.payment === 'pay-now' ? 'Pay now via ' + formData.payMethod : 'Pay on arrival'}
-
-Please call the customer to confirm and dispatch. Thank you!`;
-
-        fetch("https://formspree.io/f/xdkyonjb", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                subject: `New Tow Request - ${formData.name}`,
-                message: message
-            })
-        }).then(() => {
-            document.getElementById("confirmation").style.display = "block";
-            document.getElementById("confirmation").innerHTML = "<strong>Thank you!</strong> Your request has been sent. We'll call you shortly to confirm.";
-
-            if (formData.payment === 'pay-now') {
-                document.getElementById("paymentAmountDisplay").textContent = "$" + formData.amount;
-                document.getElementById("confirmation").innerHTML += "<br><br><strong>Please complete payment below to finalize.</strong>";
-                setTimeout(() => {
-                    window.scrollTo({ top: document.querySelector("#payment").offsetTop - 100, behavior: 'smooth' });
-                }, 1500);
-            }
-
-            document.getElementById("submitBtn").disabled = true;
-            document.getElementById("submitBtn").textContent = "Request Sent";
-
-        }).catch(() => {
-            alert("Error sending request. Please call us directly at (804) 292-8414.");
-        });
-    }
-
-    // Init
-    window.onload = () => {
-        calculateTotal();
-    };
+function openDP(){document.getElementById('public-site').style.display='none';document.getElementById('driver-app').style.display='block';document.getElementById('main-header').style.display='none';document.body.style.paddingTop='0';document.body.style.background='#0a0a0a';window.scrollTo(0,0);initTT()}
+function closeDP(){document.getElementById('driver-app').style.display='none';document.getElementById('public-site').style.display='block';document.getElementById('main-header').style.display='block';document.body.style.paddingTop='100px';document.body.style.background='#f9f9fb';window.scrollTo(0,0)}
+const mT=document.querySelector('.menu-toggle'),nM=document.getElementById('nav-menu');
+function toggleMenu(){nM.classList.toggle('show')}
+document.addEventListener('click',e=>{if(!mT.contains(e.target)&&!nM.contains(e.target))nM.classList.remove('show')});
+nM.querySelectorAll('a').forEach(l=>l.addEventListener('click',()=>nM.classList.remove('show')));
+nM.addEventListener('touchmove',e=>e.stopPropagation(),{passive:true});
+nM.addEventListener('wheel',e=>e.stopPropagation(),{passive:true});
+document.querySelectorAll('#public-site a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t){const h=document.querySelector('header').offsetHeight;window.scrollTo({top:t.offsetTop-h-20,behavior:'smooth'})}})});
+function togglePayMethod(){document.getElementById("payMethodGroup").style.display=document.getElementById("paymentPreference").value==="pay-now"?"block":"none"}
+function calculateTotal(){const s=document.getElementById("req_service"),o=s.options[s.selectedIndex];const b=o&&o.dataset?parseFloat(o.dataset.base)||0:0;const en=parseFloat(document.getElementById("req_enroute").value)||5;const tw=parseFloat(document.getElementById("req_tow").value)||0;document.getElementById("req_amount").value=(b+Math.max(0,en-5)*2+tw*5).toFixed(2)}
+document.getElementById("req_service").addEventListener("change",calculateTotal);document.getElementById("req_enroute").addEventListener("input",calculateTotal);document.getElementById("req_tow").addEventListener("input",calculateTotal);
+async function autoCalcMiles(){let l=document.getElementById("vehicleLocation").value.trim(),d=document.getElementById("towDestination").value.trim(),b=document.getElementById("estimateBar");b.style.display="block";if(!l||!d){b.textContent="Enter both addresses.";return}b.textContent="Estimating...";try{l=l.replace(/,\s*$/,'').trim();d=d.replace(/,\s*$/,'').trim();const lr=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(l)}&limit=1&countrycodes=us`),lj=await lr.json();if(!lj.length)throw 0;const dr=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(d)}&limit=1&countrycodes=us`),dj=await dr.json();if(!dj.length)throw 0;const tr=await fetch(`https://router.project-osrm.org/route/v1/driving/${lj[0].lon},${lj[0].lat};${dj[0].lon},${dj[0].lat}?overview=false`),tj=await tr.json();const m=tj.routes&&tj.routes[0]?(tj.routes[0].distance/1000*.621371).toFixed(1):0;document.getElementById("req_tow").value=m;b.textContent=`Estimated: ${m} miles`;calculateTotal()}catch{b.textContent="Auto estimate failed — enter manually."}}
+document.getElementById("towDestination").addEventListener("blur",autoCalcMiles);
+function getCurrentLocation(){if(!navigator.geolocation){alert("Not supported.");return}navigator.geolocation.getCurrentPosition(async p=>{try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${p.coords.latitude}&lon=${p.coords.longitude}&zoom=18`);const d=await r.json();document.getElementById("vehicleLocation").value=d.display_name||`Lat: ${p.coords.latitude.toFixed(6)}, Lon: ${p.coords.longitude.toFixed(6)}`;autoCalcMiles()}catch{document.getElementById("vehicleLocation").value=`Lat: ${p.coords.latitude.toFixed(6)}, Lon: ${p.coords.longitude.toFixed(6)}`}},e=>{let m="Location error: ";if(e.code===1)m+="Permission denied.";else if(e.code===2)m+="Unavailable.";else if(e.code===3)m+="Timed out.";else m+="Unknown.";alert(m)},{timeout:10000,enableHighAccuracy:true})}
+function handleRequestSubmit(e){e.preventDefault();const fd={name:document.getElementById("req_name").value,phone:document.getElementById("req_phone").value,email:document.getElementById("req_email").value,vehicle:document.getElementById("req_vehicle").value||'Not provided',towmethod:document.getElementById("req_towmethod").value,starts:document.getElementById("req_starts").value,neutral:document.getElementById("req_neutral").value,attended:document.getElementById("req_attended").value,location:document.getElementById("vehicleLocation").value,destination:document.getElementById("towDestination").value||'N/A',service:document.getElementById("req_service").options[document.getElementById("req_service").selectedIndex].text,enroute:document.getElementById("req_enroute").value,tow:document.getElementById("req_tow").value,amount:document.getElementById("req_amount").value,payment:document.getElementById("paymentPreference").value,payMethod:document.getElementById("payMethod")?document.getElementById("payMethod").value:'N/A'};const msg=`New Towing Request!\n\nCustomer: ${fd.name}\nPhone: ${fd.phone}\nEmail: ${fd.email}\n\nVehicle: ${fd.vehicle}\nStarts: ${fd.starts} | Neutral: ${fd.neutral} | Attended: ${fd.attended}\nTow Method: ${fd.towmethod}\n\nService: ${fd.service}\nPickup: ${fd.location}\nDestination: ${fd.destination}\nEnroute: ${fd.enroute} mi (first 5 free)\nTow: ${fd.tow} mi\n\nTotal: $${fd.amount}\nPayment: ${fd.payment==='pay-now'?'Pay now via '+fd.payMethod:'Pay on arrival'}\n\nPlease call to confirm!`;fetch("https://formspree.io/f/xdkyonjb",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subject:`New Tow Request - ${fd.name}`,message:msg})}).then(()=>{document.getElementById("confirmation").style.display="block";document.getElementById("confirmation").innerHTML="<strong>Thank you!</strong> Request sent. We'll call shortly.";if(fd.payment==='pay-now'){document.getElementById("paymentAmountDisplay").textContent="$"+fd.amount;document.getElementById("confirmation").innerHTML+="<br><br><strong>Complete payment below.</strong>";setTimeout(()=>window.scrollTo({top:document.querySelector("#payment").offsetTop-100,behavior:'smooth'}),1500)}document.getElementById("submitBtn").disabled=true;document.getElementById("submitBtn").textContent="Request Sent"}).catch(()=>alert("Error. Call (804) 292-8414."))}
+window.onload=()=>calculateTotal();
 </script>
 
+<!-- ========== DRIVER PORTAL JS ========== -->
+<script>
+var ttDone=false,ttD={driverName:'',adminEmail:'',records:[]},ttCS=null,ttCM=null,ttDB=null;
+function initTT(){if(ttDone)return;ttDone=true;
+var SK='tt_meta_v4';
+
+function oDB(){return new Promise(function(r,j){if(ttDB){r(ttDB);return}var q=indexedDB.open('TowTrackPhotos',1);q.onupgradeneeded=function(e){var d=e.target.result;if(!d.objectStoreNames.contains('photos'))d.createObjectStore('photos',{keyPath:'id'})};q.onsuccess=function(e){ttDB=e.target.result;r(ttDB)};q.onerror=function(e){j(e.target.error)}})}
+function sP(id,d){return oDB().then(function(db){return new Promise(function(r,j){var tx=db.transaction('photos','readwrite');tx.objectStore('photos').put({id:id,data:d});tx.oncomplete=function(){r()};tx.onerror=function(e){j(e.target.error)}})})}
+function gP(id){return oDB().then(function(db){return new Promise(function(r,j){var tx=db.transaction('photos','readonly');var q=tx.objectStore('photos').get(id);q.onsuccess=function(){r(q.result?q.result.data:null)};q.onerror=function(e){j(e.target.error)}})})}
+function cP(){return oDB().then(function(db){return new Promise(function(r,j){var tx=db.transaction('photos','readwrite');tx.objectStore('photos').clear();tx.oncomplete=function(){r()};tx.onerror=function(e){j(e.target.error)}})})}
+function ld(){try{var r=localStorage.getItem(SK);if(r)ttD=Object.assign(ttD,JSON.parse(r))}catch(e){}}
+function sv(){try{localStorage.setItem(SK,JSON.stringify(ttD))}catch(e){tT('Storage error — clear photos in Settings','error')}}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).substr(2,6)}
+function fD(t){return new Date(t).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+function fT(t){return new Date(t).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true})}
+function fTs(t){return new Date(t).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true})}
+function dK(t){var d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function tK(){return dK(Date.now())}
+function cH(a,b){return Math.round((b-a)/36e5)/100}
+function pDK(dk){var p=dk.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
+
+function tT(msg,type){type=type||'info';var ic={success:'fa-check-circle text-emerald-400',error:'fa-circle-exclamation text-red-400',warning:'fa-triangle-exclamation text-amber-400',info:'fa-circle-info text-sky-400'};var el=document.createElement('div');el.className='tt-ti';el.innerHTML='<i class="fas '+(ic[type]||ic.info)+'"></i><span>'+msg+'</span>';document.getElementById('tt-tbox').appendChild(el);setTimeout(function(){if(el.parentNode)el.remove()},3200)}
+function sS(){var el=document.getElementById('tt-spop');el.classList.add('active');setTimeout(function(){el.classList.remove('active')},900)}
+function cf(t,m,y){document.getElementById('tt-cf-t').textContent=t;document.getElementById('tt-cf-m').textContent=m;document.getElementById('tt-cfbg').classList.add('active');document.getElementById('tt-cf-yes').onclick=function(){document.getElementById('tt-cfbg').classList.remove('active');y()};document.getElementById('tt-cf-no').onclick=function(){document.getElementById('tt-cfbg').classList.remove('active')}}
+function vP(s){document.getElementById('tt-pvw-img').src=s;document.getElementById('tt-pvw').classList.add('active')}
+document.getElementById('tt-pvw').addEventListener('click',function(){this.classList.remove('active')});
+
+function go(id){document.querySelectorAll('.tt-screen').forEach(function(s){s.classList.remove('active')});var sc=document.getElementById('tt-scr-'+id);if(sc)sc.classList.add('active');document.querySelectorAll('.tt-ni').forEach(function(n){n.classList.toggle('active',n.dataset.s===id)});if(id==='dash')rD();if(id==='hist')rH();if(id==='rpt')rR();if(id==='set')rS()}
+
+document.getElementById('tt-btn-setup').addEventListener('click',function(){
+    var n=document.getElementById('tt-inp-name').value.trim(),e=document.getElementById('tt-inp-email').value.trim();
+    if(!n){tT('Enter your name','error');return}
+    ttD.driverName=n;ttD.adminEmail=e;sv();
+    document.getElementById('tt-nav').style.display='block';go('dash');tT('Welcome, '+n+'!','success');
+    // Request camera permission upfront
+    reqCam(function(){});
+});
+
+function reqCam(cb){if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){tT('Camera requires HTTPS','error');cb(false);return}navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false}).then(function(s){s.getTracks().forEach(function(t){t.stop()});cb(true)}).catch(function(e){var m='Camera error.';if(e.name==='NotAllowedError')m='Camera permission denied. Allow in browser settings and try again.';else if(e.name==='NotFoundError')m='No camera found.';tT(m,'error');cb(false)})}
+
+function startClk(){function t(){var n=new Date();var te=document.getElementById('tt-d-time'),de=document.getElementById('tt-d-date');if(te)te.textContent=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});if(de)de.textContent=n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});var cd=document.getElementById('tt-cam-dt');if(cd)cd.textContent=n.toLocaleString()}t();setInterval(t,1000)}
+
+function autoCl(){var tk=tK(),ch=false;ttD.records.forEach(function(r){if(r.checkIn&&!r.checkOut&&r.date!==tk){var ci=new Date(r.checkIn.time);r.checkOut={time:new Date(ci.getFullYear(),ci.getMonth(),ci.getDate(),23,59,59).getTime()};r.hours=cH(r.checkIn.time,r.checkOut.time);ch=true}});if(ch){sv();tT('Previous check-in auto-closed','warning')}}
+
+function rD(){autoCl();document.getElementById('tt-d-name').textContent=ttD.driverName;
+var oR=null;for(var i=0;i<ttD.records.length;i++){if(ttD.records[i].checkIn&&!ttD.records[i].checkOut){oR=ttD.records[i];break}}
+var btn=document.getElementById('tt-btn-act'),bTx=document.getElementById('tt-btn-act-t'),dot=document.getElementById('tt-s-dot'),lbl=document.getElementById('tt-s-lbl'),det=document.getElementById('tt-s-det'),card=document.getElementById('tt-scard');
+if(oR){dot.className='w-3 h-3 rounded-full tt-bk';dot.style.background='#10b981';dot.style.boxShadow='0 0 8px rgba(16,185,129,.4)';lbl.textContent='Checked In';lbl.style.color='#10b981';var el=cH(oR.checkIn.time,Date.now());det.textContent='Since '+fTs(oR.checkIn.time)+' \u2014 '+el.toFixed(1)+' hrs';btn.className='w-full py-5 rounded-2xl font-extrabold text-xl transition-all active:scale-[0.97] flex items-center justify-center gap-3 tt-pa';btn.style.background='linear-gradient(135deg,#f59e0b,#d97706)';btn.style.color='#000';bTx.textContent='Check Out';card.style.borderColor='rgba(16,185,129,.3)'}
+else{dot.className='w-3 h-3 rounded-full';dot.style.background='#6b6b6b';dot.style.boxShadow='none';lbl.textContent='Checked Out';lbl.style.color='#f0f0f0';det.textContent='Ready to start your shift';btn.className='w-full py-5 rounded-2xl font-extrabold text-xl transition-all active:scale-[0.97] flex items-center justify-center gap-3 tt-pg';btn.style.background='linear-gradient(135deg,#10b981,#059669)';btn.style.color='#fff';bTx.textContent='Check In';card.style.borderColor='#262626'}
+var tk2=tK(),tr=null;for(var k=0;k<ttD.records.length;k++){if(ttD.records[k].date===tk2){tr=ttD.records[k];break}}
+document.getElementById('tt-t-in').textContent=tr&&tr.checkIn?fTs(tr.checkIn.time):'--:--';
+document.getElementById('tt-t-out').textContent=tr&&tr.checkOut?fTs(tr.checkOut.time):'--:--';
+document.getElementById('tt-t-hrs').textContent=tr&&tr.hours!=null?tr.hours.toFixed(1):'0.0';
+var np="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72'%3E%3Crect fill='%231e1e1e' width='72' height='72' rx='12'/%3E%3Ctext x='36' y='40' text-anchor='middle' fill='%23555' font-size='10' font-family='sans-serif'%3ENo photo%3C/text%3E%3C/svg%3E";var pc=document.getElementById('tt-photos');
+if(tr){pc.style.display='block';var ii=document.getElementById('tt-ph-in'),oi=document.getElementById('tt-ph-out');ii.src=np;oi.src=np;ii.onclick=null;oi.onclick=null;if(tr.checkIn)gP(tr.id+'_in').then(function(d){if(d){ii.src=d;ii.onclick=function(){vP(d)}}});if(tr.checkOut)gP(tr.id+'_out').then(function(d){if(d){oi.src=d;oi.onclick=function(){vP(d)}}})}else{pc.style.display='none'}}
+
+function openCam(mode){ttCM=mode;var te=document.getElementById('tt-cam-type');te.textContent=mode==='checkin'?'CHECK IN':'CHECK OUT';te.style.color=mode==='checkin'?'#10b981':'#f59e0b';document.getElementById('tt-camov').classList.add('active');
+navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false}).then(function(s){ttCS=s;document.getElementById('tt-cam-vid').srcObject=s}).catch(function(e){closeCam();var m='Camera error.';if(e.name==='NotAllowedError')m='Camera denied. Go to browser Settings to allow camera, then try again.';else if(e.name==='NotFoundError')m='No camera found.';tT(m,'error')})}
+function closeCam(){if(ttCS){ttCS.getTracks().forEach(function(t){t.stop()});ttCS=null}document.getElementById('tt-cam-vid').srcObject=null;document.getElementById('tt-camov').classList.remove('active')}
+
+function capPhoto(){var mode=ttCM,vid=document.getElementById('tt-cam-vid'),cv=document.getElementById('tt-cam-cv'),ctx=cv.getContext('2d'),W=480,H=360;cv.width=W;cv.height=H;ctx.save();ctx.translate(W,0);ctx.scale(-1,1);ctx.drawImage(vid,0,0,W,H);ctx.restore();
+var now=new Date(),label=mode==='checkin'?'CHECK IN':'CHECK OUT';
+// Top: name
+ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(0,0,W,30);ctx.font='bold 15px Arial,sans-serif';ctx.fillStyle='rgba(255,255,255,.85)';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(ttD.driverName,10,15);
+// Bottom: date/time stamp
+ctx.fillStyle='rgba(0,0,0,.8)';ctx.fillRect(0,H-36,W,36);ctx.fillStyle=mode==='checkin'?'#10b981':'#f59e0b';ctx.fillRect(0,H-39,W,3);
+var ts=label+'  |  '+now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+'  |  '+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+ctx.font='bold 17px Arial,sans-serif';ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(ts,W/2,H-18);
+var fl=document.getElementById('tt-cam-fl');fl.style.transition='none';fl.style.opacity='1';requestAnimationFrame(function(){fl.style.transition='opacity .3s';fl.style.opacity='0'});
+var pd=cv.toDataURL('image/jpeg',0.45),lm=mode;closeCam();doAct(pd,lm)}
+
+function doAct(pd,mode){var tk=tK(),now=Date.now();
+if(mode==='checkin'){var al=false;for(var i=0;i<ttD.records.length;i++){if(ttD.records[i].checkIn&&!ttD.records[i].checkOut){al=true;break}}if(al){tT('Already checked in!','warning');rD();return}var rid=uid();ttD.records.push({id:rid,date:tk,checkIn:{time:now},checkOut:null,hours:null});sv();sP(rid+'_in',pd).catch(function(){});sS();tT('Checked in at '+fT(now),'success')}
+else{var oR=null;for(var j=0;j<ttD.records.length;j++){if(ttD.records[j].checkIn&&!ttD.records[j].checkOut){oR=ttD.records[j];break}}if(!oR){tT('No open check-in!','error');rD();return}oR.checkOut={time:now};oR.hours=cH(oR.checkIn.time,now);sv();sP(oR.id+'_out',pd).catch(function(){});sS();tT('Checked out! Hours: '+oR.hours.toFixed(1),'success')}
+ttCM=null;rD()}
+
+document.getElementById('tt-btn-act').addEventListener('click',function(){var oR=null;for(var i=0;i<ttD.records.length;i++){if(ttD.records[i].checkIn&&!ttD.records[i].checkOut){oR=ttD.records[i];break}}openCam(oR?'checkout':'checkin')});
+document.getElementById('tt-btn-cap').addEventListener('click',capPhoto);
+document.getElementById('tt-btn-cx').addEventListener('click',function(){closeCam();ttCM=null});
+
+var hp='week';
+function rH(){var now=new Date();var recs=ttD.records.slice().sort(function(a,b){return b.date.localeCompare(a.date)});if(hp==='week'){var wa=new Date(now);wa.setDate(wa.getDate()-7);recs=recs.filter(function(r){return r.date>=dK(wa.getTime())})}else if(hp==='month'){var mk=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');recs=recs.filter(function(r){return r.date.startsWith(mk)})}
+var th=0,td=0;recs.forEach(function(r){if(r.hours!=null)th+=r.hours;if(r.checkIn)td++});document.getElementById('tt-h-hrs').textContent=th.toFixed(1);document.getElementById('tt-h-days').textContent=td;
+var tb=document.getElementById('tt-h-tb');if(!recs.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#6b6b6b;padding:40px 0">No records</td></tr>';return}
+var h='';recs.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric'}),ws=d.toLocaleDateString('en-US',{weekday:'short'});var iT=r.checkIn?fTs(r.checkIn.time):'--',oT=r.checkOut?fTs(r.checkOut.time):'--',hr=r.hours!=null?r.hours.toFixed(1):'<span style="color:#f59e0b;font-size:11px;font-weight:700">OPEN</span>';
+h+='<tr><td><span style="font-weight:600">'+ds+'</span><br><span style="font-size:10px;color:#6b6b6b">'+ws+'</span></td><td class="tt-mono" style="font-size:12px">'+iT+'</td><td class="tt-mono" style="font-size:12px">'+oT+'</td><td class="tt-mono" style="font-weight:700">'+hr+'</td><td><div style="display:flex;gap:4px;align-items:center"><img id="thi-'+r.id+'" class="tt-pth" src="" style="display:none"><img id="tho-'+r.id+'" class="tt-pth" src="" style="display:none"><span id="thn-'+r.id+'" style="color:#6b6b6b;font-size:11px">--</span></div></td></tr>'});
+tb.innerHTML=h;recs.forEach(function(r){var ie=document.getElementById('thi-'+r.id),oe=document.getElementById('tho-'+r.id),ne=document.getElementById('thn-'+r.id);var l=0;if(r.checkIn)gP(r.id+'_in').then(function(d){if(d&&ie){ie.src=d;ie.style.display='inline-block';ie.onclick=function(){vP(d)};l++;if(ne)ne.style.display='none'}});if(r.checkOut)gP(r.id+'_out').then(function(d){if(d&&oe){oe.src=d;oe.style.display='inline-block';oe.onclick=function(){vP(d)};l++;if(ne)ne.style.display='none'}})})}
+document.getElementById('tt-ptabs').addEventListener('click',function(e){var b=e.target.closest('.tt-pt');if(!b)return;hp=b.dataset.p;document.querySelectorAll('.tt-pt').forEach(function(t){t.classList.remove('on')});b.classList.add('on');rH()});
+
+function pp(ts){var d=new Date(ts),dy=d.getDate(),mo=d.getMonth(),yr=d.getFullYear();if(dy<=15)return{s:new Date(yr,mo,1),e:new Date(yr,mo,15,23,59,59)};var l=new Date(yr,mo+1,0).getDate();return{s:new Date(yr,mo,16),e:new Date(yr,mo,l,23,59,59)}}
+function cp(){return pp(Date.now())}
+function ppv(){var n=new Date();if(n.getDate()<=15){var l=new Date(n.getFullYear(),n.getMonth(),0).getDate();return{s:new Date(n.getFullYear(),n.getMonth()-1,16),e:new Date(n.getFullYear(),n.getMonth()-1,l,23,59,59)}}return{s:new Date(n.getFullYear(),n.getMonth(),1),e:new Date(n.getFullYear(),n.getMonth(),15,23,59,59)}}
+function rp(p){var sk=dK(p.s.getTime()),ek=dK(p.e.getTime());return ttD.records.filter(function(r){return r.date>=sk&&r.date<=ek})}
+
+function rR(){var cu=cp(),pv=ppv();document.getElementById('tt-rp-cur').textContent=fD(cu.s.getTime())+' \u2014 '+fD(cu.e.getTime());document.getElementById('tt-rp-prev').textContent=fD(pv.s.getTime())+' \u2014 '+fD(pv.e.getTime());
+var cr=rp(cu),pr=rp(pv),ch=0,cd=cr.length;cr.forEach(function(r){if(r.hours!=null)ch+=r.hours});document.getElementById('tt-rp-ch').textContent=ch.toFixed(1);document.getElementById('tt-rp-cd').textContent=cd;var ph=0,pd=pr.length;pr.forEach(function(r){if(r.hours!=null)ph+=r.hours});document.getElementById('tt-rp-ph').textContent=ph.toFixed(1);document.getElementById('tt-rp-pd').textContent=pd;
+var tb=document.getElementById('tt-rp-tb'),so=cr.slice().sort(function(a,b){return a.date.localeCompare(b.date)});if(!so.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:#6b6b6b;padding:30px 0">No entries</td></tr>'}else{var h='';so.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});var iT=r.checkIn?fTs(r.checkIn.time):'--',oT=r.checkOut?fTs(r.checkOut.time):'--',hr=r.hours!=null?r.hours.toFixed(1):'<span style="color:#f59e0b;font-size:11px;font-weight:700">OPEN</span>';h+='<tr><td>'+ds+'</td><td class="tt-mono" style="font-size:12px">'+iT+'</td><td class="tt-mono" style="font-size:12px">'+oT+'</td><td class="tt-mono" style="font-weight:700">'+hr+'</td></tr>'});tb.innerHTML=h}}
+
+function rptT(pl,per){var rs=rp(per).slice().sort(function(a,b){return a.date.localeCompare(b.date)}),th=0;rs.forEach(function(r){if(r.hours!=null)th+=r.hours});var l=[];l.push('CORRIDOR TOWING - PAYROLL REPORT');l.push('=================================');l.push('Driver: '+ttD.driverName);l.push('Period: '+pl);l.push('Date Range: '+fD(per.s.getTime())+' - '+fD(per.e.getTime()));l.push('Total Hours: '+th.toFixed(1));l.push('Days Worked: '+rs.length);l.push('');l.push('DATE\t\tCHECK IN\tCHECK OUT\tHOURS');l.push('----\t\t--------\t---------\t-----');rs.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});var iT=r.checkIn?fT(r.checkIn.time):'N/A',oT=r.checkOut?fT(r.checkOut.time):'N/A',hr=r.hours!=null?r.hours.toFixed(1):'OPEN';l.push(ds+'\t'+iT+'\t'+oT+'\t'+hr)});l.push('');l.push('Generated: '+new Date().toLocaleString());return l.join('\n')}
+
+document.getElementById('tt-btn-email').addEventListener('click',function(){if(!ttD.adminEmail){tT('No boss email set','error');return}var cu=cp(),pl='Current Period ('+fD(cu.s.getTime())+' - '+fD(cu.e.getTime())+')',bd=rptT(pl,cu),sb='Payroll Report - '+ttD.driverName+' - '+fD(cu.s.getTime())+' to '+fD(cu.e.getTime());tT('Sending report...','info');fetch("https://formspree.io/f/xdkyonjb",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subject:sb,message:bd})}).then(function(){tT('Report sent to boss!','success')}).catch(function(){tT('Failed to send','error')})});
+document.getElementById('tt-btn-csv').addEventListener('click',function(){var cu=cp(),rs=rp(cu).slice().sort(function(a,b){return a.date.localeCompare(b.date)}),csv='Date,Check In,Check Out,Hours\n';rs.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US');var iT=r.checkIn?fT(r.checkIn.time):'',oT=r.checkOut?fT(r.checkOut.time):'',hr=r.hours!=null?r.hours.toFixed(2):'';csv+='"'+ds+'","'+iT+'","'+oT+'","'+hr+'"\n'});var bl=new Blob([csv],{type:'text/csv'}),u=URL.createObjectURL(bl),a=document.createElement('a');a.href=u;a.download='TowTrack_'+ttD.driverName.replace(/\s+/g,'_')+'.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);tT('CSV downloaded!','success')});
+document.getElementById('tt-btn-copy').addEventListener('click',function(){var cu=cp(),txt=rptT('Current Period',cu);navigator.clipboard.writeText(txt).then(function(){tT('Copied!','success')}).catch(function(){tT('Copy failed','error')})});
+
+function rS(){document.getElementById('tt-set-n').value=ttD.driverName;document.getElementById('tt-set-e').value=ttD.adminEmail}
+document.getElementById('tt-btn-ss').addEventListener('click',function(){var n=document.getElementById('tt-set-n').value.trim(),e=document.getElementById('tt-set-e').value.trim();if(!n){tT('Name required','error');return}ttD.driverName=n;ttD.adminEmail=e;sv();tT('Settings saved!','success');rD()});
+document.getElementById('tt-btn-clp').addEventListener('click',function(){cf('Clear Photos?','Removes all photos but keeps time records.',function(){cP().then(function(){tT('Photos cleared','success')}).catch(function(){tT('Error','error')})})});
+document.getElementById('tt-btn-cla').addEventListener('click',function(){cf('Reset All?','Deletes ALL records and photos permanently.',function(){ttD.records=[];sv();cP().catch(function(){});tT('All data cleared','success');rD()})});
+document.getElementById('tt-nav').addEventListener('click',function(e){var it=e.target.closest('.tt-ni');if(!it)return;go(it.dataset.s)});
+
+// Init
+ld();startClk();oDB().catch(function(){});
+if(ttD.driverName){document.getElementById('tt-nav').style.display='block';go('dash')}
+}
+</script>
 </body>
 </html>
