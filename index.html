@@ -76,9 +76,7 @@
             .logo img{height:50px}
             .company-name{font-size:.85rem}
             .menu-toggle{display:block}
-            .driver-portal-btn{padding:6px 12px;font-size:.75rem}
-            .driver-portal-btn .btn-text{display:none}
-            .driver-portal-btn i{font-size:1.15rem}
+            .driver-portal-btn{display:none}
             .header-actions{order:2}
             .logo-container{flex:1;min-width:0}
             nav ul{display:none;flex-direction:column;width:100%;background:#0b3d91;padding:1rem 0;position:fixed;top:80px;left:0;z-index:999;max-height:calc(100vh - 80px);overflow-y:auto}
@@ -93,6 +91,7 @@
         }
         @media(min-width:769px){
             .driver-portal-btn .btn-text{display:inline}
+            .nav-driver-item{display:none}
         }
 
         #payMethodGroup{display:none}
@@ -285,7 +284,6 @@ window.onload=function(){calculateTotal()};
 var initTT_done=false,ttD={driverName:'',records:[]},ttCS=null,ttCM=null,ttDB=null;
 var COMPANY_EMAIL='corridor.towing@gmail.com';
 
-// ===== FIREBASE DATABASE INTEGRATION =====
 var FIREBASE_URL='https://corridortowing-default-rtdb.firebaseio.com';
 var firebaseSyncStatus='disconnected';
 
@@ -369,8 +367,6 @@ async function firebaseLoadRecords(){
     }
 }
 
-// ===== END FIREBASE INTEGRATION =====
-
 function initTT(){if(initTT_done)return;initTT_done=true;
 var SK='tt_meta_v6';
 
@@ -403,11 +399,9 @@ document.getElementById('tt-btn-setup').addEventListener('click',async function(
     ttD.driverName=n;
     sv();
     
-    // Load records from Firebase
     var fbRecords=await firebaseLoadRecords();
     if(fbRecords!==null){
         if(fbRecords.length>0){
-            // Merge Firebase records with local (Firebase takes priority for same IDs)
             var localMap={};
             ttD.records.forEach(function(r){localMap[r.id]=r});
             var merged=[];
@@ -415,7 +409,6 @@ document.getElementById('tt-btn-setup').addEventListener('click',async function(
                 merged.push(fr);
                 delete localMap[fr.id];
             });
-            // Add any local records not in Firebase
             for(var lid in localMap){
                 merged.push(localMap[lid]);
             }
@@ -467,10 +460,8 @@ var pd=cv.toDataURL('image/jpeg',0.45),lm=mode;closeCam();doAct(pd,lm)}
 
 function doAct(pd,mode){var tk=tK(),now=Date.now();
 if(mode==='checkin'){var al=false;for(var i=0;i<ttD.records.length;i++){if(ttD.records[i].checkIn&&!ttD.records[i].checkOut){al=true;break}}if(al){tT('Already checked in!','warning');rD();return}var rid=uid();var newRecord={id:rid,date:tk,checkIn:{time:now},checkOut:null,hours:null};ttD.records.push(newRecord);sv();sP(rid+'_in',pd).catch(function(){});sS();tT('Checked in at '+fT(now),'success');
-// Save to Firebase
 firebaseSaveRecord(newRecord).then(function(ok){if(ok)tT('Saved to cloud','info')})}
 else{var oR=null;for(var j=0;j<ttD.records.length;j++){if(ttD.records[j].checkIn&&!ttD.records[j].checkOut){oR=ttD.records[j];break}}if(!oR){tT('No open check-in!','error');rD();return}oR.checkOut={time:now};oR.hours=cH(oR.checkIn.time,now);sv();sP(oR.id+'_out',pd).catch(function(){});sS();tT('Checked out! Hours: '+oR.hours.toFixed(1),'success');
-// Save to Firebase
 firebaseSaveRecord(oR).then(function(ok){if(ok)tT('Saved to cloud','info')})}
 ttCM=null;rD()}
 
@@ -478,7 +469,6 @@ document.getElementById('tt-btn-act').addEventListener('click',function(){var oR
 document.getElementById('tt-btn-cap').addEventListener('click',capPhoto);
 document.getElementById('tt-btn-cx').addEventListener('click',function(){closeCam();ttCM=null});
 
-// ===== HISTORY WITH PERIOD-BASED HOURS =====
 var hp='first';
 function getFirstPeriodRecs(yr,mo){return ttD.records.filter(function(r){var d=pDK(r.date);return d.getFullYear()===yr&&d.getMonth()===mo&&d.getDate()<=15})}
 function getSecondPeriodRecs(yr,mo){return ttD.records.filter(function(r){var d=pDK(r.date);return d.getFullYear()===yr&&d.getMonth()===mo&&d.getDate()>=16})}
@@ -559,7 +549,6 @@ document.getElementById('tt-btn-ss').addEventListener('click',async function(){v
     var newId=getDriverId(n);
     ttD.driverName=n;sv();tT('Name saved!','success');rD();
     
-    // If driver name changed, we don't migrate data (different driver)
     if(oldId!==newId){
         tT('Note: Records are tied to driver name','info');
     }
