@@ -176,7 +176,7 @@
         <div class="container header-inner">
             <div class="logo-container">
                 <div class="logo"><img src="images/logo.jpeg" alt="Corridor Towing Logo"></div>
-                <div class="company-name">Corridor Towing & Transportation</div>
+                <div class="company-name">Corridor Towing</div>
             </div>
             <div class="header-actions">
                 <button class="manager-portal-btn" onclick="openDP('mgr')"><i class="fas fa-user-shield"></i><span>Manager</span></button>
@@ -1094,7 +1094,7 @@ function downloadMgrExcel() {
         var hrs = 0;
         records.forEach(function(r) { if (r.hours != null) hrs += r.hours; });
         var data = [
-            ['CORRIDOR TOWING & TRANSPORTATION SERVICES'],
+            ['CORRIDOR TOWING'],
             ['MANAGER REPORT — ' + label],
             [''],
             ['Period:', period ? (mgr_fD(period.s.getTime()) + ' — ' + mgr_fD(period.e.getTime())) : 'All Time'],
@@ -1552,7 +1552,7 @@ function initTT() {
         var recs = rp(period);
         var hrs = 0;
         recs.forEach(function(r) { if (r.hours != null) hrs += r.hours; });
-        var lines = ['CORRIDOR TOWING & TRANSPORTATION SERVICES', 'Driver: ' + ttD.driverName, 'Period: ' + label + ' (' + fD(period.s.getTime()) + ' — ' + fD(period.e.getTime()) + ')', 'Total Hours: ' + hrs.toFixed(1), 'Days Worked: ' + recs.length, ''];
+        var lines = ['CORRIDOR TOWING', 'Driver: ' + ttD.driverName, 'Period: ' + label + ' (' + fD(period.s.getTime()) + ' — ' + fD(period.e.getTime()) + ')', 'Total Hours: ' + hrs.toFixed(1), 'Days Worked: ' + recs.length, ''];
         var sorted = recs.slice().sort(function(a, b) { return a.date.localeCompare(b.date); });
         sorted.forEach(function(r) {
             var d = pDK(r.date);
@@ -1575,7 +1575,7 @@ function initTT() {
             var hrs = 0;
             recs.forEach(function(r) { if (r.hours != null) hrs += r.hours; });
             var data = [
-                ['CORRIDOR TOWING & TRANSPORTATION SERVICES'],
+                ['CORRIDOR TOWING'],
                 ['DRIVER PAYROLL REPORT — ' + label],
                 [''],
                 ['Driver:', ttD.driverName],
