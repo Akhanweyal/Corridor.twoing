@@ -176,7 +176,7 @@
         <div class="container header-inner">
             <div class="logo-container">
                 <div class="logo"><img src="images/logo.jpeg" alt="Corridor Towing Logo"></div>
-                <div class="company-name">Corridor Towing</div>
+                <div class="company-name">Corridor Towing & Transportation</div>
             </div>
             <div class="header-actions">
                 <button class="manager-portal-btn" onclick="openDP('mgr')"><i class="fas fa-user-shield"></i><span>Manager</span></button>
@@ -1287,7 +1287,40 @@ function initTT() {
         return new Date(+p[0], +p[1] - 1, +p[2]);
     }
 
-    function cH(a, b) { return Math.round((b - a) / 36e5 * 100) / 100; }
+    // Returns MINUTES (integer) — minimum 1 minute even for sub-minute sessions
+    function cH(a, b) {
+        var ms = b - a;
+        if (ms <= 0) return 0;
+        var mins = Math.round(ms / 60000);
+        return mins < 1 ? 1 : mins;
+    }
+
+    // Safely read minutes from a record (handles legacy decimal-hours records)
+    function getMinutes(r) {
+        if (r.hours == null) return null;
+        var v = r.hours;
+        // Legacy: decimal < 24 with fractional part = old hours format
+        if (v > 0 && v < 24 && !Number.isInteger(v)) return Math.round(v * 60);
+        return Math.round(v); // already minutes (integer)
+    }
+
+    // Format minutes as "Xh Ym"
+    function fHM(totalMins) {
+        if (totalMins == null || isNaN(totalMins)) return '--';
+        totalMins = Math.round(totalMins);
+        if (totalMins <= 0) return '0m';
+        var h = Math.floor(totalMins / 60);
+        var m = totalMins % 60;
+        if (h === 0) return m + 'm';
+        if (m === 0) return h + 'h';
+        return h + 'h ' + m + 'm';
+    }
+
+    // Decimal hours from minutes (for Excel exports)
+    function minsToHrsDecimal(mins) {
+        if (mins == null) return 0;
+        return Math.round((mins / 60) * 100) / 100;
+    }
 
     function initials(name) {
         var p = name.trim().split(/\s+/);
@@ -1399,11 +1432,11 @@ function initTT() {
         if (today) {
             document.getElementById('tt-t-in').textContent = today.checkIn ? fTs(today.checkIn.time) : '--:--';
             document.getElementById('tt-t-out').textContent = (today.checkOut && today.checkOut.time) ? fTs(today.checkOut.time) : (open ? 'Active' : '--:--');
-            document.getElementById('tt-t-hrs').textContent = today.hours != null ? today.hours.toFixed(1) : (open ? '...' : '0.0');
+            document.getElementById('tt-t-hrs').textContent = today.hours != null ? fHM(getMinutes(today)) : (open ? '...' : '0m');
         } else {
             document.getElementById('tt-t-in').textContent = '--:--';
             document.getElementById('tt-t-out').textContent = '--:--';
-            document.getElementById('tt-t-hrs').textContent = '0.0';
+            document.getElementById('tt-t-hrs').textContent = '0m';
         }
 
         // Photos
@@ -1447,12 +1480,12 @@ function initTT() {
 
         var firstRecs = ttD.records.filter(function(r) { return r.date >= firstS && r.date <= firstE; });
         var secondRecs = ttD.records.filter(function(r) { return r.date >= secondS && r.date <= secondE; });
-        var firstHrs = 0, secondHrs = 0;
-        firstRecs.forEach(function(r) { if (r.hours != null) firstHrs += r.hours; });
-        secondRecs.forEach(function(r) { if (r.hours != null) secondHrs += r.hours; });
+        var firstMins = 0, secondMins = 0;
+        firstRecs.forEach(function(r) { var m = getMinutes(r); if (m != null) firstMins += m; });
+        secondRecs.forEach(function(r) { var m = getMinutes(r); if (m != null) secondMins += m; });
 
-        document.getElementById('tt-h-first').textContent = firstHrs.toFixed(1);
-        document.getElementById('tt-h-second').textContent = secondHrs.toFixed(1);
+        document.getElementById('tt-h-first').textContent = fHM(firstMins);
+        document.getElementById('tt-h-second').textContent = fHM(secondMins);
 
         var filtered;
         if (histPeriod === 'first') filtered = firstRecs;
@@ -1718,11 +1751,11 @@ function initTT() {
             }
             if (!oR) { tT('No open check-in found!', 'error'); rD(); return; }
             oR.checkOut = { time: now };
-            oR.hours = cH(oR.checkIn.time, now);
+            oR.hours = cH(oR.checkIn.time, now); // stored as integer MINUTES
             sv();
             sP(oR.id + '_out', pd).catch(function() {});
             sS();
-            tT('Checked out! ' + oR.hours.toFixed(1) + ' hours logged', 'success');
+            tT('Checked out! ' + fHM(oR.hours) + ' logged', 'success');
             rD();
             firebaseSaveRecord(oR).then(function(ok) { if (ok) tT('Saved to cloud ☁️', 'info'); });
         }
