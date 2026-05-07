@@ -16,7 +16,7 @@
         a{text-decoration:none;color:inherit}
         img,svg{max-width:100%;height:auto;display:block}
         .container{max-width:1200px;margin:0 auto;padding:0 15px}
-        header{background:#0b3d91;color:#fff;padding:1rem 0;position:fixed;top:0;left:0;right:0;z-index:1000;transition:transform .3s ease;transform:translateY(0)}
+        header{background:#0b3d91;color:#fff;padding:1rem 0;position:fixed;top:0;left:0;right:0;z-index:1000;transition:transform .3s ease}
         .header-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
         .logo-container{display:flex;align-items:center;gap:12px}
         .logo img{height:60px;width:auto;border-radius:8px}
@@ -25,7 +25,8 @@
         .menu-toggle{display:none;font-size:1.8rem;cursor:pointer;color:#fff}
         .driver-portal-btn{display:flex;align-items:center;gap:6px;background:rgba(255,204,0,.15);border:1.5px solid #ffcc00;color:#ffcc00;padding:8px 16px;border-radius:50px;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .3s;white-space:nowrap;font-family:inherit}
         .driver-portal-btn:hover{background:#ffcc00;color:#0b3d91}
-        .driver-portal-btn i{font-size:1rem}
+        .manager-portal-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);padding:8px 14px;border-radius:50px;font-weight:600;font-size:.8rem;cursor:pointer;transition:all .3s;white-space:nowrap;font-family:inherit}
+        .manager-portal-btn:hover{background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.4)}
         nav ul{display:flex;gap:1.5rem;list-style:none;flex-wrap:wrap}
         nav a{color:#fff;font-weight:600;font-size:1rem;padding:.5rem 0;transition:color .3s;cursor:pointer}
         nav a:hover,nav a.active{color:#ffcc00}
@@ -69,8 +70,13 @@
         .contact-info p{margin-bottom:1rem;font-size:1.1rem}
         .contact-info a{color:#ffcc00;font-weight:bold}
         footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:.9rem}
+        #payMethodGroup{display:none}
+        .estimate-bar{margin:1rem 0;padding:.8rem;background:#e6f3ff;border-radius:8px;font-size:.95rem;color:#0b3d91;display:none}
+        #confirmation{display:none;margin-top:1rem;padding:1rem;background:#d4edda;border-radius:8px;text-align:center;font-weight:bold}
+        .vehicle-group{display:flex;gap:1rem;flex-wrap:wrap}
+        .vehicle-group .form-group{flex:1;min-width:200px}
+        .help-text{font-size:.85rem;color:#555;margin-top:.3rem}
 
-        /* Mobile responsive */
         @media(max-width:768px){
             body{padding-top:90px}
             .logo img{height:50px}
@@ -79,32 +85,25 @@
             .driver-portal-btn{display:none}
             .header-actions{order:2}
             .logo-container{flex:1;min-width:0}
-            nav ul{display:none;flex-direction:column;width:100%;background:#0b3d91;padding:1rem 0;position:fixed;top:80px;left:0;z-index:999;max-height:calc(100vh - 80px);overflow-y:auto}
+            nav ul{display:none;flex-direction:column;width:100%;background:#0b3d91;padding:0;position:fixed;top:80px;left:0;z-index:999;max-height:calc(100vh - 80px);overflow-y:auto}
             nav ul.show{display:flex}
             nav li{width:100%;text-align:center}
             nav a{display:block;padding:1.2rem 0;font-size:1.1rem}
             .nav-driver-item{border-top:2px solid #ffcc00;margin-top:.5rem;padding-top:.5rem}
             .nav-driver-item a{color:#ffcc00;font-weight:800;font-size:1.15rem}
+            .nav-mgr-item{border-top:2px solid rgba(96,165,250,.3)}
+            .nav-mgr-item a{color:rgba(255,255,255,.7);font-weight:600;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:6px}
             .hero{padding:4rem 1rem}
             .hero h1{font-size:2rem}
             .pricing-table{grid-template-columns:1fr}
         }
         @media(min-width:769px){
-            .driver-portal-btn .btn-text{display:inline}
-            .nav-driver-item{display:none}
+            .nav-driver-item,.nav-mgr-item{display:none}
         }
 
-        #payMethodGroup{display:none}
-        .estimate-bar{margin:1rem 0;padding:.8rem;background:#e6f3ff;border-radius:8px;font-size:.95rem;color:#0b3d91;display:none}
-        #confirmation{display:none;margin-top:1rem;padding:1rem;background:#d4edda;border-radius:8px;text-align:center;font-weight:bold}
-        .vehicle-group{display:flex;gap:1rem;flex-wrap:wrap}
-        .vehicle-group .form-group{flex:1;min-width:200px}
-        .help-text{font-size:.85rem;color:#555;margin-top:.3rem}
-
-        /* DRIVER PORTAL */
+        /* ===== DRIVER / MANAGER PORTAL ===== */
         #driver-app{display:none;font-family:'Outfit',sans-serif;background:#0a0a0a;color:#f0f0f0;min-height:100vh}
-        .tt-mono{font-family:'JetBrains Mono',monospace}
-        .tt-screen{display:none;min-height:100vh;padding-bottom:88px;position:relative;z-index:1}
+        .tt-screen{display:none;min-height:100vh;padding-bottom:88px}
         .tt-screen.active{display:block;animation:tt-fd .3s ease}
         @keyframes tt-fd{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         .tt-amb{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
@@ -135,19 +134,15 @@
         .tt-spop.active{display:flex}
         .tt-spc{width:88px;height:88px;border-radius:50%;background:#10b981;display:flex;align-items:center;justify-content:center;animation:tt-pp .35s ease}
         @keyframes tt-pp{0%{transform:scale(0);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
-        .tt-pth{width:36px;height:36px;border-radius:8px;object-fit:cover;cursor:pointer;border:1px solid #262626;transition:transform .2s}
-        .tt-pth:hover{transform:scale(2);z-index:10;position:relative;box-shadow:0 8px 24px rgba(0,0,0,.7)}
         .tt-dtb{width:100%;border-collapse:separate;border-spacing:0}
         .tt-dtb th{background:#1e1e1e;padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#6b6b6b;font-weight:600;border-bottom:1px solid #262626;position:sticky;top:0;z-index:2}
         .tt-dtb td{padding:10px 12px;border-bottom:1px solid #262626;font-size:13px;vertical-align:middle}
         .tt-pt{padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid #262626;background:#141414;color:#6b6b6b;transition:all .2s}
         .tt-pt.on{background:#f59e0b;color:#000;border-color:#f59e0b}
         .tt-pg{animation:tt-pg 2s infinite}
-        .tt-pa{animation:tt-pa 2s infinite}
         @keyframes tt-pg{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.3)}50%{box-shadow:0 0 0 16px transparent}}
+        .tt-pa{animation:tt-pa 2s infinite}
         @keyframes tt-pa{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.3)}50%{box-shadow:0 0 0 16px transparent}}
-        .tt-bk{animation:tt-bk 2s infinite}
-        @keyframes tt-bk{0%,100%{opacity:1}50%{opacity:.3}}
         .tt-topbar{background:linear-gradient(135deg,#0b3d91,#093070);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
         .tt-locked{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:8px 12px;font-size:12px;color:#fca5a5;display:flex;align-items:center;gap:6px}
         .tt-driver-badge{background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(245,158,11,.04));border:1px solid rgba(245,158,11,.25);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px}
@@ -158,8 +153,19 @@
         .tt-sync-indicator.synced{color:#10b981}
         .tt-sync-indicator.syncing{color:#f59e0b}
         .tt-sync-indicator.error{color:#ef4444}
+        .mgr-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;color:#60a5fa}
+        .tt-mgr-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+        .tt-mgr-tab{padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid #262626;background:#141414;color:#6b6b6b;transition:all .2s}
+        .tt-mgr-tab.on{background:#f59e0b;color:#000;border-color:#f59e0b}
+        .tt-mgr-tab:hover{background:#1e1e1e;color:#f0f0f0;border-color:#333}
+        .tt-pth{width:36px;height:36px;border-radius:8px;object-fit:cover;cursor:pointer;border:1px solid #262626;transition:transform .2s}
+        .tt-pth:hover{transform:scale(2);z-index:10;position:relative;box-shadow:0 8px 24px rgba(0,0,0,.7)}
+        /* Manager screen */
+        #tt-scr-mgr{padding-bottom:20px}
+        .mgr-stat-card{background:#141414;border:1px solid #262626;border-radius:18px;padding:20px}
+        .mgr-stat-val{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700}
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -173,391 +179,1680 @@
                 <div class="company-name">Corridor Towing & Transportation</div>
             </div>
             <div class="header-actions">
-                <button class="driver-portal-btn" onclick="openDP()">
-                    <i class="fas fa-id-badge"></i>
-                    <span class="btn-text">Driver Portal</span>
-                </button>
+                <button class="manager-portal-btn" onclick="openDP('mgr')"><i class="fas fa-user-shield"></i><span>Manager</span></button>
+                <button class="driver-portal-btn" onclick="openDP()"><i class="fas fa-id-badge"></i><span class="btn-text">Driver Portal</span></button>
                 <div class="menu-toggle" onclick="toggleMenu()">☰ Menu</div>
             </div>
             <nav>
                 <ul id="nav-menu">
+                    <li class="nav-mgr-item"><a onclick="openDP('mgr')" style="cursor:pointer"><i class="fas fa-user-shield"></i> Manager Portal</a></li>
+                    <li class="nav-driver-item"><a onclick="openDP()" style="cursor:pointer"><i class="fas fa-id-badge"></i> Driver Portal</a></li>
                     <li><a href="#home" class="active">Home</a></li>
                     <li><a href="#forms">Request Service</a></li>
                     <li><a href="#pricing">Pricing</a></li>
                     <li><a href="#gallery">Gallery</a></li>
                     <li><a href="#payment">Pay Now</a></li>
                     <li><a href="#contact">Contact</a></li>
-                    <li class="nav-driver-item"><a onclick="openDP()" style="cursor:pointer"><i class="fas fa-id-badge"></i> Driver Portal</a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
-    <section id="home" class="hero"><div class="container"><h1>24/7 Towing & Transportation</h1><p>Fast, reliable, and professional service in Richmond, VA. We're on the way — just call or request online!</p><a href="tel:8042928414" class="cta-btn">Call Now: (804) 292-8414</a><a href="#forms" class="cta-btn">Request Service Online</a></div></section>
+    <section id="home" class="hero">
+        <div class="container">
+            <h1>24/7 Towing & Transportation</h1>
+            <p>Fast, reliable, and professional service in Richmond, VA. We're on the way — just call or request online!</p>
+            <a href="tel:8042928414" class="cta-btn">Call Now: (804) 292-8414</a>
+            <a href="#forms" class="cta-btn">Request Service Online</a>
+        </div>
+    </section>
 
-    <section id="pricing" class="services"><div class="container"><h2 class="section-title">Our Services & Pricing</h2><p style="text-align:center;margin-bottom:1.5rem;font-size:1rem;color:#555"><strong>How to choose:</strong> Light Duty for most passenger cars and small SUVs (e.g. Corolla, Civic, Camry). Medium Duty for larger vehicles like full-size trucks (e.g. F-150), vans, box trucks, or RVs.</p><div class="pricing-table"><div class="price-card"><h3>Light Duty Tow</h3><div class="price">$60 base</div><ul><li>Pickup: $60</li><li>Enroute: $2/mile (first 5 free)</li><li>Tow (loaded): $5/mile</li><li>Most sedans, SUVs, small trucks</li><li>Examples: Corolla, Civic, Camry, most passenger cars</li><li>Up to 10,000 lbs</li></ul></div><div class="price-card"><h3>Medium Duty Tow</h3><div class="price">$70 base</div><ul><li>Pickup: $70</li><li>Enroute: $2/mile (first 5 free)</li><li>Tow (loaded): $5/mile</li><li>Larger vehicles: full-size trucks, vans, box trucks, RVs</li><li>Examples: F-150, Transit vans, Sprinter, larger SUVs</li><li>Up to 26,000 lbs</li></ul></div><div class="price-card"><h3>Roadside Assistance</h3><div class="price">From $50</div><ul><li>Jumpstart: $50</li><li>Lockout: $50</li><li>Tire Change: $50</li><li>Fuel Delivery: $50 + fuel</li><li><strong>Extraction / Winch Out: $60</strong></li></ul></div></div></div></section>
+    <section id="pricing" class="services">
+        <div class="container">
+            <h2 class="section-title">Our Services & Pricing</h2>
+            <p style="text-align:center;margin-bottom:1.5rem;font-size:1rem;color:#555"><strong>How to choose:</strong> Light Duty for most passenger cars and small SUVs (e.g. Corolla, Civic, Camry). Medium Duty for larger vehicles like full-size trucks (e.g. F-150), vans, box trucks, or RVs.</p>
+            <div class="pricing-table">
+                <div class="price-card">
+                    <h3>Light Duty Tow</h3>
+                    <div class="price">$60 base</div>
+                    <ul>
+                        <li>Pickup: $60</li>
+                        <li>Enroute: $2/mile (first 5 free)</li>
+                        <li>Tow (loaded): $5/mile</li>
+                        <li>Most sedans, SUVs, small trucks</li>
+                        <li>Examples: Corolla, Civic, Camry</li>
+                        <li>Up to 10,000 lbs</li>
+                    </ul>
+                </div>
+                <div class="price-card">
+                    <h3>Medium Duty Tow</h3>
+                    <div class="price">$70 base</div>
+                    <ul>
+                        <li>Pickup: $70</li>
+                        <li>Enroute: $2/mile (first 5 free)</li>
+                        <li>Tow (loaded): $5/mile</li>
+                        <li>Larger vehicles: full-size trucks, vans</li>
+                        <li>Examples: F-150, Transit, Sprinter</li>
+                        <li>Up to 26,000 lbs</li>
+                    </ul>
+                </div>
+                <div class="price-card">
+                    <h3>Roadside Assistance</h3>
+                    <div class="price">From $50</div>
+                    <ul>
+                        <li>Jumpstart: $50</li>
+                        <li>Lockout: $50</li>
+                        <li>Tire Change: $50</li>
+                        <li>Fuel Delivery: $50 + fuel</li>
+                        <li><strong>Extraction / Winch Out: $60</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <section id="forms" class="request"><div class="container"><h2 class="section-title">Request Towing Service</h2><div class="form-dropdown"><div class="dropdown-content"><form id="requestForm" onsubmit="handleRequestSubmit(event)"><div class="form-group"><label>Full Name *</label><input type="text" id="req_name" required></div><div class="form-group"><label>Phone *</label><input type="tel" id="req_phone" required></div><div class="form-group"><label>Email (for receipt) *</label><input type="email" id="req_email" required></div><div class="form-group"><label>Service Needed *</label><select id="req_service" required onchange="calculateTotal()"><option value="">Select service</option><option value="light-tow" data-base="60">Light Duty Tow ($60+) - sedans, SUVs, small trucks</option><option value="medium-tow" data-base="70">Medium Duty Tow ($70+) - full-size trucks, vans, RVs</option><option value="jumpstart" data-base="50">Jumpstart ($50)</option><option value="lockout" data-base="50">Lockout ($50)</option><option value="tire" data-base="50">Tire Change ($50)</option><option value="fuel" data-base="50">Fuel Delivery ($50 + fuel cost)</option><option value="extraction" data-base="60">Extraction / Winch Out ($60)</option></select><div class="help-text">Examples: Corolla/Civic/Camry = Light Duty • F-150/vans = Medium Duty</div></div><div class="form-group"><label>Preferred Tow Method (optional)</label><select id="req_towmethod"><option value="any">Any available (recommended)</option><option value="flatbed">Flatbed only</option><option value="wheellift">Wheel Lift only</option></select><div class="help-text">Flatbed is safest for most vehicles. We'll choose the best unless specified.</div></div><div class="form-group"><label>Vehicle Make & Model</label><input type="text" id="req_vehicle" placeholder="e.g. Toyota Camry 2018"></div><div class="vehicle-group"><div class="form-group"><label>Does it start?</label><select id="req_starts"><option value="yes">Yes</option><option value="no" selected>No</option><option value="unknown">Unknown</option></select></div><div class="form-group"><label>In neutral / park?</label><select id="req_neutral"><option value="yes">Yes</option><option value="no" selected>No</option><option value="unknown">Unknown</option></select></div><div class="form-group"><label>Attended?</label><select id="req_attended"><option value="yes" selected>Yes (someone there)</option><option value="no">No (unattended)</option></select></div></div><div class="form-group"><label>Vehicle Location *</label><input type="text" id="vehicleLocation" required placeholder="Enter full address (street, city, state, ZIP)"><div class="help-text">Please enter a complete, accurate address for best estimate and fast service.</div><button type="button" class="location-btn" onclick="getCurrentLocation()">Use My Current Location</button></div><div class="form-group"><label>Tow Destination (optional for roadside)</label><input type="text" id="towDestination" placeholder="Enter full destination address"><div class="help-text">Full address helps us give accurate estimate.</div></div><div id="estimateBar" class="estimate-bar">Enter both addresses above for auto tow miles estimate.</div><div class="form-group"><label>Enroute Miles (first 5 free)</label><input type="number" id="req_enroute" step="0.1" min="0" value="5" onchange="calculateTotal()"></div><div class="form-group"><label>Tow Miles (loaded, editable)</label><input type="number" id="req_tow" step="0.1" min="0" value="0" onchange="calculateTotal()"></div><div class="form-group"><label>Total Amount ($) *</label><input type="number" id="req_amount" step="0.01" required readonly style="background:#f0f0f0"></div><div class="form-group"><label>Payment Preference *</label><select id="paymentPreference" required onchange="togglePayMethod()"><option value="pay-later">Pay on arrival (cash, card, Venmo, Cash App, PayPal)</option><option value="pay-now">Pay now (deposit/full)</option></select></div><div id="payMethodGroup" class="form-group"><label>Select Payment Method *</label><select id="payMethod"><option value="">Select</option><option value="venmo">Venmo (@corridortowing)</option><option value="cashapp">Cash App ($corridortowing)</option><option value="paypal">PayPal (drajmalweyal@gmail.com)</option><option value="card">Card (Square)</option></select></div><div class="payment-note"><strong>Payment Info:</strong> First 5 enroute miles are free. Additional enroute $2/mile. Tow miles $5/mile.</div><button type="submit" class="submit-btn" id="submitBtn">Send Request</button></form><div id="confirmation"></div></div></div></div></section>
+    <section id="forms" class="request">
+        <div class="container">
+            <h2 class="section-title">Request Towing Service</h2>
+            <div class="form-dropdown">
+                <div class="dropdown-content">
+                    <form id="requestForm" onsubmit="handleRequestSubmit(event)">
+                        <div class="form-group"><label>Full Name *</label><input type="text" id="req_name" required></div>
+                        <div class="form-group"><label>Phone *</label><input type="tel" id="req_phone" required></div>
+                        <div class="form-group"><label>Email (for receipt) *</label><input type="email" id="req_email" required></div>
+                        <div class="form-group">
+                            <label>Service Needed *</label>
+                            <select id="req_service" required onchange="calculateTotal()">
+                                <option value="">Select service</option>
+                                <option value="light-tow" data-base="60">Light Duty Tow ($60+) - sedans, SUVs, small trucks</option>
+                                <option value="medium-tow" data-base="70">Medium Duty Tow ($70+) - full-size trucks, vans, RVs</option>
+                                <option value="jumpstart" data-base="50">Jumpstart ($50)</option>
+                                <option value="lockout" data-base="50">Lockout ($50)</option>
+                                <option value="tire" data-base="50">Tire Change ($50)</option>
+                                <option value="fuel" data-base="50">Fuel Delivery ($50 + fuel cost)</option>
+                                <option value="extraction" data-base="60">Extraction / Winch Out ($60)</option>
+                            </select>
+                            <div class="help-text">Examples: Corolla/Civic/Camry = Light Duty · F-150/vans = Medium Duty</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Preferred Tow Method (optional)</label>
+                            <select id="req_towmethod">
+                                <option value="any">Any available (recommended)</option>
+                                <option value="flatbed">Flatbed only</option>
+                                <option value="wheellift">Wheel Lift only</option>
+                            </select>
+                            <div class="help-text">Flatbed is safest for most vehicles.</div>
+                        </div>
+                        <div class="form-group"><label>Vehicle Make & Model</label><input type="text" id="req_vehicle" placeholder="e.g. Toyota Camry 2018"></div>
+                        <div class="vehicle-group">
+                            <div class="form-group"><label>Does it start?</label><select id="req_starts"><option value="yes">Yes</option><option value="no" selected>No</option><option value="unknown">Unknown</option></select></div>
+                            <div class="form-group"><label>In neutral / park?</label><select id="req_neutral"><option value="yes">Yes</option><option value="no" selected>No</option><option value="unknown">Unknown</option></select></div>
+                            <div class="form-group"><label>Attended?</label><select id="req_attended"><option value="yes" selected>Yes (someone there)</option><option value="no">No (unattended)</option></select></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Vehicle Location *</label>
+                            <input type="text" id="vehicleLocation" required placeholder="Enter full address (street, city, state, ZIP)">
+                            <div class="help-text">Please enter a complete, accurate address for best estimate and fast service.</div>
+                            <button type="button" class="location-btn" onclick="getCurrentLocation()">Use My Current Location</button>
+                        </div>
+                        <div class="form-group">
+                            <label>Tow Destination (optional for roadside)</label>
+                            <input type="text" id="towDestination" placeholder="Enter full destination address">
+                            <div class="help-text">Full address helps us give accurate estimate.</div>
+                        </div>
+                        <div id="estimateBar" class="estimate-bar">Enter both addresses above for auto tow miles estimate.</div>
+                        <div class="form-group"><label>Enroute Miles (first 5 free)</label><input type="number" id="req_enroute" step="0.1" min="0" value="5" onchange="calculateTotal()"></div>
+                        <div class="form-group"><label>Tow Miles (loaded, editable)</label><input type="number" id="req_tow" step="0.1" min="0" value="0" onchange="calculateTotal()"></div>
+                        <div class="form-group"><label>Total Amount ($) *</label><input type="number" id="req_amount" step="0.01" required readonly style="background:#f0f0f0"></div>
+                        <div class="form-group">
+                            <label>Payment Preference *</label>
+                            <select id="paymentPreference" required onchange="togglePayMethod()">
+                                <option value="pay-later">Pay on arrival (cash, card, Venmo, Cash App, PayPal)</option>
+                                <option value="pay-now">Pay now (deposit/full)</option>
+                            </select>
+                        </div>
+                        <div id="payMethodGroup" class="form-group">
+                            <label>Select Payment Method *</label>
+                            <select id="payMethod">
+                                <option value="">Select</option>
+                                <option value="venmo">Venmo (@corridortowing)</option>
+                                <option value="cashapp">Cash App ($corridortowing)</option>
+                                <option value="paypal">PayPal (drajmalweyal@gmail.com)</option>
+                                <option value="card">Card (Square)</option>
+                            </select>
+                        </div>
+                        <div class="payment-note"><strong>Payment Info:</strong> First 5 enroute miles are free. Additional enroute $2/mile. Tow miles $5/mile.</div>
+                        <button type="submit" class="submit-btn" id="submitBtn">Send Request</button>
+                    </form>
+                    <div id="confirmation"></div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <section id="gallery" class="services"><div class="container"><h2 class="section-title">Our Services in Action</h2><div class="services-gallery"><div class="service-img"><img src="https://img.icons8.com/color/96/000000/tow-truck.png" alt="Towing"><p><strong>Light & Medium Duty Towing</strong><br>Flatbed & Wheel Lift</p></div><div class="service-img"><img src="https://img.icons8.com/color/96/000000/car-battery.png" alt="Jumpstart"><p><strong>Jumpstart</strong><br>Dead battery? We're on it!</p></div><div class="service-img"><img src="https://img.icons8.com/color/96/000000/lock.png" alt="Lockout"><p><strong>Lockout Service</strong><br>Locked out? No damage!</p></div><div class="service-img"><img src="https://img.icons8.com/color/96/000000/flat-tire.png" alt="Tire Change"><p><strong>Tire Change</strong><br>Spare installed fast</p></div><div class="service-img"><img src="https://img.icons8.com/color/96/000000/gas-station.png" alt="Fuel Delivery"><p><strong>Fuel Delivery</strong><br>Out of gas? We bring it</p></div><div class="service-img"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="45" fill="#0b3d91" stroke="#ffcc00" stroke-width="3"/><path d="M30 40 L50 60 L70 40" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M50 60 L50 75" stroke="#fff" stroke-width="6" stroke-linecap="round"/><rect x="35" y="75" width="30" height="10" rx="2" fill="#ffcc00"/><circle cx="40" cy="80" r="5" fill="#333"/><circle cx="60" cy="80" r="5" fill="#333"/><path d="M25 35 Q20 30 25 25" stroke="#ffcc00" stroke-width="4" fill="none"/><path d="M75 35 Q80 30 75 25" stroke="#ffcc00" stroke-width="4" fill="none"/></svg><p><strong>Extraction / Winch Out</strong><br>Stuck in mud or ditch? We pull you out!</p></div></div></div></section>
+    <section id="gallery" class="services">
+        <div class="container">
+            <h2 class="section-title">Our Services in Action</h2>
+            <div class="services-gallery">
+                <div class="service-img"><img src="https://img.icons8.com/color/96/000000/tow-truck.png" alt="Towing"><p><strong>Light & Medium Duty Towing</strong><br>Flatbed & Wheel Lift</p></div>
+                <div class="service-img"><img src="https://img.icons8.com/color/96/000000/car-battery.png" alt="Jumpstart"><p><strong>Jumpstart</strong><br>Dead battery? We're on it!</p></div>
+                <div class="service-img"><img src="https://img.icons8.com/color/96/000000/lock.png" alt="Lockout"><p><strong>Lockout Service</strong><br>Locked out? No damage!</p></div>
+                <div class="service-img"><img src="https://img.icons8.com/color/96/000000/flat-tire.png" alt="Tire Change"><p><strong>Tire Change</strong><br>Spare installed fast</p></div>
+                <div class="service-img"><img src="https://img.icons8.com/color/96/000000/gas-station.png" alt="Fuel Delivery"><p><strong>Fuel Delivery</strong><br>Out of gas? We bring it</p></div>
+                <div class="service-img">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="45" fill="#0b3d91" stroke="#ffcc00" stroke-width="3"/><path d="M30 40 L50 60 L70 40" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M50 60 L50 75" stroke="#fff" stroke-width="6" stroke-linecap="round"/><rect x="35" y="75" width="30" height="10" rx="2" fill="#ffcc00"/><circle cx="40" cy="80" r="5" fill="#333"/><circle cx="60" cy="80" r="5" fill="#333"/><path d="M25 35 Q20 30 25 25" stroke="#ffcc00" stroke-width="4" fill="none"/><path d="M75 35 Q80 30 75 25" stroke="#ffcc00" stroke-width="4" fill="none"/></svg>
+                    <p><strong>Extraction / Winch Out</strong><br>Stuck in mud or ditch? We pull you out!</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <section id="payment" class="payment"><div class="container"><h2 class="section-title">Pay for Your Service</h2><p style="text-align:center;margin-bottom:1.5rem">Total due: <strong id="paymentAmountDisplay">$0.00</strong></p><div class="payment-options"><a href="https://venmo.com/corridortowing" class="payment-btn" target="_blank"><i class="fab fa-venmo"></i> Venmo</a><a href="https://cash.app/$corridortowing" class="payment-btn" target="_blank"><i class="fas fa-dollar-sign"></i> Cash App</a><a href="https://square.link/u/YOUR_SQUARE_LINK_HERE" class="payment-btn" target="_blank"><i class="fas fa-credit-card"></i> Pay with Card</a><a href="https://paypal.me/CorridorTowing" class="payment-btn" target="_blank"><i class="fab fa-paypal"></i> PayPal</a><div class="payment-btn"><i class="fas fa-money-bill-wave"></i> Cash on Arrival</div></div><p style="text-align:center;margin-top:1.5rem;font-size:.95rem">After payment, your service request will be confirmed.</p></div></section>
+    <section id="payment" class="payment">
+        <div class="container">
+            <h2 class="section-title">Pay for Your Service</h2>
+            <p style="text-align:center;margin-bottom:1.5rem">Total due: <strong id="paymentAmountDisplay">$0.00</strong></p>
+            <div class="payment-options">
+                <a href="https://venmo.com/corridortowing" class="payment-btn" target="_blank"><i class="fab fa-venmo"></i>Venmo</a>
+                <a href="https://cash.app/$corridortowing" class="payment-btn" target="_blank"><i class="fas fa-dollar-sign"></i>Cash App</a>
+                <a href="https://square.link/u/YOUR_SQUARE_LINK_HERE" class="payment-btn" target="_blank"><i class="fas fa-credit-card"></i>Pay with Card</a>
+                <a href="https://paypal.me/CorridorTowing" class="payment-btn" target="_blank"><i class="fab fa-paypal"></i>PayPal</a>
+                <div class="payment-btn"><i class="fas fa-money-bill-wave"></i>Cash on Arrival</div>
+            </div>
+        </div>
+        <p style="text-align:center;margin-top:1.5rem;font-size:.95rem">After payment, your service request will be confirmed.</p>
+    </section>
 
-    <section id="contact"><div class="container contact-info"><h2>Contact Us</h2><p><strong>Phone:</strong> <a href="tel:8042928414">(804) 292-8414</a> (24/7 Emergency)</p><p><strong>Email:</strong> <a href="mailto:corridor.towing@gmail.com">corridor.towing@gmail.com</a></p><p><strong>Address:</strong> 4100 Tomlynn St, Richmond, VA 23230</p><p><strong>Service Area:</strong> Richmond, Henrico, Chesterfield, Glen Allen, Short Pump, Mechanicsville & surrounding areas</p><p>We respond fast — call or use the request form above!</p></div></section>
+    <section id="contact">
+        <div class="container contact-info">
+            <h2>Contact Us</h2>
+            <p><strong>Phone:</strong> <a href="tel:8042928414">(804) 292-8414</a> (24/7 Emergency)</p>
+            <p><strong>Email:</strong> <a href="mailto:corridor.towing@gmail.com">corridor.towing@gmail.com</a></p>
+            <p><strong>Address:</strong> 4100 Tomlynn St, Richmond, VA 23230</p>
+            <p><strong>Service Area:</strong> Richmond, Henrico, Chesterfield, Glen Allen, Short Pump, Mechanicsville & surrounding areas</p>
+            <p>We respond fast — call or use the request form above!</p>
+        </div>
+    </section>
     <footer><div class="container"><p>&copy; 2025 Corridor Towing and Transportation Services. All rights reserved.</p><p>Licensed & Insured | 24/7 Emergency Service | Richmond, VA</p></div></footer>
 </div>
 
-<!-- ========== DRIVER PORTAL ========== -->
+<!-- ========== DRIVER / MANAGER APP ========== -->
 <div id="driver-app">
     <div class="tt-amb"><div class="tt-orb"></div><div class="tt-orb"></div></div>
-    <div class="tt-topbar"><div style="display:flex;align-items:center;gap:10px"><img src="images/logo.jpeg" style="height:32px;border-radius:6px"><span style="font-weight:700;font-size:14px">Corridor Towing</span><span id="tt-sync-status" class="tt-sync-indicator synced"><i class="fas fa-cloud"></i> Cloud</span></div><button onclick="closeDP()" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px"><i class="fas fa-arrow-left"></i> Exit Portal</button></div>
 
-    <!-- SETUP -->
-    <div id="tt-scr-setup" class="tt-screen active"><div class="flex flex-col items-center justify-center min-h-screen px-6"><div class="text-center mb-8"><div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-amber-500/20" style="transform:rotate(-8deg)"><i class="fas fa-truck-pickup text-4xl text-white" style="transform:rotate(8deg)"></i></div><h1 class="text-5xl font-black tracking-tight mb-2">TowTrack</h1><p style="color:#6b6b6b" class="text-lg font-light">Driver Check-In System</p></div><div class="w-full max-w-sm space-y-4"><div><label class="block text-xs font-semibold uppercase tracking-wider mb-2" style="color:#6b6b6b">Your Full Name</label><input id="tt-inp-name" type="text" class="tt-inp" placeholder="e.g. Mike Johnson"></div><div class="tt-card" style="background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.2)"><div class="flex items-center gap-2 mb-1"><i class="fas fa-cloud" style="color:#f59e0b;font-size:12px"></i><span class="text-xs font-semibold" style="color:#f59e0b">Synced to Cloud Database</span></div><p class="mono text-sm font-bold">Your logs are saved securely</p></div><button id="tt-btn-setup" class="w-full py-4 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-black font-extrabold text-lg rounded-2xl transition-all active:scale-[0.97] mt-2 shadow-lg shadow-amber-500/20">Continue</button></div></div></div>
-
-    <!-- DASHBOARD -->
-    <div id="tt-scr-dash" class="tt-screen"><div class="px-5 pt-5 pb-4">
-        <div class="flex items-start justify-between mb-4"><div><p class="text-xs font-medium uppercase tracking-wider" style="color:#6b6b6b">Welcome back</p><h2 id="tt-d-name" class="text-2xl font-extrabold mt-0.5"></h2></div><div class="text-right"><p id="tt-d-date" class="text-xs tt-mono" style="color:#6b6b6b"></p><p id="tt-d-time" class="text-2xl font-bold tt-mono" style="color:#f59e0b"></p></div></div>
-        <div id="tt-scard" class="tt-card mb-4"><div class="flex items-center gap-3 mb-1"><span id="tt-s-dot" class="w-3 h-3 rounded-full" style="background:#6b6b6b"></span><span id="tt-s-lbl" class="text-lg font-bold">Checked Out</span></div><p id="tt-s-det" class="text-sm mb-4 ml-6" style="color:#6b6b6b">Ready to start your shift</p><button id="tt-btn-act" class="w-full py-5 rounded-2xl font-extrabold text-xl transition-all active:scale-[0.97] flex items-center justify-center gap-3 tt-pg" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff"><i class="fas fa-camera text-lg"></i><span id="tt-btn-act-t">Check In</span></button></div>
-        <div class="tt-card mb-4"><h3 class="text-xs font-semibold uppercase tracking-wider mb-3" style="color:#6b6b6b">Today's Summary</h3><div class="grid grid-cols-3 gap-3 text-center"><div><p class="uppercase tracking-wider mb-1" style="font-size:10px;color:#6b6b6b">In</p><p id="tt-t-in" class="tt-mono font-bold text-lg">--:--</p></div><div><p class="uppercase tracking-wider mb-1" style="font-size:10px;color:#6b6b6b">Out</p><p id="tt-t-out" class="tt-mono font-bold text-lg">--:--</p></div><div><p class="uppercase tracking-wider mb-1" style="font-size:10px;color:#6b6b6b">Hours</p><p id="tt-t-hrs" class="tt-mono font-bold text-lg" style="color:#f59e0b">0.0</p></div></div></div>
-        <div id="tt-photos" class="tt-card" style="display:none"><h3 class="text-xs font-semibold uppercase tracking-wider mb-3" style="color:#6b6b6b">Verification Photos</h3><div class="flex gap-5 items-center"><div class="text-center"><img id="tt-ph-in" class="rounded-xl object-cover border cursor-pointer" style="width:72px;height:72px;border-color:#262626" src="" alt=""><p class="mt-1.5 font-medium" style="font-size:10px;color:#6b6b6b">CHECK IN</p></div><div class="text-center"><img id="tt-ph-out" class="rounded-xl object-cover border cursor-pointer" style="width:72px;height:72px;border-color:#262626" src="" alt=""><p class="mt-1.5 font-medium" style="font-size:10px;color:#6b6b6b">CHECK OUT</p></div></div></div>
-    </div></div>
-
-    <!-- HISTORY -->
-    <div id="tt-scr-hist" class="tt-screen"><div class="px-5 pt-5 pb-4"><h2 class="text-2xl font-extrabold mb-0.5">Work History</h2><p class="text-sm mb-5" style="color:#6b6b6b">Your daily hours log with period totals</p>
-        <div id="tt-hist-driver" class="tt-driver-badge mb-4"><div id="tt-hist-avatar" class="tt-driver-avatar"></div><div><p class="text-xs font-medium uppercase tracking-wider" style="color:#6b6b6b">Driver</p><p id="tt-hist-dname" class="text-xl font-black"></p></div></div>
-        <div class="flex gap-2 mb-4 flex-wrap" id="tt-ptabs"><button class="tt-pt on" data-p="first">1st - 15th</button><button class="tt-pt" data-p="second">16th - End</button><button class="tt-pt" data-p="all">All Time</button></div>
-        <div class="grid grid-cols-2 gap-3 mb-4">
-            <div class="tt-card text-center"><p class="uppercase tracking-wider" style="font-size:10px;color:#6b6b6b">1st - 15th Hours</p><p id="tt-h-first" class="text-2xl font-black tt-mono" style="color:#10b981">0.0</p></div>
-            <div class="tt-card text-center"><p class="uppercase tracking-wider" style="font-size:10px;color:#6b6b6b">16th - End Hours</p><p id="tt-h-second" class="text-2xl font-black tt-mono" style="color:#f59e0b">0.0</p></div>
+    <div class="tt-topbar">
+        <div style="display:flex;align-items:center;gap:10px">
+            <img src="images/logo.jpeg" style="height:32px;border-radius:6px" onerror="this.style.display='none'">
+            <span style="font-weight:700;font-size:14px">Corridor Towing</span>
+            <span id="tt-sync-status" class="tt-sync-indicator"><i class="fas fa-cloud"></i> Cloud</span>
+            <span id="mgr-badge" class="mgr-badge" style="display:none"><i class="fas fa-user-shield"></i> MANAGER</span>
         </div>
-        <div class="tt-card mb-4 flex items-center justify-between"><div><p class="uppercase tracking-wider" style="font-size:10px;color:#6b6b6b">Selected Period Total</p><p id="tt-h-hrs" class="text-4xl font-black tt-mono" style="color:#f59e0b">0.0</p></div><div class="text-right"><p class="uppercase tracking-wider" style="font-size:10px;color:#6b6b6b">Days Worked</p><p id="tt-h-days" class="text-4xl font-black tt-mono">0</p></div></div>
-        <div class="rounded-2xl overflow-hidden border" style="border-color:#262626"><div class="overflow-x-auto max-h-[45vh] overflow-y-auto"><table class="tt-dtb"><thead><tr><th>Driver</th><th>Date</th><th>In</th><th>Out</th><th>Hours</th><th>Proof</th></tr></thead><tbody id="tt-h-tb"></tbody></table></div></div>
-    </div></div>
+        <button onclick="closeDP()" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px"><i class="fas fa-arrow-left"></i> Exit</button>
+    </div>
 
-    <!-- REPORTS -->
-    <div id="tt-scr-rpt" class="tt-screen"><div class="px-5 pt-5 pb-4"><h2 class="text-2xl font-extrabold mb-0.5">Payroll Reports</h2><p class="text-sm mb-5" style="color:#6b6b6b">Biweekly summaries sent to company</p>
-        <div id="tt-rpt-driver" class="tt-driver-badge mb-5"><div id="tt-rpt-avatar" class="tt-driver-avatar"></div><div><p class="text-xs font-medium uppercase tracking-wider" style="color:#6b6b6b">Driver</p><p id="tt-rpt-dname" class="text-xl font-black"></p></div></div>
-        <div class="tt-card mb-4"><div class="flex items-center justify-between mb-2"><h3 class="font-bold text-base">Current Pay Period</h3><span class="px-3 py-1 rounded-full font-bold uppercase tracking-wider" style="font-size:10px;background:rgba(245,158,11,.2);color:#f59e0b">Active</span></div><p id="tt-rp-cur" class="tt-mono text-xs mb-4" style="color:#6b6b6b"></p><div class="grid grid-cols-2 gap-4"><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Total Hours</p><p id="tt-rp-ch" class="text-3xl font-black tt-mono" style="color:#f59e0b">0.0</p></div><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Days Worked</p><p id="tt-rp-cd" class="text-3xl font-black tt-mono">0</p></div></div></div>
-        <div class="tt-card mb-5"><div class="flex items-center justify-between mb-2"><h3 class="font-bold text-base">Previous Pay Period</h3><span class="px-3 py-1 rounded-full font-bold uppercase tracking-wider" style="font-size:10px;background:#1e1e1e;color:#6b6b6b">Closed</span></div><p id="tt-rp-prev" class="tt-mono text-xs mb-4" style="color:#6b6b6b"></p><div class="grid grid-cols-2 gap-4"><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Total Hours</p><p id="tt-rp-ph" class="text-3xl font-black tt-mono">0.0</p></div><div><p class="uppercase" style="font-size:10px;color:#6b6b6b">Days Worked</p><p id="tt-rp-pd" class="text-3xl font-black tt-mono">0</p></div></div></div>
-        <div class="rounded-2xl overflow-hidden border mb-5" style="border-color:#262626"><div class="overflow-x-auto max-h-[30vh] overflow-y-auto"><table class="tt-dtb"><thead><tr><th>Driver</th><th>Date</th><th>In</th><th>Out</th><th>Hours</th></tr></thead><tbody id="tt-rp-tb"></tbody></table></div></div>
-        <div class="flex flex-col gap-3"><button id="tt-btn-email" class="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2.5 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-black transition-all active:scale-[0.97] shadow-lg shadow-amber-500/15"><i class="fas fa-envelope"></i>Email Report to Company</button><button id="tt-btn-excel" class="w-full py-4 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 tt-card transition-all active:scale-[0.97]"><i class="fas fa-file-excel" style="color:#10b981"></i>Download Excel</button><button id="tt-btn-copy" class="w-full py-4 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 tt-card transition-all active:scale-[0.97]"><i class="fas fa-copy" style="color:#f59e0b"></i>Copy Report Text</button></div></div></div>
+    <!-- SETUP SCREEN -->
+    <div id="tt-scr-setup" class="tt-screen active">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 56px);padding:24px">
+            <div style="text-align:center;margin-bottom:32px">
+                <div style="width:96px;height:96px;border-radius:24px;background:linear-gradient(135deg,#f59e0b,#ea580c);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 20px 40px rgba(245,158,11,.25);transform:rotate(-8deg)">
+                    <i class="fas fa-truck-pickup" style="font-size:40px;color:#fff;transform:rotate(8deg)"></i>
+                </div>
+                <h1 style="font-size:48px;font-weight:900;letter-spacing:-1px;margin-bottom:8px">TowTrack</h1>
+                <p style="color:#6b6b6b;font-size:18px;font-weight:300">Driver Check-In System</p>
+            </div>
+            <div style="width:100%;max-width:360px">
+                <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#6b6b6b;margin-bottom:8px">Your Full Name</label>
+                <input id="tt-inp-name" type="text" class="tt-inp" placeholder="e.g. Mike Johnson" style="margin-bottom:16px">
+                <div class="tt-card" style="background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.2);margin-bottom:16px">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                        <i class="fas fa-cloud" style="color:#f59e0b;font-size:12px"></i>
+                        <span style="font-size:12px;font-weight:600;color:#f59e0b">Synced to Cloud Database</span>
+                    </div>
+                    <p style="font-size:14px;font-weight:700">Your logs are saved securely</p>
+                </div>
+                <button id="tt-btn-setup" style="width:100%;padding:18px;background:linear-gradient(135deg,#f59e0b,#ea580c);color:#000;font-weight:900;font-size:18px;border:none;border-radius:16px;cursor:pointer;transition:opacity .2s">Continue →</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- SETTINGS -->
-    <div id="tt-scr-set" class="tt-screen"><div class="px-5 pt-5 pb-4"><h2 class="text-2xl font-extrabold mb-0.5">Settings</h2><p class="text-sm mb-5" style="color:#6b6b6b">Manage your profile</p><div class="space-y-4"><div class="tt-card"><label class="block text-xs font-semibold uppercase tracking-wider mb-2" style="color:#6b6b6b">Driver Name</label><input id="tt-set-n" type="text" class="tt-inp"></div><button id="tt-btn-ss" class="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-black transition-all active:scale-[0.97]"><i class="fas fa-check"></i>Save Name</button><div class="tt-locked"><i class="fas fa-lock"></i><span>Reports are sent to <strong>corridor.towing@gmail.com</strong> only. History cannot be deleted or modified.</span></div><div class="text-center pt-6 pb-2"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center mx-auto mb-3" style="transform:rotate(-6deg)"><i class="fas fa-truck-pickup text-xl text-white" style="transform:rotate(6deg)"></i></div><p class="font-extrabold text-lg">TowTrack Pro</p><p class="mt-0.5" style="font-size:10px;color:#6b6b6b">v2.2 — Secure driver logging</p></div></div></div></div>
+    <!-- DASHBOARD SCREEN -->
+    <div id="tt-scr-dash" class="tt-screen">
+        <div style="padding:20px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+                <div>
+                    <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#6b6b6b">Welcome back</p>
+                    <h2 id="tt-d-name" style="font-size:24px;font-weight:900;margin-top:4px"></h2>
+                </div>
+                <div style="text-align:right">
+                    <p id="tt-d-date" style="font-size:11px;font-family:'JetBrains Mono',monospace;color:#6b6b6b"></p>
+                    <p id="tt-d-time" style="font-size:24px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#f59e0b"></p>
+                </div>
+            </div>
 
-    <!-- CAMERA -->
-    <div id="tt-camov" class="tt-camov"><div class="flex items-center justify-between px-5" style="padding-top:max(16px,env(safe-area-inset-top))"><div><p id="tt-cam-type" class="font-extrabold text-xl">CHECK IN</p><p id="tt-cam-dt" class="tt-mono text-xs" style="color:#6b6b6b"></p></div><button id="tt-btn-cx" class="w-11 h-11 rounded-full flex items-center justify-center" style="background:#141414"><i class="fas fa-xmark text-lg"></i></button></div><div class="flex-1 flex items-center justify-center px-4 py-3 relative"><video id="tt-cam-vid" autoplay playsinline muted class="w-full max-w-md rounded-2xl" style="transform:scaleX(-1)"></video><canvas id="tt-cam-cv" style="display:none"></canvas><div id="tt-cam-fl" class="absolute inset-0 bg-white pointer-events-none" style="opacity:0"></div></div><div class="flex flex-col items-center pb-6" style="padding-bottom:max(24px,env(safe-area-inset-bottom))"><p class="mb-3" style="font-size:10px;color:#6b6b6b">Make sure your face is clearly visible</p><button id="tt-btn-cap" class="rounded-full flex items-center justify-center transition-all active:scale-90" style="width:76px;height:76px;border:4px solid #f59e0b;background:rgba(245,158,11,.15)"><div class="rounded-full" style="width:56px;height:56px;background:#f59e0b"></div></button></div></div>
+            <div id="tt-scard" class="tt-card" style="margin-bottom:16px">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+                    <span id="tt-s-dot" style="width:12px;height:12px;border-radius:50%;background:#6b6b6b;display:inline-block"></span>
+                    <span id="tt-s-lbl" style="font-size:18px;font-weight:700">Checked Out</span>
+                </div>
+                <p id="tt-s-det" style="font-size:14px;color:#6b6b6b;margin-bottom:20px;margin-left:24px">Ready to start your shift</p>
+                <button id="tt-btn-act" style="width:100%;padding:20px;border:none;border-radius:16px;font-weight:900;font-size:20px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:12px;background:linear-gradient(135deg,#10b981,#059669);color:#fff">
+                    <i class="fas fa-camera"></i>
+                    <span id="tt-btn-act-t">Check In</span>
+                </button>
+            </div>
 
-    <div id="tt-pvw" class="tt-pvw"><img id="tt-pvw-img" src="" alt="" style="max-width:92vw;max-height:70vh;border-radius:12px;border:2px solid #262626"><p class="text-sm" style="color:#6b6b6b">Tap anywhere to close</p></div>
-    <div id="tt-spop" class="tt-spop"><div class="tt-spc"><i class="fas fa-check text-white text-4xl"></i></div></div>
-    <div id="tt-cfbg" class="tt-cfbg"><div class="tt-card w-full max-w-sm"><h3 id="tt-cf-t" class="text-lg font-bold mb-1.5"></h3><p id="tt-cf-m" class="text-sm mb-6" style="color:#6b6b6b"></p><div class="flex gap-3"><button id="tt-cf-no" class="flex-1 py-3 rounded-xl font-semibold text-sm" style="background:#1e1e1e">Cancel</button><button id="tt-cf-yes" class="flex-1 py-3 rounded-xl font-semibold text-sm text-white" style="background:#ef4444">Confirm</button></div></div></div>
+            <div class="tt-card" style="margin-bottom:16px">
+                <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#6b6b6b;margin-bottom:12px">Today's Summary</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center">
+                    <div><p style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#6b6b6b;margin-bottom:4px">In</p><p id="tt-t-in" style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px">--:--</p></div>
+                    <div><p style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#6b6b6b;margin-bottom:4px">Out</p><p id="tt-t-out" style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px">--:--</p></div>
+                    <div><p style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#6b6b6b;margin-bottom:4px">Hours</p><p id="tt-t-hrs" style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;color:#f59e0b">0.0</p></div>
+                </div>
+            </div>
+
+            <div id="tt-photos" class="tt-card" style="display:none">
+                <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#6b6b6b;margin-bottom:12px">Verification Photos</p>
+                <div style="display:flex;gap:20px;align-items:center">
+                    <div style="text-align:center">
+                        <img id="tt-ph-in" style="width:72px;height:72px;border-radius:12px;object-fit:cover;border:1px solid #262626;cursor:pointer" src="" alt="">
+                        <p style="margin-top:6px;font-size:10px;font-weight:600;color:#6b6b6b">CHECK IN</p>
+                    </div>
+                    <div style="text-align:center">
+                        <img id="tt-ph-out" style="width:72px;height:72px;border-radius:12px;object-fit:cover;border:1px solid #262626;cursor:pointer" src="" alt="">
+                        <p style="margin-top:6px;font-size:10px;font-weight:600;color:#6b6b6b">CHECK OUT</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HISTORY SCREEN -->
+    <div id="tt-scr-hist" class="tt-screen">
+        <div style="padding:20px">
+            <h2 style="font-size:24px;font-weight:900;margin-bottom:4px">Work History</h2>
+            <p style="font-size:14px;color:#6b6b6b;margin-bottom:20px">Your daily hours log with period totals</p>
+
+            <div id="tt-hist-badge" class="tt-driver-badge" style="margin-bottom:16px">
+                <div id="tt-hist-avatar" class="tt-driver-avatar"></div>
+                <div><p style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#6b6b6b">Driver</p><p id="tt-hist-dname" style="font-size:20px;font-weight:900"></p></div>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap" id="tt-ptabs">
+                <button class="tt-pt on" data-p="first">1st – 15th</button>
+                <button class="tt-pt" data-p="second">16th – End</button>
+                <button class="tt-pt" data-p="all">All Time</button>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+                <div class="tt-card" style="text-align:center">
+                    <p style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#6b6b6b">1st–15th Hours</p>
+                    <p id="tt-h-first" style="font-size:28px;font-weight:900;font-family:'JetBrains Mono',monospace;color:#10b981">0.0</p>
+                </div>
+                <div class="tt-card" style="text-align:center">
+                    <p style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#6b6b6b">16th–End Hours</p>
+                    <p id="tt-h-second" style="font-size:28px;font-weight:900;font-family:'JetBrains Mono',monospace;color:#f59e0b">0.0</p>
+                </div>
+            </div>
+
+            <div class="tt-card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                <div><p style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#6b6b6b">Selected Period Total</p><p id="tt-h-hrs" style="font-size:40px;font-weight:900;font-family:'JetBrains Mono',monospace;color:#f59e0b">0.0</p></div>
+                <div style="text-align:right"><p style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#6b6b6b">Days Worked</p><p id="tt-h-days" style="font-size:40px;font-weight:900;font-family:'JetBrains Mono',monospace">0</p></div>
+            </div>
+
+            <div style="border-radius:16px;overflow:hidden;border:1px solid #262626">
+                <div style="overflow-x:auto;max-height:45vh;overflow-y:auto">
+                    <table class="tt-dtb">
+                        <thead><tr><th>Date</th><th>In</th><th>Out</th><th>Hours</th><th>Proof</th></tr></thead>
+                        <tbody id="tt-h-tb"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REPORTS SCREEN -->
+    <div id="tt-scr-rpt" class="tt-screen">
+        <div style="padding:20px">
+            <h2 style="font-size:24px;font-weight:900;margin-bottom:4px">Payroll Reports</h2>
+            <p style="font-size:14px;color:#6b6b6b;margin-bottom:20px">Biweekly summaries</p>
+
+            <div id="tt-rpt-badge" class="tt-driver-badge" style="margin-bottom:20px">
+                <div id="tt-rpt-avatar" class="tt-driver-avatar"></div>
+                <div><p style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#6b6b6b">Driver</p><p id="tt-rpt-dname" style="font-size:20px;font-weight:900"></p></div>
+            </div>
+
+            <div class="tt-card" style="margin-bottom:16px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <h3 style="font-weight:700;font-size:16px">Current Pay Period</h3>
+                    <span style="font-size:10px;font-weight:700;text-transform:uppercase;background:rgba(245,158,11,.2);color:#f59e0b;padding:4px 10px;border-radius:20px">Active</span>
+                </div>
+                <p id="tt-rp-cur" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#6b6b6b;margin-bottom:16px"></p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                    <div><p style="font-size:10px;text-transform:uppercase;color:#6b6b6b">Total Hours</p><p id="tt-rp-ch" style="font-size:32px;font-weight:900;font-family:'JetBrains Mono',monospace;color:#f59e0b">0.0</p></div>
+                    <div><p style="font-size:10px;text-transform:uppercase;color:#6b6b6b">Days Worked</p><p id="tt-rp-cd" style="font-size:32px;font-weight:900;font-family:'JetBrains Mono',monospace">0</p></div>
+                </div>
+            </div>
+
+            <div class="tt-card" style="margin-bottom:20px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <h3 style="font-weight:700;font-size:16px">Previous Pay Period</h3>
+                    <span style="font-size:10px;font-weight:700;text-transform:uppercase;background:#1e1e1e;color:#6b6b6b;padding:4px 10px;border-radius:20px">Closed</span>
+                </div>
+                <p id="tt-rp-prev" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#6b6b6b;margin-bottom:16px"></p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                    <div><p style="font-size:10px;text-transform:uppercase;color:#6b6b6b">Total Hours</p><p id="tt-rp-ph" style="font-size:32px;font-weight:900;font-family:'JetBrains Mono',monospace">0.0</p></div>
+                    <div><p style="font-size:10px;text-transform:uppercase;color:#6b6b6b">Days Worked</p><p id="tt-rp-pd" style="font-size:32px;font-weight:900;font-family:'JetBrains Mono',monospace">0</p></div>
+                </div>
+            </div>
+
+            <div style="border-radius:16px;overflow:hidden;border:1px solid #262626;margin-bottom:20px">
+                <div style="overflow-x:auto;max-height:30vh;overflow-y:auto">
+                    <table class="tt-dtb">
+                        <thead><tr><th>Date</th><th>In</th><th>Out</th><th>Hours</th></tr></thead>
+                        <tbody id="tt-rp-tb"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:12px">
+                <button id="tt-btn-email" style="width:100%;padding:16px;border:none;border-radius:16px;font-weight:700;font-size:15px;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#ea580c);color:#000;display:flex;align-items:center;justify-content:center;gap:10px">
+                    <i class="fas fa-envelope"></i>Email Report to Company
+                </button>
+                <button id="tt-btn-excel" class="tt-card" style="width:100%;padding:16px;border:none;font-weight:600;font-size:14px;cursor:pointer;color:#f0f0f0;display:flex;align-items:center;justify-content:center;gap:8px">
+                    <i class="fas fa-file-excel" style="color:#10b981"></i>Download Excel
+                </button>
+                <button id="tt-btn-copy" class="tt-card" style="width:100%;padding:16px;border:none;font-weight:600;font-size:14px;cursor:pointer;color:#f0f0f0;display:flex;align-items:center;justify-content:center;gap:8px">
+                    <i class="fas fa-copy" style="color:#f59e0b"></i>Copy Report Text
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETTINGS SCREEN -->
+    <div id="tt-scr-set" class="tt-screen">
+        <div style="padding:20px">
+            <h2 style="font-size:24px;font-weight:900;margin-bottom:4px">Settings</h2>
+            <p style="font-size:14px;color:#6b6b6b;margin-bottom:20px">Manage your profile</p>
+            <div style="display:flex;flex-direction:column;gap:16px">
+                <div class="tt-card">
+                    <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#6b6b6b;margin-bottom:8px">Driver Name</label>
+                    <input id="tt-set-n" type="text" class="tt-inp">
+                </div>
+                <button id="tt-btn-ss" style="width:100%;padding:16px;border:none;border-radius:16px;font-weight:700;font-size:15px;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#ea580c);color:#000;display:flex;align-items:center;justify-content:center;gap:8px">
+                    <i class="fas fa-check"></i>Save Name
+                </button>
+                <div class="tt-locked"><i class="fas fa-lock"></i><span>Reports are sent to <strong>corridor.towing@gmail.com</strong> only. History cannot be deleted or modified.</span></div>
+                <div style="text-align:center;padding:24px 0 8px">
+                    <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#f59e0b,#ea580c);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;transform:rotate(-6deg)"><i class="fas fa-truck-pickup" style="color:#fff;font-size:20px;transform:rotate(6deg)"></i></div>
+                    <p style="font-weight:900;font-size:18px">TowTrack Pro</p>
+                    <p style="font-size:10px;color:#6b6b6b;margin-top:4px">v3.0 — Secure driver logging</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MANAGER SCREEN -->
+    <div id="tt-scr-mgr" class="tt-screen">
+        <div style="padding:20px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                <div>
+                    <h2 style="font-size:24px;font-weight:900;margin-bottom:4px">Manager Dashboard</h2>
+                    <p style="font-size:14px;color:#6b6b6b">All driver activity</p>
+                </div>
+                <button id="tt-btn-mgr-refresh" style="background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:#60a5fa;padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:600;font-size:13px;font-family:'Outfit',sans-serif"><i class="fas fa-rotate"></i> Refresh</button>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px">
+                <div class="mgr-stat-card" style="text-align:center">
+                    <p style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#6b6b6b;margin-bottom:8px">Total Hours</p>
+                    <p id="mgr-total-hrs" class="mgr-stat-val" style="color:#f59e0b">0.0</p>
+                </div>
+                <div class="mgr-stat-card" style="text-align:center">
+                    <p style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#6b6b6b;margin-bottom:8px">Drivers</p>
+                    <p id="mgr-total-drivers" class="mgr-stat-val" style="color:#10b981">0</p>
+                </div>
+                <div class="mgr-stat-card" style="text-align:center">
+                    <p style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#6b6b6b;margin-bottom:8px">Shifts</p>
+                    <p id="mgr-total-days" class="mgr-stat-val" style="color:#60a5fa">0</p>
+                </div>
+            </div>
+
+            <p id="mgr-period-label" style="font-size:12px;color:#6b6b6b;font-family:'JetBrains Mono',monospace;margin-bottom:12px"></p>
+
+            <div class="tt-mgr-tabs" id="mgr-ptabs">
+                <button class="tt-mgr-tab on" data-p="current">Current Period</button>
+                <button class="tt-mgr-tab" data-p="previous">Previous Period</button>
+                <button class="tt-mgr-tab" data-p="all">All Time</button>
+            </div>
+
+            <div style="border-radius:16px;overflow:hidden;border:1px solid #262626;margin-bottom:16px">
+                <div style="overflow-x:auto;max-height:50vh;overflow-y:auto">
+                    <table class="tt-dtb">
+                        <thead><tr><th>Driver</th><th>Date</th><th>In</th><th>Out</th><th>Hours</th></tr></thead>
+                        <tbody id="mgr-logs-tb"><tr><td colspan="5" style="text-align:center;color:#6b6b6b;padding:40px 0">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <button id="tt-btn-mgr-excel" style="width:100%;padding:16px;border:none;border-radius:16px;font-weight:600;font-size:14px;cursor:pointer;background:#141414;border:1px solid #262626;color:#f0f0f0;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">
+                <i class="fas fa-file-excel" style="color:#10b981"></i>Download Manager Excel Report
+            </button>
+        </div>
+    </div>
+
+    <!-- CAMERA OVERLAY -->
+    <div id="tt-camov" class="tt-camov">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:max(16px,env(safe-area-inset-top)) 20px 12px">
+            <div>
+                <p id="tt-cam-type" style="font-weight:900;font-size:20px">CHECK IN</p>
+                <p id="tt-cam-dt" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#6b6b6b"></p>
+            </div>
+            <button id="tt-btn-cx" style="width:44px;height:44px;border-radius:50%;background:#141414;border:1px solid #262626;color:#f0f0f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:0 16px;position:relative">
+            <video id="tt-cam-vid" autoplay playsinline muted style="width:100%;max-width:480px;border-radius:16px;transform:scaleX(-1)"></video>
+            <canvas id="tt-cam-cv" style="display:none"></canvas>
+            <div id="tt-cam-fl" style="position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;padding-bottom:max(24px,env(safe-area-inset-bottom));padding-top:16px">
+            <p style="font-size:11px;color:#6b6b6b;margin-bottom:12px">Make sure your face is clearly visible</p>
+            <button id="tt-btn-cap" style="width:76px;height:76px;border-radius:50%;border:4px solid #f59e0b;background:rgba(245,158,11,.15);cursor:pointer;transition:transform .1s;display:flex;align-items:center;justify-content:center">
+                <div style="width:56px;height:56px;border-radius:50%;background:#f59e0b"></div>
+            </button>
+        </div>
+    </div>
+
+    <!-- PHOTO PREVIEW -->
+    <div id="tt-pvw" class="tt-pvw">
+        <img id="tt-pvw-img" src="" alt="" style="max-width:92vw;max-height:70vh;border-radius:12px;border:2px solid #262626">
+        <p style="font-size:14px;color:#6b6b6b">Tap anywhere to close</p>
+    </div>
+
+    <!-- SUCCESS POP -->
+    <div id="tt-spop" class="tt-spop">
+        <div class="tt-spc"><i class="fas fa-check" style="color:#fff;font-size:36px"></i></div>
+    </div>
+
+    <!-- TOAST BOX -->
     <div id="tt-tbox" class="tt-tbox"></div>
-    <nav id="tt-nav" class="tt-bnav" style="display:none"><div class="flex items-center justify-around max-w-md mx-auto"><button class="tt-ni active" data-s="dash"><i class="fas fa-house"></i><span>Home</span></button><button class="tt-ni" data-s="hist"><i class="fas fa-clock-rotate-left"></i><span>History</span></button><button class="tt-ni" data-s="rpt"><i class="fas fa-file-lines"></i><span>Reports</span></button><button class="tt-ni" data-s="set"><i class="fas fa-gear"></i><span>Settings</span></button></div></nav>
+
+    <!-- CONFIRM DIALOG -->
+    <div id="tt-cfbg" class="tt-cfbg">
+        <div class="tt-card" style="width:100%;max-width:360px">
+            <h3 id="tt-cf-t" style="font-size:18px;font-weight:700;margin-bottom:8px"></h3>
+            <p id="tt-cf-m" style="font-size:14px;color:#6b6b6b;margin-bottom:24px"></p>
+            <div style="display:flex;gap:12px">
+                <button id="tt-cf-no" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#1e1e1e;border:1px solid #262626;color:#f0f0f0;cursor:pointer">Cancel</button>
+                <button id="tt-cf-yes" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#ef4444;border:none;color:#fff;cursor:pointer">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MANAGER PASSCODE MODAL -->
+    <div id="tt-mgr-modal" class="tt-cfbg">
+        <div class="tt-card" style="width:100%;max-width:360px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+                <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,.15);display:flex;align-items:center;justify-content:center"><i class="fas fa-user-shield" style="color:#60a5fa;font-size:18px"></i></div>
+                <h3 style="font-size:18px;font-weight:700">Manager Access</h3>
+            </div>
+            <p style="font-size:14px;color:#6b6b6b;margin-bottom:16px">Enter manager passcode to view all driver data</p>
+            <input type="password" id="tt-mgr-code" class="tt-inp" placeholder="Enter passcode" style="margin-bottom:8px" onkeydown="if(event.key==='Enter')verifyMgr()">
+            <p id="tt-mgr-error" style="font-size:14px;color:#ef4444;display:none;margin-bottom:8px">Incorrect passcode</p>
+            <div style="display:flex;gap:12px">
+                <button onclick="closeMgrModal()" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#1e1e1e;border:1px solid #262626;color:#f0f0f0;cursor:pointer;font-family:'Outfit',sans-serif">Cancel</button>
+                <button onclick="verifyMgr()" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#0b3d91;border:none;color:#fff;cursor:pointer;font-family:'Outfit',sans-serif">Access</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav id="tt-nav" class="tt-bnav" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-around;max-width:480px;margin:0 auto">
+            <button class="tt-ni active" data-s="dash"><i class="fas fa-house"></i><span>Home</span></button>
+            <button class="tt-ni" data-s="hist"><i class="fas fa-clock-rotate-left"></i><span>History</span></button>
+            <button class="tt-ni" data-s="rpt"><i class="fas fa-file-lines"></i><span>Reports</span></button>
+            <button class="tt-ni" data-s="set"><i class="fas fa-gear"></i><span>Settings</span></button>
+        </div>
+    </nav>
 </div>
 
-<!-- ========== WEBSITE JS ========== -->
+<!-- ========== PUBLIC SITE JS ========== -->
 <script>
-function openDP(){document.getElementById('public-site').style.display='none';document.getElementById('driver-app').style.display='block';document.getElementById('main-header').style.display='none';document.body.style.paddingTop='0';document.body.style.background='#0a0a0a';window.scrollTo(0,0);window.location.hash='driverPortal';initTT()}
-function closeDP(){document.getElementById('driver-app').style.display='none';document.getElementById('public-site').style.display='block';document.getElementById('main-header').style.display='block';document.body.style.paddingTop='100px';document.body.style.background='#f9f9fb';window.scrollTo(0,0);window.location.hash='';initTT_done=false}
-window.addEventListener('load',function(){var h=window.location.hash.replace('#','');if(h==='driverPortal'||h==='driverlog'){openDP()}});
-window.addEventListener('hashchange',function(){var h=window.location.hash.replace('#','');if(h==='driverPortal'||h==='driverlog'){if(!document.getElementById('driver-app').style.display||document.getElementById('driver-app').style.display==='none'){document.getElementById('public-site').style.display='none';document.getElementById('driver-app').style.display='block';document.getElementById('main-header').style.display='none';document.body.style.paddingTop='0';document.body.style.background='#0a0a0a';initTT()}}else{if(document.getElementById('driver-app').style.display==='block'){document.getElementById('driver-app').style.display='none';document.getElementById('public-site').style.display='block';document.getElementById('main-header').style.display='block';document.body.style.paddingTop='100px';document.body.style.background='#f9f9fb'}}});
-var mT=document.querySelector('.menu-toggle'),nM=document.getElementById('nav-menu');
-function toggleMenu(){nM.classList.toggle('show')}
-document.addEventListener('click',function(e){if(!mT.contains(e.target)&&!nM.contains(e.target)&&!e.target.closest('.driver-portal-btn'))nM.classList.remove('show')});
-nM.querySelectorAll('a').forEach(function(l){l.addEventListener('click',function(){nM.classList.remove('show')})});
-nM.addEventListener('touchmove',function(e){e.stopPropagation()},{passive:true});
-nM.addEventListener('wheel',function(e){e.stopPropagation()},{passive:true});
-document.querySelectorAll('#public-site a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var t=document.querySelector(this.getAttribute('href'));if(t){var h=document.querySelector('header').offsetHeight;window.scrollTo({top:t.offsetTop-h-20,behavior:'smooth'})}})});
-function togglePayMethod(){document.getElementById("payMethodGroup").style.display=document.getElementById("paymentPreference").value==="pay-now"?"block":"none"}
-function calculateTotal(){var s=document.getElementById("req_service"),o=s.options[s.selectedIndex];var b=o&&o.dataset?parseFloat(o.dataset.base)||0:0;var en=parseFloat(document.getElementById("req_enroute").value)||5;var tw=parseFloat(document.getElementById("req_tow").value)||0;document.getElementById("req_amount").value=(b+Math.max(0,en-5)*2+tw*5).toFixed(2)}
-document.getElementById("req_service").addEventListener("change",calculateTotal);document.getElementById("req_enroute").addEventListener("input",calculateTotal);document.getElementById("req_tow").addEventListener("input",calculateTotal);
-async function autoCalcMiles(){var l=document.getElementById("vehicleLocation").value.trim(),d=document.getElementById("towDestination").value.trim(),b=document.getElementById("estimateBar");b.style.display="block";if(!l||!d){b.textContent="Enter both addresses.";return}b.textContent="Estimating...";try{l=l.replace(/,\s*$/,'').trim();d=d.replace(/,\s*$/,'').trim();var lr=await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(l)+'&limit=1&countrycodes=us'),lj=await lr.json();if(!lj.length)throw 0;var dr=await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(d)+'&limit=1&countrycodes=us'),dj=await dr.json();if(!dj.length)throw 0;var tr=await fetch('https://router.project-osrm.org/route/v1/driving/'+lj[0].lon+','+lj[0].lat+';'+dj[0].lon+','+dj[0].lat+'?overview=false'),tj=await tr.json();var m=tj.routes&&tj.routes[0]?(tj.routes[0].distance/1000*.621371).toFixed(1):0;document.getElementById("req_tow").value=m;b.textContent='Estimated: '+m+' miles';calculateTotal()}catch(e){b.textContent="Auto estimate failed \u2014 enter manually."}}
-document.getElementById("towDestination").addEventListener("blur",autoCalcMiles);
-function getCurrentLocation(){if(!navigator.geolocation){alert("Not supported.");return}navigator.geolocation.getCurrentPosition(async function(p){try{var r=await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+p.coords.latitude+'&lon='+p.coords.longitude+'&zoom=18');var d=await r.json();document.getElementById("vehicleLocation").value=d.display_name||'Lat: '+p.coords.latitude.toFixed(6)+', Lon: '+p.coords.longitude.toFixed(6);autoCalcMiles()}catch(e){document.getElementById("vehicleLocation").value='Lat: '+p.coords.latitude.toFixed(6)+', Lon: '+p.coords.longitude.toFixed(6)}},function(e){var m="Location error: ";if(e.code===1)m+="Permission denied.";else if(e.code===2)m+="Unavailable.";else if(e.code===3)m+="Timed out.";else m+="Unknown.";alert(m)},{timeout:10000,enableHighAccuracy:true})}
-function handleRequestSubmit(e){e.preventDefault();var fd={name:document.getElementById("req_name").value,phone:document.getElementById("req_phone").value,email:document.getElementById("req_email").value,vehicle:document.getElementById("req_vehicle").value||'Not provided',towmethod:document.getElementById("req_towmethod").value,starts:document.getElementById("req_starts").value,neutral:document.getElementById("req_neutral").value,attended:document.getElementById("req_attended").value,location:document.getElementById("vehicleLocation").value,destination:document.getElementById("towDestination").value||'N/A',service:document.getElementById("req_service").options[document.getElementById("req_service").selectedIndex].text,enroute:document.getElementById("req_enroute").value,tow:document.getElementById("req_tow").value,amount:document.getElementById("req_amount").value,payment:document.getElementById("paymentPreference").value,payMethod:document.getElementById("payMethod")?document.getElementById("payMethod").value:'N/A'};var msg='New Towing Request!\n\nCustomer: '+fd.name+'\nPhone: '+fd.phone+'\nEmail: '+fd.email+'\n\nVehicle: '+fd.vehicle+'\nStarts: '+fd.starts+' | Neutral: '+fd.neutral+' | Attended: '+fd.attended+'\nTow Method: '+fd.towmethod+'\n\nService: '+fd.service+'\nPickup: '+fd.location+'\nDestination: '+fd.destination+'\nEnroute: '+fd.enroute+' mi (first 5 free)\nTow: '+fd.tow+' mi\n\nTotal: $'+fd.amount+'\nPayment: '+(fd.payment==='pay-now'?'Pay now via '+fd.payMethod:'Pay on arrival')+'\n\nPlease call to confirm!';fetch("https://formspree.io/f/xdkyonjb",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subject:'New Tow Request - '+fd.name,message:msg})}).then(function(){document.getElementById("confirmation").style.display="block";document.getElementById("confirmation").innerHTML="<strong>Thank you!</strong> Request sent. We'll call shortly.";if(fd.payment==='pay-now'){document.getElementById("paymentAmountDisplay").textContent="$"+fd.amount;document.getElementById("confirmation").innerHTML+="<br><br><strong>Complete payment below.</strong>";setTimeout(function(){window.scrollTo({top:document.querySelector("#payment").offsetTop-100,behavior:'smooth'})},1500)}document.getElementById("submitBtn").disabled=true;document.getElementById("submitBtn").textContent="Request Sent"}).catch(function(){alert("Error. Call (804) 292-8414.")})}
-window.onload=function(){calculateTotal()};
+// ---- Navigation ----
+var mT = document.querySelector('.menu-toggle');
+var nM = document.getElementById('nav-menu');
+
+function toggleMenu() { nM.classList.toggle('show'); }
+
+document.addEventListener('click', function(e) {
+    if (!mT.contains(e.target) && !nM.contains(e.target) &&
+        !e.target.closest('.driver-portal-btn') && !e.target.closest('.manager-portal-btn')) {
+        nM.classList.remove('show');
+    }
+});
+
+nM.querySelectorAll('a').forEach(function(l) {
+    l.addEventListener('click', function() { nM.classList.remove('show'); });
+});
+
+nM.addEventListener('touchmove', function(e) { e.stopPropagation(); }, { passive: true });
+nM.addEventListener('wheel', function(e) { e.stopPropagation(); }, { passive: true });
+
+document.querySelectorAll('#public-site a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+        e.preventDefault();
+        var t = document.querySelector(this.getAttribute('href'));
+        if (t) {
+            var h = document.querySelector('header').offsetHeight;
+            window.scrollTo({ top: t.offsetTop - h - 20, behavior: 'smooth' });
+        }
+    });
+});
+
+// ---- Portal open/close ----
+function openDP(mode) {
+    document.getElementById('public-site').style.display = 'none';
+    document.getElementById('driver-app').style.display = 'block';
+    document.getElementById('main-header').style.display = 'none';
+    document.body.style.paddingTop = '0';
+    document.body.style.background = '#0a0a0a';
+    window.scrollTo(0, 0);
+    if (mode === 'mgr') {
+        window.location.hash = 'managerPortal';
+        showMgrPasscode();
+    } else {
+        window.location.hash = 'driverPortal';
+        initTT();
+    }
+}
+
+function closeDP() {
+    document.getElementById('driver-app').style.display = 'none';
+    document.getElementById('public-site').style.display = 'block';
+    document.getElementById('main-header').style.display = 'block';
+    document.body.style.paddingTop = '100px';
+    document.body.style.background = '#f9f9fb';
+    window.scrollTo(0, 0);
+    window.location.hash = '';
+    initTT_done = false;
+    mgrAuth = false;
+    document.getElementById('mgr-badge').style.display = 'none';
+    document.getElementById('tt-nav').style.display = 'none';
+    // Stop any open camera
+    if (ttCS) { ttCS.getTracks().forEach(function(t) { t.stop(); }); ttCS = null; }
+}
+
+window.addEventListener('load', function() {
+    var h = window.location.hash.replace('#', '');
+    if (h === 'driverPortal' || h === 'driverlog') { openDP(); }
+    else if (h === 'managerPortal') { openDP('mgr'); }
+});
+
+window.addEventListener('hashchange', function() {
+    var h = window.location.hash.replace('#', '');
+    var appVisible = document.getElementById('driver-app').style.display === 'block';
+    if (h === 'driverPortal' || h === 'driverlog') {
+        if (!appVisible) openDP();
+    } else if (h === 'managerPortal') {
+        if (!appVisible) openDP('mgr');
+    } else {
+        if (appVisible) closeDP();
+    }
+});
+
+// ---- Service form ----
+function togglePayMethod() {
+    document.getElementById('payMethodGroup').style.display =
+        document.getElementById('paymentPreference').value === 'pay-now' ? 'block' : 'none';
+}
+
+function calculateTotal() {
+    var s = document.getElementById('req_service');
+    var o = s.options[s.selectedIndex];
+    var b = (o && o.dataset && o.dataset.base) ? parseFloat(o.dataset.base) : 0;
+    var en = parseFloat(document.getElementById('req_enroute').value) || 0;
+    var tw = parseFloat(document.getElementById('req_tow').value) || 0;
+    document.getElementById('req_amount').value = (b + Math.max(0, en - 5) * 2 + tw * 5).toFixed(2);
+}
+
+document.getElementById('req_service').addEventListener('change', calculateTotal);
+document.getElementById('req_enroute').addEventListener('input', calculateTotal);
+document.getElementById('req_tow').addEventListener('input', calculateTotal);
+document.getElementById('towDestination').addEventListener('blur', autoCalcMiles);
+
+async function autoCalcMiles() {
+    var l = document.getElementById('vehicleLocation').value.trim();
+    var d = document.getElementById('towDestination').value.trim();
+    var b = document.getElementById('estimateBar');
+    b.style.display = 'block';
+    if (!l || !d) { b.textContent = 'Enter both addresses for auto-estimate.'; return; }
+    b.textContent = 'Estimating distance...';
+    try {
+        var lr = await fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(l) + '&limit=1&countrycodes=us');
+        var lj = await lr.json();
+        if (!lj.length) throw new Error('Origin not found');
+        var dr = await fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(d) + '&limit=1&countrycodes=us');
+        var dj = await dr.json();
+        if (!dj.length) throw new Error('Destination not found');
+        var tr = await fetch('https://router.project-osrm.org/route/v1/driving/' + lj[0].lon + ',' + lj[0].lat + ';' + dj[0].lon + ',' + dj[0].lat + '?overview=false');
+        var tj = await tr.json();
+        var miles = (tj.routes && tj.routes[0]) ? (tj.routes[0].distance / 1000 * 0.621371).toFixed(1) : '0';
+        document.getElementById('req_tow').value = miles;
+        b.textContent = 'Estimated: ' + miles + ' miles';
+        calculateTotal();
+    } catch(e) {
+        b.textContent = 'Auto estimate failed — enter miles manually.';
+    }
+}
+
+function getCurrentLocation() {
+    if (!navigator.geolocation) { alert('Geolocation not supported.'); return; }
+    navigator.geolocation.getCurrentPosition(async function(p) {
+        try {
+            var r = await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + p.coords.latitude + '&lon=' + p.coords.longitude + '&zoom=18');
+            var d = await r.json();
+            document.getElementById('vehicleLocation').value = d.display_name || ('Lat: ' + p.coords.latitude.toFixed(6) + ', Lon: ' + p.coords.longitude.toFixed(6));
+            autoCalcMiles();
+        } catch(e) {
+            document.getElementById('vehicleLocation').value = 'Lat: ' + p.coords.latitude.toFixed(6) + ', Lon: ' + p.coords.longitude.toFixed(6);
+        }
+    }, function(e) {
+        var m = 'Location error: ';
+        if (e.code === 1) m += 'Permission denied.';
+        else if (e.code === 2) m += 'Unavailable.';
+        else if (e.code === 3) m += 'Timed out.';
+        else m += 'Unknown.';
+        alert(m);
+    }, { timeout: 10000, enableHighAccuracy: true });
+}
+
+function handleRequestSubmit(e) {
+    e.preventDefault();
+    var fd = {
+        name: document.getElementById('req_name').value,
+        phone: document.getElementById('req_phone').value,
+        email: document.getElementById('req_email').value,
+        vehicle: document.getElementById('req_vehicle').value || 'Not provided',
+        towmethod: document.getElementById('req_towmethod').value,
+        starts: document.getElementById('req_starts').value,
+        neutral: document.getElementById('req_neutral').value,
+        attended: document.getElementById('req_attended').value,
+        location: document.getElementById('vehicleLocation').value,
+        destination: document.getElementById('towDestination').value || 'N/A',
+        service: document.getElementById('req_service').options[document.getElementById('req_service').selectedIndex].text,
+        enroute: document.getElementById('req_enroute').value,
+        tow: document.getElementById('req_tow').value,
+        amount: document.getElementById('req_amount').value,
+        payment: document.getElementById('paymentPreference').value,
+        payMethod: document.getElementById('payMethod') ? document.getElementById('payMethod').value : 'N/A'
+    };
+    var msg = 'New Towing Request!\n\nCustomer: ' + fd.name + '\nPhone: ' + fd.phone + '\nEmail: ' + fd.email +
+        '\n\nVehicle: ' + fd.vehicle + '\nStarts: ' + fd.starts + ' | Neutral: ' + fd.neutral + ' | Attended: ' + fd.attended +
+        '\nTow Method: ' + fd.towmethod + '\n\nService: ' + fd.service + '\nPickup: ' + fd.location +
+        '\nDestination: ' + fd.destination + '\nEnroute: ' + fd.enroute + ' mi (first 5 free)\nTow: ' + fd.tow + ' mi' +
+        '\n\nTotal: $' + fd.amount + '\nPayment: ' + (fd.payment === 'pay-now' ? 'Pay now via ' + fd.payMethod : 'Pay on arrival') +
+        '\n\nPlease call to confirm!';
+    fetch('https://formspree.io/f/xdkyonjb', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject: 'New Tow Request - ' + fd.name, message: msg })
+    }).then(function() {
+        var conf = document.getElementById('confirmation');
+        conf.style.display = 'block';
+        conf.innerHTML = '<strong>Thank you!</strong> Request sent. We\'ll call shortly.';
+        if (fd.payment === 'pay-now') {
+            document.getElementById('paymentAmountDisplay').textContent = '$' + fd.amount;
+            conf.innerHTML += '<br><br><strong>Complete payment below.</strong>';
+            setTimeout(function() {
+                window.scrollTo({ top: document.getElementById('payment').offsetTop - 100, behavior: 'smooth' });
+            }, 1500);
+        }
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('submitBtn').textContent = 'Request Sent ✓';
+    }).catch(function() { alert('Error sending request. Call (804) 292-8414.'); });
+}
+
+window.addEventListener('load', function() { calculateTotal(); });
+</script>
+
+<!-- ========== MANAGER PORTAL JS ========== -->
+<script>
+var MGR_CODE = 'corridor2025';
+var mgrAuth = false;
+var mgrAllRecords = [];
+var mgrPeriod = 'current';
+var FIREBASE_URL = 'https://corridortowing-default-rtdb.firebaseio.com';
+
+function showMgrPasscode() {
+    document.getElementById('tt-mgr-code').value = '';
+    document.getElementById('tt-mgr-error').style.display = 'none';
+    document.getElementById('tt-mgr-modal').classList.add('active');
+    setTimeout(function() { document.getElementById('tt-mgr-code').focus(); }, 200);
+}
+
+function closeMgrModal() {
+    document.getElementById('tt-mgr-modal').classList.remove('active');
+}
+
+function verifyMgr() {
+    var code = document.getElementById('tt-mgr-code').value.trim();
+    if (code === MGR_CODE) {
+        mgrAuth = true;
+        closeMgrModal();
+        document.getElementById('mgr-badge').style.display = 'inline-flex';
+        document.getElementById('tt-nav').style.display = 'none';
+        document.querySelectorAll('.tt-screen').forEach(function(s) { s.classList.remove('active'); });
+        document.getElementById('tt-scr-mgr').classList.add('active');
+        loadMgrData();
+    } else {
+        document.getElementById('tt-mgr-error').style.display = 'block';
+        document.getElementById('tt-mgr-code').value = '';
+        document.getElementById('tt-mgr-code').focus();
+    }
+}
+
+async function loadMgrData() {
+    document.getElementById('mgr-logs-tb').innerHTML = '<tr><td colspan="5" style="text-align:center;color:#6b6b6b;padding:30px 0"><i class="fas fa-spinner fa-spin"></i> Loading from cloud...</td></tr>';
+    try {
+        var res = await fetch(FIREBASE_URL + '/driverLogs.json');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        var data = await res.json();
+        if (!data) { mgrAllRecords = []; renderMgrDash(); return; }
+        var all = [];
+        for (var drvId in data) {
+            var driverData = data[drvId];
+            for (var recId in driverData) {
+                var r = driverData[recId];
+                if (r && r.date) {
+                    all.push({
+                        id: recId,
+                        driverName: r.driverName || drvId,
+                        date: r.date,
+                        checkIn: r.checkIn || null,
+                        checkOut: r.checkOut || null,
+                        hours: r.hours != null ? r.hours : null
+                    });
+                }
+            }
+        }
+        mgrAllRecords = all;
+        renderMgrDash();
+    } catch(err) {
+        console.error('Manager load error:', err);
+        mgrAllRecords = [];
+        renderMgrDash();
+    }
+}
+
+function mgr_pp(ts) {
+    var d = new Date(ts), dy = d.getDate(), mo = d.getMonth(), yr = d.getFullYear();
+    if (dy <= 15) return { s: new Date(yr, mo, 1), e: new Date(yr, mo, 15, 23, 59, 59) };
+    var l = new Date(yr, mo + 1, 0).getDate();
+    return { s: new Date(yr, mo, 16), e: new Date(yr, mo, l, 23, 59, 59) };
+}
+
+function mgr_cp() { return mgr_pp(Date.now()); }
+
+function mgr_ppv() {
+    var n = new Date();
+    if (n.getDate() <= 15) {
+        var prevMo = new Date(n.getFullYear(), n.getMonth() - 1, 1);
+        var lastDay = new Date(n.getFullYear(), n.getMonth(), 0).getDate();
+        return { s: new Date(prevMo.getFullYear(), prevMo.getMonth(), 16), e: new Date(prevMo.getFullYear(), prevMo.getMonth(), lastDay, 23, 59, 59) };
+    }
+    return { s: new Date(n.getFullYear(), n.getMonth(), 1), e: new Date(n.getFullYear(), n.getMonth(), 15, 23, 59, 59) };
+}
+
+function mgr_dK(t) {
+    var d = new Date(t);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function mgr_filterByPeriod(records, period) {
+    if (!period) return records;
+    var sk = mgr_dK(period.s.getTime()), ek = mgr_dK(period.e.getTime());
+    return records.filter(function(r) { return r.date >= sk && r.date <= ek; });
+}
+
+function mgr_fTs(t) {
+    return new Date(t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+}
+function mgr_fT(t) {
+    return new Date(t).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+}
+function mgr_fD(t) {
+    return new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function renderMgrDash() {
+    var period = null;
+    if (mgrPeriod === 'current') period = mgr_cp();
+    else if (mgrPeriod === 'previous') period = mgr_ppv();
+    // 'all' = null period = no filter
+
+    var filtered = mgr_filterByPeriod(mgrAllRecords, period);
+    var totalHrs = 0, driverMap = {};
+    filtered.forEach(function(r) {
+        if (r.hours != null) totalHrs += r.hours;
+        var name = r.driverName || 'Unknown';
+        if (!driverMap[name]) driverMap[name] = { hours: 0, days: 0 };
+        if (r.hours != null) driverMap[name].hours += r.hours;
+        driverMap[name].days++;
+    });
+
+    document.getElementById('mgr-total-hrs').textContent = totalHrs.toFixed(1);
+    document.getElementById('mgr-total-drivers').textContent = Object.keys(driverMap).length;
+    document.getElementById('mgr-total-days').textContent = filtered.length;
+    document.getElementById('mgr-period-label').textContent = period
+        ? 'Period: ' + mgr_fD(period.s.getTime()) + ' — ' + mgr_fD(period.e.getTime())
+        : 'Showing all records';
+
+    var sorted = filtered.slice().sort(function(a, b) { return b.date.localeCompare(a.date); });
+    var lh = '';
+    if (!sorted.length) {
+        lh = '<tr><td colspan="5" style="text-align:center;color:#6b6b6b;padding:40px 0">No records found for this period</td></tr>';
+    } else {
+        sorted.forEach(function(r) {
+            var dateParts = r.date.split('-');
+            var d = new Date(+dateParts[0], +dateParts[1] - 1, +dateParts[2]);
+            var ds = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            var ws = d.toLocaleDateString('en-US', { weekday: 'short' });
+            var iT = (r.checkIn && r.checkIn.time) ? mgr_fTs(r.checkIn.time) : '--';
+            var oT = (r.checkOut && r.checkOut.time) ? mgr_fTs(r.checkOut.time) : '--';
+            var hr = r.hours != null ? r.hours.toFixed(1) : '<span style="color:#f59e0b;font-size:11px;font-weight:700">OPEN</span>';
+            lh += '<tr><td style="font-weight:600;color:#f59e0b;font-size:12px">' + (r.driverName || 'Unknown') + '</td>' +
+                '<td><span style="font-weight:600">' + ds + '</span><br><span style="font-size:10px;color:#6b6b6b">' + ws + '</span></td>' +
+                '<td style="font-family:\'JetBrains Mono\',monospace;font-size:12px">' + iT + '</td>' +
+                '<td style="font-family:\'JetBrains Mono\',monospace;font-size:12px">' + oT + '</td>' +
+                '<td style="font-family:\'JetBrains Mono\',monospace;font-weight:700">' + hr + '</td></tr>';
+        });
+        lh += '<tr class="tt-total-row"><td colspan="4" style="text-align:right;padding-right:12px">TOTAL HOURS:</td><td style="font-family:\'JetBrains Mono\',monospace;font-size:16px;font-weight:700;color:#f59e0b;padding:10px 12px">' + totalHrs.toFixed(1) + '</td></tr>';
+    }
+    document.getElementById('mgr-logs-tb').innerHTML = lh;
+}
+
+document.getElementById('mgr-ptabs').addEventListener('click', function(e) {
+    var b = e.target.closest('.tt-mgr-tab');
+    if (!b) return;
+    mgrPeriod = b.dataset.p;
+    document.querySelectorAll('#mgr-ptabs .tt-mgr-tab').forEach(function(t) { t.classList.remove('on'); });
+    b.classList.add('on');
+    renderMgrDash();
+});
+
+document.getElementById('tt-btn-mgr-refresh').addEventListener('click', function() { loadMgrData(); });
+
+document.getElementById('tt-btn-mgr-excel').addEventListener('click', function() { downloadMgrExcel(); });
+
+function downloadMgrExcel() {
+    if (typeof XLSX === 'undefined') { alert('Excel library not loaded.'); return; }
+    if (!mgrAllRecords || !mgrAllRecords.length) { alert('No data to download.'); return; }
+
+    var wb = XLSX.utils.book_new();
+    var cur = mgr_cp(), pv = mgr_ppv();
+
+    function makeSheet(records, label, period) {
+        var hrs = 0;
+        records.forEach(function(r) { if (r.hours != null) hrs += r.hours; });
+        var data = [
+            ['CORRIDOR TOWING & TRANSPORTATION SERVICES'],
+            ['MANAGER REPORT — ' + label],
+            [''],
+            ['Period:', period ? (mgr_fD(period.s.getTime()) + ' — ' + mgr_fD(period.e.getTime())) : 'All Time'],
+            ['Total Hours:', hrs.toFixed(1)],
+            ['Total Shifts:', records.length],
+            [''],
+            ['Driver', 'Date', 'Day', 'Check In', 'Check Out', 'Hours']
+        ];
+        var sorted = records.slice().sort(function(a, b) { return a.date.localeCompare(b.date); });
+        sorted.forEach(function(r) {
+            var dateParts = r.date.split('-');
+            var d = new Date(+dateParts[0], +dateParts[1] - 1, +dateParts[2]);
+            var ds = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            var ws = d.toLocaleDateString('en-US', { weekday: 'short' });
+            var iT = (r.checkIn && r.checkIn.time) ? mgr_fT(r.checkIn.time) : 'N/A';
+            var oT = (r.checkOut && r.checkOut.time) ? mgr_fT(r.checkOut.time) : 'N/A';
+            var hr = r.hours != null ? parseFloat(r.hours.toFixed(2)) : '';
+            data.push([r.driverName || 'Unknown', ds, ws, iT, oT, hr]);
+        });
+        data.push(['', '', '', '', 'TOTAL:', parseFloat(hrs.toFixed(2))]);
+        var ws2 = XLSX.utils.aoa_to_sheet(data);
+        ws2['!cols'] = [{wch:22},{wch:20},{wch:8},{wch:14},{wch:14},{wch:10}];
+        ws2['!merges'] = [{s:{r:0,c:0},e:{r:0,c:5}},{s:{r:1,c:0},e:{r:1,c:5}}];
+        return ws2;
+    }
+
+    XLSX.utils.book_append_sheet(wb, makeSheet(mgr_filterByPeriod(mgrAllRecords, cur), 'Current Period', cur), 'Current Period');
+    XLSX.utils.book_append_sheet(wb, makeSheet(mgr_filterByPeriod(mgrAllRecords, pv), 'Previous Period', pv), 'Previous Period');
+    XLSX.utils.book_append_sheet(wb, makeSheet(mgrAllRecords, 'All Time', null), 'All Records');
+
+    var fname = 'TowTrack_Manager_' + new Date().toISOString().slice(0, 10) + '.xlsx';
+    XLSX.writeFile(wb, fname);
+}
 </script>
 
 <!-- ========== DRIVER PORTAL JS ========== -->
 <script>
-var initTT_done=false,ttD={driverName:'',records:[]},ttCS=null,ttCM=null,ttDB=null;
-var COMPANY_EMAIL='corridor.towing@gmail.com';
+var initTT_done = false;
+var ttD = { driverName: '', records: [] };
+var ttCS = null; // camera stream
+var ttCM = null; // camera mode ('checkin'|'checkout')
+var ttDB = null; // indexedDB
+var COMPANY_EMAIL = 'corridor.towing@gmail.com';
+// FIREBASE_URL defined in manager script above
 
-var FIREBASE_URL='https://corridortowing-default-rtdb.firebaseio.com';
-var firebaseSyncStatus='disconnected';
-
-function getDriverId(name){
-    return name.toLowerCase().replace(/[^a-z0-9]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'');
-}
-
-function setSyncStatus(status){
-    firebaseSyncStatus=status;
-    var el=document.getElementById('tt-sync-status');
-    if(!el)return;
-    if(status==='synced'){
-        el.className='tt-sync-indicator synced';
-        el.innerHTML='<i class="fas fa-cloud"></i> Synced';
-    }else if(status==='syncing'){
-        el.className='tt-sync-indicator syncing';
-        el.innerHTML='<i class="fas fa-spinner fa-spin"></i> Syncing';
-    }else if(status==='error'){
-        el.className='tt-sync-indicator error';
-        el.innerHTML='<i class="fas fa-cloud-exclamation"></i> Offline';
-    }else{
-        el.className='tt-sync-indicator';
-        el.innerHTML='<i class="fas fa-cloud"></i> Cloud';
+// ---- Firebase helpers ----
+function setSyncStatus(status) {
+    var el = document.getElementById('tt-sync-status');
+    if (!el) return;
+    if (status === 'synced') {
+        el.className = 'tt-sync-indicator synced';
+        el.innerHTML = '<i class="fas fa-cloud"></i> Synced';
+    } else if (status === 'syncing') {
+        el.className = 'tt-sync-indicator syncing';
+        el.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing';
+    } else if (status === 'error') {
+        el.className = 'tt-sync-indicator error';
+        el.innerHTML = '<i class="fas fa-cloud-exclamation"></i> Offline';
+    } else {
+        el.className = 'tt-sync-indicator';
+        el.innerHTML = '<i class="fas fa-cloud"></i> Cloud';
     }
 }
 
-async function firebaseSaveRecord(record){
-    if(!ttD.driverName)return false;
+function getDriverId(name) {
+    return name.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+}
+
+async function firebaseSaveRecord(record) {
+    if (!ttD.driverName) return false;
     setSyncStatus('syncing');
-    try{
-        var driverId=getDriverId(ttD.driverName);
-        var recordData={
-            driverName:ttD.driverName,
-            date:record.date,
-            checkIn:record.checkIn,
-            checkOut:record.checkOut,
-            hours:record.hours,
-            updatedAt:Date.now()
-        };
-        var res=await fetch(FIREBASE_URL+'/driverLogs/'+driverId+'/'+record.id+'.json',{
-            method:'PUT',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify(recordData)
+    try {
+        var driverId = getDriverId(ttD.driverName);
+        var res = await fetch(FIREBASE_URL + '/driverLogs/' + driverId + '/' + record.id + '.json', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                driverName: ttD.driverName,
+                date: record.date,
+                checkIn: record.checkIn,
+                checkOut: record.checkOut,
+                hours: record.hours,
+                updatedAt: Date.now()
+            })
         });
-        if(!res.ok)throw new Error('HTTP '+res.status);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         setSyncStatus('synced');
         return true;
-    }catch(err){
-        console.error('Firebase save error:',err);
+    } catch(err) {
+        console.error('Firebase save error:', err);
         setSyncStatus('error');
         return false;
     }
 }
 
-async function firebaseLoadRecords(){
-    if(!ttD.driverName)return null;
+async function firebaseLoadRecords() {
+    if (!ttD.driverName) return null;
     setSyncStatus('syncing');
-    try{
-        var driverId=getDriverId(ttD.driverName);
-        var res=await fetch(FIREBASE_URL+'/driverLogs/'+driverId+'.json');
-        if(!res.ok)throw new Error('HTTP '+res.status);
-        var data=await res.json();
+    try {
+        var driverId = getDriverId(ttD.driverName);
+        var res = await fetch(FIREBASE_URL + '/driverLogs/' + driverId + '.json');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        var data = await res.json();
         setSyncStatus('synced');
-        if(!data)return[];
-        var records=[];
-        for(var id in data){
-            var r=data[id];
-            records.push({
-                id:id,
-                date:r.date,
-                checkIn:r.checkIn,
-                checkOut:r.checkOut,
-                hours:r.hours
-            });
+        if (!data) return [];
+        var records = [];
+        for (var id in data) {
+            var r = data[id];
+            if (r && r.date) {
+                records.push({ id: id, date: r.date, checkIn: r.checkIn || null, checkOut: r.checkOut || null, hours: r.hours != null ? r.hours : null });
+            }
         }
         return records;
-    }catch(err){
-        console.error('Firebase load error:',err);
+    } catch(err) {
+        console.error('Firebase load error:', err);
         setSyncStatus('error');
         return null;
     }
 }
 
-function initTT(){if(initTT_done)return;initTT_done=true;
-var SK='tt_meta_v6';
+// ---- Main init ----
+function initTT() {
+    if (initTT_done) return;
+    initTT_done = true;
 
-function oDB(){return new Promise(function(r,j){if(ttDB){r(ttDB);return}var q=indexedDB.open('TowTrackPhotos',1);q.onupgradeneeded=function(e){var d=e.target.result;if(!d.objectStoreNames.contains('photos'))d.createObjectStore('photos',{keyPath:'id'})};q.onsuccess=function(e){ttDB=e.target.result;r(ttDB)};q.onerror=function(e){j(e.target.error)}})}
-function sP(id,d){return oDB().then(function(db){return new Promise(function(r,j){var tx=db.transaction('photos','readwrite');tx.objectStore('photos').put({id:id,data:d});tx.oncomplete=function(){r()};tx.onerror=function(e){j(e.target.error)}})})}
-function gP(id){return oDB().then(function(db){return new Promise(function(r,j){var tx=db.transaction('photos','readonly');var q=tx.objectStore('photos').get(id);q.onsuccess=function(){r(q.result?q.result.data:null)};q.onerror=function(e){j(e.target.error)}})})}
-function ld(){try{var r=localStorage.getItem(SK);if(r)ttD=Object.assign(ttD,JSON.parse(r))}catch(e){}}
-function sv(){try{localStorage.setItem(SK,JSON.stringify(ttD))}catch(e){tT('Storage error','error')}}
-function uid(){return Date.now().toString(36)+Math.random().toString(36).substr(2,6)}
-function fD(t){return new Date(t).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
-function fT(t){return new Date(t).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true})}
-function fTs(t){return new Date(t).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true})}
-function dK(t){var d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function tK(){return dK(Date.now())}
-function cH(a,b){return Math.round((b-a)/36e5)/100}
-function pDK(dk){var p=dk.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
-function initials(name){var p=name.trim().split(/\s+/);return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():name.substring(0,2).toUpperCase()}
+    var SK = 'tt_meta_v6';
 
-function tT(msg,type){type=type||'info';var ic={success:'fa-check-circle text-emerald-400',error:'fa-circle-exclamation text-red-400',warning:'fa-triangle-exclamation text-amber-400',info:'fa-circle-info text-sky-400'};var el=document.createElement('div');el.className='tt-ti';el.innerHTML='<i class="fas '+(ic[type]||ic.info)+'"></i><span>'+msg+'</span>';document.getElementById('tt-tbox').appendChild(el);setTimeout(function(){if(el.parentNode)el.remove()},3200)}
-function sS(){var el=document.getElementById('tt-spop');el.classList.add('active');setTimeout(function(){el.classList.remove('active')},900)}
-function cf(t,m,y){document.getElementById('tt-cf-t').textContent=t;document.getElementById('tt-cf-m').textContent=m;document.getElementById('tt-cfbg').classList.add('active');document.getElementById('tt-cf-yes').onclick=function(){document.getElementById('tt-cfbg').classList.remove('active');y()};document.getElementById('tt-cf-no').onclick=function(){document.getElementById('tt-cfbg').classList.remove('active')}}
-function vP(s){document.getElementById('tt-pvw-img').src=s;document.getElementById('tt-pvw').classList.add('active')}
-document.getElementById('tt-pvw').addEventListener('click',function(){this.classList.remove('active')});
+    // --- IndexedDB ---
+    function oDB() {
+        return new Promise(function(resolve, reject) {
+            if (ttDB) { resolve(ttDB); return; }
+            var q = indexedDB.open('TowTrackPhotos', 1);
+            q.onupgradeneeded = function(e) {
+                var db = e.target.result;
+                if (!db.objectStoreNames.contains('photos')) db.createObjectStore('photos', { keyPath: 'id' });
+            };
+            q.onsuccess = function(e) { ttDB = e.target.result; resolve(ttDB); };
+            q.onerror = function(e) { reject(e.target.error); };
+        });
+    }
 
-function go(id){document.querySelectorAll('.tt-screen').forEach(function(s){s.classList.remove('active')});var sc=document.getElementById('tt-scr-'+id);if(sc)sc.classList.add('active');document.querySelectorAll('.tt-ni').forEach(function(n){n.classList.toggle('active',n.dataset.s===id)});if(id==='dash')rD();if(id==='hist')rH();if(id==='rpt')rR();if(id==='set')rS()}
-
-document.getElementById('tt-btn-setup').addEventListener('click',async function(){
-    var n=document.getElementById('tt-inp-name').value.trim();
-    if(!n){tT('Enter your name','error');return}
-    ttD.driverName=n;
-    sv();
-    
-    var fbRecords=await firebaseLoadRecords();
-    if(fbRecords!==null){
-        if(fbRecords.length>0){
-            var localMap={};
-            ttD.records.forEach(function(r){localMap[r.id]=r});
-            var merged=[];
-            fbRecords.forEach(function(fr){
-                merged.push(fr);
-                delete localMap[fr.id];
+    function sP(id, dataUrl) {
+        return oDB().then(function(db) {
+            return new Promise(function(resolve, reject) {
+                var tx = db.transaction('photos', 'readwrite');
+                var req = tx.objectStore('photos').put({ id: id, data: dataUrl });
+                tx.oncomplete = function() { resolve(); };
+                tx.onerror = function(e) { reject(e.target.error); };
             });
-            for(var lid in localMap){
-                merged.push(localMap[lid]);
-            }
-            ttD.records=merged;
-            sv();
-            tT('Loaded '+fbRecords.length+' records from cloud','success');
-        }else{
-            tT('Cloud synced - no previous records','info');
+        });
+    }
+
+    function gP(id) {
+        return oDB().then(function(db) {
+            return new Promise(function(resolve, reject) {
+                var tx = db.transaction('photos', 'readonly');
+                var req = tx.objectStore('photos').get(id);
+                req.onsuccess = function() { resolve(req.result ? req.result.data : null); };
+                req.onerror = function(e) { reject(e.target.error); };
+            });
+        });
+    }
+
+    // --- Local storage ---
+    function ld() {
+        try {
+            var r = localStorage.getItem(SK);
+            if (r) { var parsed = JSON.parse(r); ttD = Object.assign({ driverName: '', records: [] }, parsed); }
+        } catch(e) {}
+    }
+
+    function sv() {
+        try { localStorage.setItem(SK, JSON.stringify(ttD)); } catch(e) {}
+    }
+
+    // --- Utilities ---
+    function uid() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 6); }
+    function fD(t) { return new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+    function fT(t) { return new Date(t).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }); }
+    function fTs(t) { return new Date(t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }); }
+
+    function dK(t) {
+        var d = new Date(t);
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+    function tK() { return dK(Date.now()); }
+
+    function pDK(dk) {
+        var p = dk.split('-');
+        return new Date(+p[0], +p[1] - 1, +p[2]);
+    }
+
+    function cH(a, b) { return Math.round((b - a) / 36e5 * 100) / 100; }
+
+    function initials(name) {
+        var p = name.trim().split(/\s+/);
+        return p.length >= 2 ? (p[0][0] + p[p.length - 1][0]).toUpperCase() : name.substring(0, 2).toUpperCase();
+    }
+
+    // --- Toasts ---
+    function tT(msg, type) {
+        type = type || 'info';
+        var ic = { success: 'fa-check-circle', error: 'fa-circle-exclamation', warning: 'fa-triangle-exclamation', info: 'fa-circle-info' };
+        var clr = { success: '#10b981', error: '#ef4444', warning: '#f59e0b', info: '#60a5fa' };
+        var el = document.createElement('div');
+        el.className = 'tt-ti';
+        el.innerHTML = '<i class="fas ' + (ic[type] || ic.info) + '" style="color:' + (clr[type] || clr.info) + '"></i><span>' + msg + '</span>';
+        document.getElementById('tt-tbox').appendChild(el);
+        setTimeout(function() { if (el.parentNode) el.remove(); }, 3200);
+    }
+
+    function sS() {
+        var el = document.getElementById('tt-spop');
+        el.classList.add('active');
+        setTimeout(function() { el.classList.remove('active'); }, 900);
+    }
+
+    function vP(src) {
+        document.getElementById('tt-pvw-img').src = src;
+        document.getElementById('tt-pvw').classList.add('active');
+    }
+
+    // --- Pay periods ---
+    function pp(ts) {
+        var d = new Date(ts), dy = d.getDate(), mo = d.getMonth(), yr = d.getFullYear();
+        if (dy <= 15) return { s: new Date(yr, mo, 1), e: new Date(yr, mo, 15, 23, 59, 59) };
+        var l = new Date(yr, mo + 1, 0).getDate();
+        return { s: new Date(yr, mo, 16), e: new Date(yr, mo, l, 23, 59, 59) };
+    }
+
+    function cp() { return pp(Date.now()); }
+
+    function pv() {
+        var n = new Date();
+        if (n.getDate() <= 15) {
+            var prevMo = new Date(n.getFullYear(), n.getMonth() - 1, 1);
+            var lastDay = new Date(n.getFullYear(), n.getMonth(), 0).getDate();
+            return { s: new Date(prevMo.getFullYear(), prevMo.getMonth(), 16), e: new Date(prevMo.getFullYear(), prevMo.getMonth(), lastDay, 23, 59, 59) };
         }
-    }else{
-        tT('Using local storage (cloud unavailable)','warning');
+        return { s: new Date(n.getFullYear(), n.getMonth(), 1), e: new Date(n.getFullYear(), n.getMonth(), 15, 23, 59, 59) };
     }
-    
-    document.getElementById('tt-nav').style.display='block';
-    go('dash');
-    tT('Welcome, '+n+'!','success');
-    reqCam(function(){})
-});
 
-function reqCam(cb){if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){tT('Camera requires HTTPS','error');cb(false);return}navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false}).then(function(s){s.getTracks().forEach(function(t){t.stop()});cb(true)}).catch(function(e){var m='Camera error.';if(e.name==='NotAllowedError')m='Camera permission denied. Allow in browser settings and try again.';else if(e.name==='NotFoundError')m='No camera found.';tT(m,'error');cb(false)})}
-
-function startClk(){function t(){var n=new Date();var te=document.getElementById('tt-d-time'),de=document.getElementById('tt-d-date');if(te)te.textContent=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});if(de)de.textContent=n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});var cd=document.getElementById('tt-cam-dt');if(cd)cd.textContent=n.toLocaleString()}t();setInterval(t,1000)}
-function autoCl(){var tk=tK(),ch=false;ttD.records.forEach(function(r){if(r.checkIn&&!r.checkOut&&r.date!==tk){var ci=new Date(r.checkIn.time);r.checkOut={time:new Date(ci.getFullYear(),ci.getMonth(),ci.getDate(),23,59,59).getTime()};r.hours=cH(r.checkIn.time,r.checkOut.time);ch=true}});if(ch){sv();tT('Previous check-in auto-closed','warning')}}
-
-function rD(){autoCl();document.getElementById('tt-d-name').textContent=ttD.driverName;
-var oR=null;for(var i=0;i<ttD.records.length;i++){if(ttD.records[i].checkIn&&!ttD.records[i].checkOut){oR=ttD.records[i];break}}
-var btn=document.getElementById('tt-btn-act'),bTx=document.getElementById('tt-btn-act-t'),dot=document.getElementById('tt-s-dot'),lbl=document.getElementById('tt-s-lbl'),det=document.getElementById('tt-s-det'),card=document.getElementById('tt-scard');
-if(oR){dot.className='w-3 h-3 rounded-full tt-bk';dot.style.background='#10b981';dot.style.boxShadow='0 0 8px rgba(16,185,129,.4)';lbl.textContent='Checked In';lbl.style.color='#10b981';var el=cH(oR.checkIn.time,Date.now());det.textContent='Since '+fTs(oR.checkIn.time)+' \u2014 '+el.toFixed(1)+' hrs';btn.className='w-full py-5 rounded-2xl font-extrabold text-xl transition-all active:scale-[0.97] flex items-center justify-center gap-3 tt-pa';btn.style.background='linear-gradient(135deg,#f59e0b,#d97706)';btn.style.color='#000';bTx.textContent='Check Out';card.style.borderColor='rgba(16,185,129,.3)'}
-else{dot.className='w-3 h-3 rounded-full';dot.style.background='#6b6b6b';dot.style.boxShadow='none';lbl.textContent='Checked Out';lbl.style.color='#f0f0f0';det.textContent='Ready to start your shift';btn.className='w-full py-5 rounded-2xl font-extrabold text-xl transition-all active:scale-[0.97] flex items-center justify-center gap-3 tt-pg';btn.style.background='linear-gradient(135deg,#10b981,#059669)';btn.style.color='#fff';bTx.textContent='Check In';card.style.borderColor='#262626'}
-var tk2=tK(),tr=null;for(var k=0;k<ttD.records.length;k++){if(ttD.records[k].date===tk2){tr=ttD.records[k];break}}
-document.getElementById('tt-t-in').textContent=tr&&tr.checkIn?fTs(tr.checkIn.time):'--:--';
-document.getElementById('tt-t-out').textContent=tr&&tr.checkOut?fTs(tr.checkOut.time):'--:--';
-document.getElementById('tt-t-hrs').textContent=tr&&tr.hours!=null?tr.hours.toFixed(1):'0.0';
-var np="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72'%3E%3Crect fill='%231e1e1e' width='72' height='72' rx='12'/%3E%3Ctext x='36' y='40' text-anchor='middle' fill='%23555' font-size='10' font-family='sans-serif'%3ENo photo%3C/text%3E%3C/svg%3E";var pc=document.getElementById('tt-photos');
-if(tr){pc.style.display='block';var ii=document.getElementById('tt-ph-in'),oi=document.getElementById('tt-ph-out');ii.src=np;oi.src=np;ii.onclick=null;oi.onclick=null;if(tr.checkIn)gP(tr.id+'_in').then(function(d){if(d){ii.src=d;ii.onclick=function(){vP(d)}}});if(tr.checkOut)gP(tr.id+'_out').then(function(d){if(d){oi.src=d;oi.onclick=function(){vP(d)}}})}else{pc.style.display='none'}}
-
-function openCam(mode){ttCM=mode;var te=document.getElementById('tt-cam-type');te.textContent=mode==='checkin'?'CHECK IN':'CHECK OUT';te.style.color=mode==='checkin'?'#10b981':'#f59e0b';document.getElementById('tt-camov').classList.add('active');
-navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false}).then(function(s){ttCS=s;document.getElementById('tt-cam-vid').srcObject=s}).catch(function(e){closeCam();var m='Camera error.';if(e.name==='NotAllowedError')m='Camera denied. Go to browser Settings to allow camera, then try again.';else if(e.name==='NotFoundError')m='No camera found.';tT(m,'error')})}
-function closeCam(){if(ttCS){ttCS.getTracks().forEach(function(t){t.stop()});ttCS=null}document.getElementById('tt-cam-vid').srcObject=null;document.getElementById('tt-camov').classList.remove('active')}
-
-function capPhoto(){var mode=ttCM,vid=document.getElementById('tt-cam-vid'),cv=document.getElementById('tt-cam-cv'),ctx=cv.getContext('2d'),W=480,H=360;cv.width=W;cv.height=H;ctx.save();ctx.translate(W,0);ctx.scale(-1,1);ctx.drawImage(vid,0,0,W,H);ctx.restore();
-var now=new Date(),label=mode==='checkin'?'CHECK IN':'CHECK OUT';
-ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(0,0,W,30);ctx.font='bold 15px Arial,sans-serif';ctx.fillStyle='rgba(255,255,255,.85)';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(ttD.driverName,10,15);
-ctx.fillStyle='rgba(0,0,0,.8)';ctx.fillRect(0,H-36,W,36);ctx.fillStyle=mode==='checkin'?'#10b981':'#f59e0b';ctx.fillRect(0,H-39,W,3);
-var ts=label+'  |  '+now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+'  |  '+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
-ctx.font='bold 17px Arial,sans-serif';ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(ts,W/2,H-18);
-var fl=document.getElementById('tt-cam-fl');fl.style.transition='none';fl.style.opacity='1';requestAnimationFrame(function(){fl.style.transition='opacity .3s';fl.style.opacity='0'});
-var pd=cv.toDataURL('image/jpeg',0.45),lm=mode;closeCam();doAct(pd,lm)}
-
-function doAct(pd,mode){var tk=tK(),now=Date.now();
-if(mode==='checkin'){var al=false;for(var i=0;i<ttD.records.length;i++){if(ttD.records[i].checkIn&&!ttD.records[i].checkOut){al=true;break}}if(al){tT('Already checked in!','warning');rD();return}var rid=uid();var newRecord={id:rid,date:tk,checkIn:{time:now},checkOut:null,hours:null};ttD.records.push(newRecord);sv();sP(rid+'_in',pd).catch(function(){});sS();tT('Checked in at '+fT(now),'success');
-firebaseSaveRecord(newRecord).then(function(ok){if(ok)tT('Saved to cloud','info')})}
-else{var oR=null;for(var j=0;j<ttD.records.length;j++){if(ttD.records[j].checkIn&&!ttD.records[j].checkOut){oR=ttD.records[j];break}}if(!oR){tT('No open check-in!','error');rD();return}oR.checkOut={time:now};oR.hours=cH(oR.checkIn.time,now);sv();sP(oR.id+'_out',pd).catch(function(){});sS();tT('Checked out! Hours: '+oR.hours.toFixed(1),'success');
-firebaseSaveRecord(oR).then(function(ok){if(ok)tT('Saved to cloud','info')})}
-ttCM=null;rD()}
-
-document.getElementById('tt-btn-act').addEventListener('click',function(){var oR=null;for(var i=0;i<ttD.records.length;i++){if(ttD.records[i].checkIn&&!ttD.records[i].checkOut){oR=ttD.records[i];break}}openCam(oR?'checkout':'checkin')});
-document.getElementById('tt-btn-cap').addEventListener('click',capPhoto);
-document.getElementById('tt-btn-cx').addEventListener('click',function(){closeCam();ttCM=null});
-
-var hp='first';
-function getFirstPeriodRecs(yr,mo){return ttD.records.filter(function(r){var d=pDK(r.date);return d.getFullYear()===yr&&d.getMonth()===mo&&d.getDate()<=15})}
-function getSecondPeriodRecs(yr,mo){return ttD.records.filter(function(r){var d=pDK(r.date);return d.getFullYear()===yr&&d.getMonth()===mo&&d.getDate()>=16})}
-
-function rH(){
-    document.getElementById('tt-hist-avatar').textContent=initials(ttD.driverName);
-    document.getElementById('tt-hist-dname').textContent=ttD.driverName;
-    var now=new Date(),yr=now.getFullYear(),mo=now.getMonth();
-    var allRecs=ttD.records.slice().sort(function(a,b){return b.date.localeCompare(a.date)});
-    var firstRecs=getFirstPeriodRecs(yr,mo);
-    var secondRecs=getSecondPeriodRecs(yr,mo);
-    var firstHrs=0,secondHrs=0;
-    firstRecs.forEach(function(r){if(r.hours!=null)firstHrs+=r.hours});
-    secondRecs.forEach(function(r){if(r.hours!=null)secondHrs+=r.hours});
-    document.getElementById('tt-h-first').textContent=firstHrs.toFixed(1);
-    document.getElementById('tt-h-second').textContent=secondHrs.toFixed(1);
-    var recs;
-    if(hp==='first'){recs=firstRecs.slice().sort(function(a,b){return b.date.localeCompare(a.date)})}
-    else if(hp==='second'){recs=secondRecs.slice().sort(function(a,b){return b.date.localeCompare(a.date)})}
-    else{recs=allRecs}
-    var th=0,td=0;recs.forEach(function(r){if(r.hours!=null)th+=r.hours;if(r.checkIn)td++});document.getElementById('tt-h-hrs').textContent=th.toFixed(1);document.getElementById('tt-h-days').textContent=td;
-    var tb=document.getElementById('tt-h-tb');if(!recs.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#6b6b6b;padding:40px 0">No records for this period</td></tr>';return}
-    var h='';recs.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric'}),ws=d.toLocaleDateString('en-US',{weekday:'short'});var iT=r.checkIn?fTs(r.checkIn.time):'--',oT=r.checkOut?fTs(r.checkOut.time):'--',hr=r.hours!=null?r.hours.toFixed(1):'<span style="color:#f59e0b;font-size:11px;font-weight:700">OPEN</span>';
-    h+='<tr><td style="font-weight:600;color:#f59e0b;font-size:12px">'+ttD.driverName+'</td><td><span style="font-weight:600">'+ds+'</span><br><span style="font-size:10px;color:#6b6b6b">'+ws+'</span></td><td class="tt-mono" style="font-size:12px">'+iT+'</td><td class="tt-mono" style="font-size:12px">'+oT+'</td><td class="tt-mono" style="font-weight:700">'+hr+'</td><td><div style="display:flex;gap:4px;align-items:center"><img id="thi-'+r.id+'" class="tt-pth" src="" style="display:none"><img id="tho-'+r.id+'" class="tt-pth" src="" style="display:none"><span id="thn-'+r.id+'" style="color:#6b6b6b;font-size:11px">--</span></div></td></tr>'});
-    h+='<tr class="tt-total-row"><td colspan="4" style="text-align:right">TOTAL HOURS:</td><td class="tt-mono" style="font-size:16px">'+th.toFixed(1)+'</td><td></td></tr>';
-    tb.innerHTML=h;recs.forEach(function(r){var ie=document.getElementById('thi-'+r.id),oe=document.getElementById('tho-'+r.id),ne=document.getElementById('thn-'+r.id);var l=0;if(r.checkIn)gP(r.id+'_in').then(function(d){if(d&&ie){ie.src=d;ie.style.display='inline-block';ie.onclick=function(){vP(d)};l++;if(ne)ne.style.display='none'}});if(r.checkOut)gP(r.id+'_out').then(function(d){if(d&&oe){oe.src=d;oe.style.display='inline-block';oe.onclick=function(){vP(d)};l++;if(ne)ne.style.display='none'}})})}
-
-document.getElementById('tt-ptabs').addEventListener('click',function(e){var b=e.target.closest('.tt-pt');if(!b)return;hp=b.dataset.p;document.querySelectorAll('.tt-pt').forEach(function(t){t.classList.remove('on')});b.classList.add('on');rH()});
-
-function pp(ts){var d=new Date(ts),dy=d.getDate(),mo=d.getMonth(),yr=d.getFullYear();if(dy<=15)return{s:new Date(yr,mo,1),e:new Date(yr,mo,15,23,59,59)};var l=new Date(yr,mo+1,0).getDate();return{s:new Date(yr,mo,16),e:new Date(yr,mo,l,23,59,59)}}
-function cp(){return pp(Date.now())}
-function ppv(){var n=new Date();if(n.getDate()<=15){var l=new Date(n.getFullYear(),n.getMonth(),0).getDate();return{s:new Date(n.getFullYear(),n.getMonth()-1,16),e:new Date(n.getFullYear(),n.getMonth()-1,l,23,59,59)}}return{s:new Date(n.getFullYear(),n.getMonth(),1),e:new Date(n.getFullYear(),n.getMonth(),15,23,59,59)}}
-function rp(p){var sk=dK(p.s.getTime()),ek=dK(p.e.getTime());return ttD.records.filter(function(r){return r.date>=sk&&r.date<=ek})}
-
-function rR(){var cu=cp(),pv=ppv();
-document.getElementById('tt-rpt-avatar').textContent=initials(ttD.driverName);
-document.getElementById('tt-rpt-dname').textContent=ttD.driverName;
-document.getElementById('tt-rp-cur').textContent=fD(cu.s.getTime())+' \u2014 '+fD(cu.e.getTime());document.getElementById('tt-rp-prev').textContent=fD(pv.s.getTime())+' \u2014 '+fD(pv.e.getTime());
-var cr=rp(cu),pr=rp(pv),ch=0,cd=cr.length;cr.forEach(function(r){if(r.hours!=null)ch+=r.hours});document.getElementById('tt-rp-ch').textContent=ch.toFixed(1);document.getElementById('tt-rp-cd').textContent=cd;var ph=0,pd=pr.length;pr.forEach(function(r){if(r.hours!=null)ph+=r.hours});document.getElementById('tt-rp-ph').textContent=ph.toFixed(1);document.getElementById('tt-rp-pd').textContent=pd;
-var tb=document.getElementById('tt-rp-tb'),so=cr.slice().sort(function(a,b){return a.date.localeCompare(b.date)});if(!so.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#6b6b6b;padding:30px 0">No entries</td></tr>'}else{var h='';so.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});var iT=r.checkIn?fTs(r.checkIn.time):'--',oT=r.checkOut?fTs(r.checkOut.time):'--',hr=r.hours!=null?r.hours.toFixed(1):'<span style="color:#f59e0b;font-size:11px;font-weight:700">OPEN</span>';h+='<tr><td style="font-weight:600;color:#f59e0b;font-size:12px">'+ttD.driverName+'</td><td>'+ds+'</td><td class="tt-mono" style="font-size:12px">'+iT+'</td><td class="tt-mono" style="font-size:12px">'+oT+'</td><td class="tt-mono" style="font-weight:700">'+hr+'</td></tr>'});
-h+='<tr class="tt-total-row"><td colspan="4" style="text-align:right">TOTAL HOURS:</td><td class="tt-mono" style="font-size:16px">'+ch.toFixed(1)+'</td></tr>';
-tb.innerHTML=h}}
-
-function rptT(pl,per){var rs=rp(per).slice().sort(function(a,b){return a.date.localeCompare(b.date)}),th=0;rs.forEach(function(r){if(r.hours!=null)th+=r.hours});var l=[];
-l.push('===========================================================');l.push('       CORRIDOR TOWING & TRANSPORTATION SERVICES');l.push('              PAYROLL / HOURS REPORT');l.push('===========================================================');l.push('');l.push('  DRIVER NAME:   '+ttD.driverName.toUpperCase());l.push('  PERIOD:        '+pl);l.push('  DATE RANGE:    '+fD(per.s.getTime())+' - '+fD(per.e.getTime()));l.push('  TOTAL HOURS:   '+th.toFixed(1));l.push('  DAYS WORKED:   '+rs.length);l.push('');l.push('-----------------------------------------------------------');l.push('  DRIVER          DATE            CHECK IN        CHECK OUT      HOURS');l.push('-----------------------------------------------------------');rs.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});var iT=r.checkIn?fT(r.checkIn.time):'N/A',oT=r.checkOut?fT(r.checkOut.time):'N/A',hr=r.hours!=null?r.hours.toFixed(1):'OPEN';
-l.push('  '+ttD.driverName.substring(0,14).padEnd(16)+ds+'    '+iT+'      '+oT+'    '+hr)});l.push('-----------------------------------------------------------');l.push('');l.push('  REPORT SENT TO: '+COMPANY_EMAIL);l.push('  GENERATED:      '+new Date().toLocaleString());return l.join('\n')}
-
-document.getElementById('tt-btn-email').addEventListener('click',function(){
-    var cu=cp(),pl='Current Period ('+fD(cu.s.getTime())+' - '+fD(cu.e.getTime())+')',bd=rptT(pl,cu),sb='Payroll Report - '+ttD.driverName+' - '+fD(cu.s.getTime())+' to '+fD(cu.e.getTime());
-    tT('Sending report to company...','info');
-    fetch("https://formspree.io/f/xdkyonjb",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subject:sb,message:bd})}).then(function(){tT('Report sent to '+COMPANY_EMAIL+'!','success')}).catch(function(){tT('Failed to send report','error')})});
-
-document.getElementById('tt-btn-excel').addEventListener('click',function(){
-    if(typeof XLSX==='undefined'){tT('Excel library not loaded. Check internet connection.','error');return}
-    var cu=cp(),pv=ppv();var wb=XLSX.utils.book_new();
-    var cr=rp(cu).slice().sort(function(a,b){return a.date.localeCompare(b.date)});var curHrs=0;cr.forEach(function(r){if(r.hours!=null)curHrs+=r.hours});
-    var curData=[['CORRIDOR TOWING & TRANSPORTATION SERVICES'],['PAYROLL / HOURS REPORT'],[''],['Driver Name:',ttD.driverName],['Period:','Current Period'],['Date Range:',fD(cu.s.getTime())+' - '+fD(cu.e.getTime())],['Total Hours:',curHrs.toFixed(1)],['Days Worked:',cr.length],[''],['Driver','Date','Check In','Check Out','Hours']];
-    cr.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});var iT=r.checkIn?fT(r.checkIn.time):'N/A',oT=r.checkOut?fT(r.checkOut.time):'N/A',hr=r.hours!=null?r.hours.toFixed(2):'';curData.push([ttD.driverName,ds,iT,oT,hr?parseFloat(hr):''])});
-    curData.push(['','','','TOTAL:',curHrs.toFixed(2)]);
-    var curWs=XLSX.utils.aoa_to_sheet(curData);curWs['!cols']=[{wch:22},{wch:22},{wch:16},{wch:16},{wch:10}];curWs['!merges']=[{s:{r:0,c:0},e:{r:0,c:4}},{s:{r:1,c:0},e:{r:1,c:4}}];XLSX.utils.book_append_sheet(wb,curWs,'Current Period');
-    var pr=rp(pv).slice().sort(function(a,b){return a.date.localeCompare(b.date)});var prevHrs=0;pr.forEach(function(r){if(r.hours!=null)prevHrs+=r.hours});
-    var prevData=[['CORRIDOR TOWING & TRANSPORTATION SERVICES'],['PAYROLL / HOURS REPORT'],[''],['Driver Name:',ttD.driverName],['Period:','Previous Period'],['Date Range:',fD(pv.s.getTime())+' - '+fD(pv.e.getTime())],['Total Hours:',prevHrs.toFixed(1)],['Days Worked:',pr.length],[''],['Driver','Date','Check In','Check Out','Hours']];
-    pr.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});var iT=r.checkIn?fT(r.checkIn.time):'N/A',oT=r.checkOut?fT(r.checkOut.time):'N/A',hr=r.hours!=null?r.hours.toFixed(2):'';prevData.push([ttD.driverName,ds,iT,oT,hr?parseFloat(hr):''])});
-    prevData.push(['','','','TOTAL:',prevHrs.toFixed(2)]);
-    var prevWs=XLSX.utils.aoa_to_sheet(prevData);prevWs['!cols']=[{wch:22},{wch:22},{wch:16},{wch:16},{wch:10}];prevWs['!merges']=[{s:{r:0,c:0},e:{r:0,c:4}},{s:{r:1,c:0},e:{r:1,c:4}}];XLSX.utils.book_append_sheet(wb,prevWs,'Previous Period');
-    var allRecs=ttD.records.slice().sort(function(a,b){return a.date.localeCompare(b.date)});var allHrs=0;allRecs.forEach(function(r){if(r.hours!=null)allHrs+=r.hours});
-    var allData=[['CORRIDOR TOWING & TRANSPORTATION SERVICES'],['COMPLETE WORK LOG'],[''],['Driver Name:',ttD.driverName],['Total Hours (All Time):',allHrs.toFixed(1)],['Total Days:',allRecs.length],[''],['Driver','Date','Check In','Check Out','Hours']];
-    allRecs.forEach(function(r){var d=pDK(r.date),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});var iT=r.checkIn?fT(r.checkIn.time):'N/A',oT=r.checkOut?fT(r.checkOut.time):'N/A',hr=r.hours!=null?r.hours.toFixed(2):'';allData.push([ttD.driverName,ds,iT,oT,hr?parseFloat(hr):''])});
-    allData.push(['','','','TOTAL:',allHrs.toFixed(2)]);
-    var allWs=XLSX.utils.aoa_to_sheet(allData);allWs['!cols']=[{wch:22},{wch:22},{wch:16},{wch:16},{wch:10}];allWs['!merges']=[{s:{r:0,c:0},e:{r:0,c:4}},{s:{r:1,c:0},e:{r:1,c:4}}];XLSX.utils.book_append_sheet(wb,allWs,'All Records');
-    var fname='TowTrack_Payroll_'+ttD.driverName.replace(/\s+/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.xlsx';XLSX.writeFile(wb,fname);tT('Excel file downloaded!','success')});
-
-document.getElementById('tt-btn-copy').addEventListener('click',function(){var cu=cp(),txt=rptT('Current Period',cu);navigator.clipboard.writeText(txt).then(function(){tT('Copied!','success')}).catch(function(){tT('Copy failed','error')})});
-
-function rS(){document.getElementById('tt-set-n').value=ttD.driverName}
-document.getElementById('tt-btn-ss').addEventListener('click',async function(){var n=document.getElementById('tt-set-n').value.trim();if(!n){tT('Name required','error');return}
-    var oldId=getDriverId(ttD.driverName);
-    var newId=getDriverId(n);
-    ttD.driverName=n;sv();tT('Name saved!','success');rD();
-    
-    if(oldId!==newId){
-        tT('Note: Records are tied to driver name','info');
+    function rp(period) {
+        var sk = dK(period.s.getTime()), ek = dK(period.e.getTime());
+        return ttD.records.filter(function(r) { return r.date >= sk && r.date <= ek; });
     }
-});
-document.getElementById('tt-nav').addEventListener('click',function(e){var it=e.target.closest('.tt-ni');if(!it)return;go(it.dataset.s)});
 
-ld();startClk();oDB().catch(function(){});
-if(ttD.driverName){document.getElementById('tt-nav').style.display='block';go('dash')}
+    // --- Screen navigation ---
+    function go(id) {
+        document.querySelectorAll('.tt-screen').forEach(function(s) { s.classList.remove('active'); });
+        var sc = document.getElementById('tt-scr-' + id);
+        if (sc) sc.classList.add('active');
+        document.querySelectorAll('.tt-ni').forEach(function(n) { n.classList.toggle('active', n.dataset.s === id); });
+        if (id === 'dash') rD();
+        else if (id === 'hist') rH();
+        else if (id === 'rpt') rR();
+        else if (id === 'set') rS();
+    }
+
+    // --- Render Dashboard ---
+    function rD() {
+        document.getElementById('tt-d-name').textContent = ttD.driverName;
+        // Find today's record
+        var tk = tK();
+        var today = null;
+        for (var i = ttD.records.length - 1; i >= 0; i--) {
+            if (ttD.records[i].date === tk) { today = ttD.records[i]; break; }
+        }
+        // Find open record
+        var open = null;
+        for (var j = ttD.records.length - 1; j >= 0; j--) {
+            if (ttD.records[j].checkIn && !ttD.records[j].checkOut) { open = ttD.records[j]; break; }
+        }
+
+        var dot = document.getElementById('tt-s-dot');
+        var lbl = document.getElementById('tt-s-lbl');
+        var det = document.getElementById('tt-s-det');
+        var btn = document.getElementById('tt-btn-act');
+        var btnT = document.getElementById('tt-btn-act-t');
+
+        if (open) {
+            dot.style.background = '#10b981';
+            lbl.textContent = 'Checked In';
+            lbl.style.color = '#10b981';
+            det.textContent = 'Since ' + fTs(open.checkIn.time);
+            btn.style.background = 'linear-gradient(135deg,#f59e0b,#ea580c)';
+            btn.className = '';
+            btnT.textContent = 'Check Out';
+            btn.querySelector('i').className = 'fas fa-camera';
+        } else {
+            dot.style.background = '#6b6b6b';
+            lbl.textContent = 'Checked Out';
+            lbl.style.color = '#f0f0f0';
+            det.textContent = today ? ('Last out: ' + fTs(today.checkOut ? today.checkOut.time : today.checkIn.time)) : 'Ready to start your shift';
+            btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+            btn.className = 'tt-pg';
+            btnT.textContent = 'Check In';
+            btn.querySelector('i').className = 'fas fa-camera';
+        }
+
+        // Today summary
+        if (today) {
+            document.getElementById('tt-t-in').textContent = today.checkIn ? fTs(today.checkIn.time) : '--:--';
+            document.getElementById('tt-t-out').textContent = (today.checkOut && today.checkOut.time) ? fTs(today.checkOut.time) : (open ? 'Active' : '--:--');
+            document.getElementById('tt-t-hrs').textContent = today.hours != null ? today.hours.toFixed(1) : (open ? '...' : '0.0');
+        } else {
+            document.getElementById('tt-t-in').textContent = '--:--';
+            document.getElementById('tt-t-out').textContent = '--:--';
+            document.getElementById('tt-t-hrs').textContent = '0.0';
+        }
+
+        // Photos
+        var phDiv = document.getElementById('tt-photos');
+        var phIn = document.getElementById('tt-ph-in');
+        var phOut = document.getElementById('tt-ph-out');
+        if (today) {
+            phDiv.style.display = 'block';
+            phIn.src = '';
+            phOut.src = '';
+            phIn.onclick = null;
+            phOut.onclick = null;
+            if (today.checkIn) {
+                gP(today.id + '_in').then(function(d) {
+                    if (d) { phIn.src = d; phIn.onclick = function() { vP(d); }; }
+                }).catch(function() {});
+            }
+            if (today.checkOut) {
+                gP(today.id + '_out').then(function(d) {
+                    if (d) { phOut.src = d; phOut.onclick = function() { vP(d); }; }
+                }).catch(function() {});
+            }
+        } else {
+            phDiv.style.display = 'none';
+        }
+    }
+
+    // --- Render History ---
+    var histPeriod = 'first';
+
+    function rH() {
+        document.getElementById('tt-hist-avatar').textContent = initials(ttD.driverName);
+        document.getElementById('tt-hist-dname').textContent = ttD.driverName;
+
+        // Period totals
+        var now = new Date();
+        var yr = now.getFullYear(), mo = now.getMonth();
+        var lastDay = new Date(yr, mo + 1, 0).getDate();
+        var firstS = dK(new Date(yr, mo, 1).getTime()), firstE = dK(new Date(yr, mo, 15, 23, 59, 59).getTime());
+        var secondS = dK(new Date(yr, mo, 16).getTime()), secondE = dK(new Date(yr, mo, lastDay, 23, 59, 59).getTime());
+
+        var firstRecs = ttD.records.filter(function(r) { return r.date >= firstS && r.date <= firstE; });
+        var secondRecs = ttD.records.filter(function(r) { return r.date >= secondS && r.date <= secondE; });
+        var firstHrs = 0, secondHrs = 0;
+        firstRecs.forEach(function(r) { if (r.hours != null) firstHrs += r.hours; });
+        secondRecs.forEach(function(r) { if (r.hours != null) secondHrs += r.hours; });
+
+        document.getElementById('tt-h-first').textContent = firstHrs.toFixed(1);
+        document.getElementById('tt-h-second').textContent = secondHrs.toFixed(1);
+
+        var filtered;
+        if (histPeriod === 'first') filtered = firstRecs;
+        else if (histPeriod === 'second') filtered = secondRecs;
+        else filtered = ttD.records;
+
+        var hrs = 0;
+        filtered.forEach(function(r) { if (r.hours != null) hrs += r.hours; });
+        document.getElementById('tt-h-hrs').textContent = hrs.toFixed(1);
+        document.getElementById('tt-h-days').textContent = filtered.length;
+
+        var sorted = filtered.slice().sort(function(a, b) { return b.date.localeCompare(a.date); });
+        var tb = '';
+        if (!sorted.length) {
+            tb = '<tr><td colspan="5" style="text-align:center;color:#6b6b6b;padding:40px 0">No records for this period</td></tr>';
+        } else {
+            sorted.forEach(function(r) {
+                var d = pDK(r.date);
+                var ds = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                var ws = d.toLocaleDateString('en-US', { weekday: 'short' });
+                var iT = (r.checkIn && r.checkIn.time) ? fTs(r.checkIn.time) : '--';
+                var oT = (r.checkOut && r.checkOut.time) ? fTs(r.checkOut.time) : '--';
+                var hr = r.hours != null ? r.hours.toFixed(1) : '<span style="color:#f59e0b;font-size:11px;font-weight:700">OPEN</span>';
+                tb += '<tr>' +
+                    '<td><span style="font-weight:600">' + ds + '</span><br><span style="font-size:10px;color:#6b6b6b">' + ws + '</span></td>' +
+                    '<td style="font-family:\'JetBrains Mono\',monospace;font-size:12px">' + iT + '</td>' +
+                    '<td style="font-family:\'JetBrains Mono\',monospace;font-size:12px">' + oT + '</td>' +
+                    '<td style="font-family:\'JetBrains Mono\',monospace;font-weight:700">' + hr + '</td>' +
+                    '<td id="phc-' + r.id + '"><span style="color:#262626;font-size:12px">—</span></td>' +
+                    '</tr>';
+            });
+        }
+        document.getElementById('tt-h-tb').innerHTML = tb;
+
+        // Load photo thumbnails
+        sorted.forEach(function(r) {
+            var cell = document.getElementById('phc-' + r.id);
+            if (!cell) return;
+            gP(r.id + '_in').then(function(d) {
+                if (d) {
+                    var img = document.createElement('img');
+                    img.src = d;
+                    img.className = 'tt-pth';
+                    img.title = 'Check-in photo';
+                    img.onclick = (function(src) { return function() { vP(src); }; })(d);
+                    cell.innerHTML = '';
+                    cell.appendChild(img);
+                }
+            }).catch(function() {});
+        });
+    }
+
+    // --- Render Reports ---
+    function rR() {
+        document.getElementById('tt-rpt-avatar').textContent = initials(ttD.driverName);
+        document.getElementById('tt-rpt-dname').textContent = ttD.driverName;
+
+        var cur = cp(), prev = pv();
+        document.getElementById('tt-rp-cur').textContent = fD(cur.s.getTime()) + ' — ' + fD(cur.e.getTime());
+        document.getElementById('tt-rp-prev').textContent = fD(prev.s.getTime()) + ' — ' + fD(prev.e.getTime());
+
+        var curRecs = rp(cur), prevRecs = rp(prev);
+        var ch = 0, ph = 0;
+        curRecs.forEach(function(r) { if (r.hours != null) ch += r.hours; });
+        prevRecs.forEach(function(r) { if (r.hours != null) ph += r.hours; });
+
+        document.getElementById('tt-rp-ch').textContent = ch.toFixed(1);
+        document.getElementById('tt-rp-cd').textContent = curRecs.length;
+        document.getElementById('tt-rp-ph').textContent = ph.toFixed(1);
+        document.getElementById('tt-rp-pd').textContent = prevRecs.length;
+
+        var sorted = curRecs.slice().sort(function(a, b) { return a.date.localeCompare(b.date); });
+        var tb = '';
+        if (!sorted.length) {
+            tb = '<tr><td colspan="4" style="text-align:center;color:#6b6b6b;padding:40px 0">No records this period</td></tr>';
+        } else {
+            sorted.forEach(function(r) {
+                var d = pDK(r.date);
+                var ds = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                var iT = (r.checkIn && r.checkIn.time) ? fTs(r.checkIn.time) : '--';
+                var oT = (r.checkOut && r.checkOut.time) ? fTs(r.checkOut.time) : '--';
+                var hr = r.hours != null ? r.hours.toFixed(1) : '<span style="color:#f59e0b;font-size:11px;font-weight:700">OPEN</span>';
+                tb += '<tr><td style="font-weight:600">' + ds + '</td><td style="font-family:\'JetBrains Mono\',monospace;font-size:12px">' + iT + '</td><td style="font-family:\'JetBrains Mono\',monospace;font-size:12px">' + oT + '</td><td style="font-family:\'JetBrains Mono\',monospace;font-weight:700">' + hr + '</td></tr>';
+            });
+            tb += '<tr class="tt-total-row"><td colspan="3" style="text-align:right">TOTAL:</td><td style="font-family:\'JetBrains Mono\',monospace;font-size:15px;font-weight:700;color:#f59e0b;padding:10px 12px">' + ch.toFixed(1) + '</td></tr>';
+        }
+        document.getElementById('tt-rp-tb').innerHTML = tb;
+    }
+
+    // --- Render Settings ---
+    function rS() {
+        document.getElementById('tt-set-n').value = ttD.driverName;
+    }
+
+    // --- Report text ---
+    function rptT(label, period) {
+        var recs = rp(period);
+        var hrs = 0;
+        recs.forEach(function(r) { if (r.hours != null) hrs += r.hours; });
+        var lines = ['CORRIDOR TOWING & TRANSPORTATION SERVICES', 'Driver: ' + ttD.driverName, 'Period: ' + label + ' (' + fD(period.s.getTime()) + ' — ' + fD(period.e.getTime()) + ')', 'Total Hours: ' + hrs.toFixed(1), 'Days Worked: ' + recs.length, ''];
+        var sorted = recs.slice().sort(function(a, b) { return a.date.localeCompare(b.date); });
+        sorted.forEach(function(r) {
+            var d = pDK(r.date);
+            var ds = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', weekday: 'short' });
+            var iT = (r.checkIn && r.checkIn.time) ? fT(r.checkIn.time) : 'N/A';
+            var oT = (r.checkOut && r.checkOut.time) ? fT(r.checkOut.time) : 'N/A';
+            var hr = r.hours != null ? r.hours.toFixed(2) + ' hrs' : 'OPEN';
+            lines.push(ds + '  In: ' + iT + '  Out: ' + oT + '  (' + hr + ')');
+        });
+        return lines.join('\n');
+    }
+
+    // --- Excel download ---
+    function downloadExcel() {
+        if (typeof XLSX === 'undefined') { alert('Excel library not loaded.'); return; }
+        var wb = XLSX.utils.book_new();
+        var cur = cp(), prev = pv();
+
+        function makeSheet(recs, label, period) {
+            var hrs = 0;
+            recs.forEach(function(r) { if (r.hours != null) hrs += r.hours; });
+            var data = [
+                ['CORRIDOR TOWING & TRANSPORTATION SERVICES'],
+                ['DRIVER PAYROLL REPORT — ' + label],
+                [''],
+                ['Driver:', ttD.driverName],
+                ['Period:', fD(period.s.getTime()) + ' — ' + fD(period.e.getTime())],
+                ['Total Hours:', parseFloat(hrs.toFixed(2))],
+                ['Days Worked:', recs.length],
+                [''],
+                ['Date', 'Day', 'Check In', 'Check Out', 'Hours']
+            ];
+            recs.slice().sort(function(a, b) { return a.date.localeCompare(b.date); }).forEach(function(r) {
+                var d = pDK(r.date);
+                data.push([
+                    d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                    d.toLocaleDateString('en-US', { weekday: 'short' }),
+                    (r.checkIn && r.checkIn.time) ? fT(r.checkIn.time) : 'N/A',
+                    (r.checkOut && r.checkOut.time) ? fT(r.checkOut.time) : 'N/A',
+                    r.hours != null ? parseFloat(r.hours.toFixed(2)) : ''
+                ]);
+            });
+            data.push(['', '', '', 'TOTAL:', parseFloat(hrs.toFixed(2))]);
+            var ws = XLSX.utils.aoa_to_sheet(data);
+            ws['!cols'] = [{wch:22},{wch:8},{wch:14},{wch:14},{wch:10}];
+            ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:4}},{s:{r:1,c:0},e:{r:1,c:4}}];
+            return ws;
+        }
+
+        XLSX.utils.book_append_sheet(wb, makeSheet(rp(cur), 'Current Period', cur), 'Current Period');
+        XLSX.utils.book_append_sheet(wb, makeSheet(rp(prev), 'Previous Period', prev), 'Previous Period');
+        var allWs = makeSheet(ttD.records, 'All Time', { s: new Date(2020,0,1), e: new Date() });
+        XLSX.utils.book_append_sheet(wb, allWs, 'All Records');
+
+        var fname = 'TowTrack_' + ttD.driverName.replace(/\s+/g, '_') + '_' + new Date().toISOString().slice(0, 10) + '.xlsx';
+        XLSX.writeFile(wb, fname);
+        tT('Excel downloaded!', 'success');
+    }
+
+    // --- Camera ---
+    function openCam(mode) {
+        ttCM = mode;
+        var te = document.getElementById('tt-cam-type');
+        te.textContent = mode === 'checkin' ? 'CHECK IN' : 'CHECK OUT';
+        te.style.color = mode === 'checkin' ? '#10b981' : '#f59e0b';
+        document.getElementById('tt-cam-dt').textContent = new Date().toLocaleString();
+        document.getElementById('tt-camov').classList.add('active');
+
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
+            .then(function(s) {
+                ttCS = s;
+                document.getElementById('tt-cam-vid').srcObject = s;
+            })
+            .catch(function(e) {
+                closeCam();
+                var m = 'Camera error.';
+                if (e.name === 'NotAllowedError') m = 'Camera permission denied. Allow camera in browser settings and try again.';
+                else if (e.name === 'NotFoundError') m = 'No camera found on this device.';
+                tT(m, 'error');
+            });
+    }
+
+    function closeCam() {
+        if (ttCS) { ttCS.getTracks().forEach(function(t) { t.stop(); }); ttCS = null; }
+        var vid = document.getElementById('tt-cam-vid');
+        if (vid) vid.srcObject = null;
+        document.getElementById('tt-camov').classList.remove('active');
+        ttCM = null;
+    }
+
+    function capPhoto() {
+        var mode = ttCM;
+        if (!mode) return;
+        var vid = document.getElementById('tt-cam-vid');
+        var cv = document.getElementById('tt-cam-cv');
+        var ctx = cv.getContext('2d');
+        var W = 480, H = 360;
+        cv.width = W; cv.height = H;
+
+        // Mirror the selfie
+        ctx.save();
+        ctx.translate(W, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(vid, 0, 0, W, H);
+        ctx.restore();
+
+        // Timestamp overlay
+        var now = new Date();
+        var label = mode === 'checkin' ? '✓ CHECK IN' : '✓ CHECK OUT';
+        var color = mode === 'checkin' ? '#10b981' : '#f59e0b';
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.fillRect(0, H - 40, W, 40);
+        ctx.font = 'bold 13px Arial';
+        ctx.fillStyle = color;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(label, 10, H - 20);
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'right';
+        ctx.fillText(ttD.driverName + '  •  ' +
+            now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + '  ' +
+            now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }), W - 10, H - 20);
+
+        // Flash
+        var fl = document.getElementById('tt-cam-fl');
+        fl.style.transition = 'none';
+        fl.style.opacity = '1';
+        requestAnimationFrame(function() {
+            fl.style.transition = 'opacity .4s';
+            fl.style.opacity = '0';
+        });
+
+        var pd = cv.toDataURL('image/jpeg', 0.55);
+        closeCam();
+        doAct(pd, mode);
+    }
+
+    function doAct(pd, mode) {
+        var tk = tK(), now = Date.now();
+
+        if (mode === 'checkin') {
+            // Check no open shift
+            for (var i = 0; i < ttD.records.length; i++) {
+                if (ttD.records[i].checkIn && !ttD.records[i].checkOut) {
+                    tT('Already checked in! Check out first.', 'warning');
+                    rD(); return;
+                }
+            }
+            var rid = uid();
+            var newRec = { id: rid, date: tk, checkIn: { time: now }, checkOut: null, hours: null };
+            ttD.records.push(newRec);
+            sv();
+            sP(rid + '_in', pd).catch(function() {});
+            sS();
+            tT('Checked in at ' + fTs(now), 'success');
+            rD();
+            firebaseSaveRecord(newRec).then(function(ok) { if (ok) tT('Saved to cloud ☁️', 'info'); });
+
+        } else { // checkout
+            var oR = null;
+            for (var j = ttD.records.length - 1; j >= 0; j--) {
+                if (ttD.records[j].checkIn && !ttD.records[j].checkOut) { oR = ttD.records[j]; break; }
+            }
+            if (!oR) { tT('No open check-in found!', 'error'); rD(); return; }
+            oR.checkOut = { time: now };
+            oR.hours = cH(oR.checkIn.time, now);
+            sv();
+            sP(oR.id + '_out', pd).catch(function() {});
+            sS();
+            tT('Checked out! ' + oR.hours.toFixed(1) + ' hours logged', 'success');
+            rD();
+            firebaseSaveRecord(oR).then(function(ok) { if (ok) tT('Saved to cloud ☁️', 'info'); });
+        }
+    }
+
+    // --- Clock ---
+    function startClk() {
+        function tick() {
+            var n = new Date();
+            var dateEl = document.getElementById('tt-d-date');
+            var timeEl = document.getElementById('tt-d-time');
+            if (dateEl) dateEl.textContent = n.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            if (timeEl) timeEl.textContent = n.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: false, hour12: true });
+            var camDt = document.getElementById('tt-cam-dt');
+            if (camDt && document.getElementById('tt-camov').classList.contains('active')) {
+                camDt.textContent = n.toLocaleString();
+            }
+        }
+        tick();
+        setInterval(tick, 30000);
+    }
+
+    // ---- Attach events ----
+    document.getElementById('tt-btn-setup').addEventListener('click', async function() {
+        var name = document.getElementById('tt-inp-name').value.trim();
+        if (!name) { tT('Please enter your name', 'warning'); return; }
+        ttD.driverName = name;
+        sv();
+
+        // Try to merge cloud records
+        var cloudRecs = await firebaseLoadRecords();
+        if (cloudRecs && cloudRecs.length) {
+            // Merge: add any cloud records not already locally present
+            var localIds = {};
+            ttD.records.forEach(function(r) { localIds[r.id] = true; });
+            cloudRecs.forEach(function(r) { if (!localIds[r.id]) ttD.records.push(r); });
+            sv();
+            tT('Loaded ' + cloudRecs.length + ' records from cloud', 'info');
+        }
+
+        document.getElementById('tt-nav').style.display = 'block';
+        go('dash');
+    });
+
+    document.getElementById('tt-btn-act').addEventListener('click', function() {
+        var open = null;
+        for (var i = ttD.records.length - 1; i >= 0; i--) {
+            if (ttD.records[i].checkIn && !ttD.records[i].checkOut) { open = ttD.records[i]; break; }
+        }
+        openCam(open ? 'checkout' : 'checkin');
+    });
+
+    document.getElementById('tt-btn-cap').addEventListener('click', capPhoto);
+
+    document.getElementById('tt-btn-cx').addEventListener('click', function() { closeCam(); });
+
+    document.getElementById('tt-pvw').addEventListener('click', function() { this.classList.remove('active'); });
+
+    document.getElementById('tt-spop').addEventListener('click', function() { this.classList.remove('active'); });
+
+    document.getElementById('tt-nav').addEventListener('click', function(e) {
+        var it = e.target.closest('.tt-ni');
+        if (!it) return;
+        go(it.dataset.s);
+    });
+
+    document.getElementById('tt-ptabs').addEventListener('click', function(e) {
+        var b = e.target.closest('.tt-pt');
+        if (!b) return;
+        histPeriod = b.dataset.p;
+        document.querySelectorAll('#tt-ptabs .tt-pt').forEach(function(t) { t.classList.remove('on'); });
+        b.classList.add('on');
+        rH();
+    });
+
+    document.getElementById('tt-btn-ss').addEventListener('click', function() {
+        var name = document.getElementById('tt-set-n').value.trim();
+        if (!name) { tT('Name cannot be empty', 'warning'); return; }
+        ttD.driverName = name;
+        sv();
+        tT('Name saved!', 'success');
+        rD();
+    });
+
+    document.getElementById('tt-btn-email').addEventListener('click', function() {
+        var cur = cp();
+        var txt = rptT('Current Period', cur);
+        var subj = 'TowTrack Report — ' + ttD.driverName + ' — ' + fD(cur.s.getTime()) + ' to ' + fD(cur.e.getTime());
+        window.location.href = 'mailto:' + COMPANY_EMAIL + '?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(txt);
+    });
+
+    document.getElementById('tt-btn-excel').addEventListener('click', downloadExcel);
+
+    document.getElementById('tt-btn-copy').addEventListener('click', function() {
+        var cur = cp();
+        var txt = rptT('Current Period', cur);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(txt).then(function() { tT('Report copied!', 'success'); }).catch(function() {
+                fallbackCopy(txt);
+            });
+        } else {
+            fallbackCopy(txt);
+        }
+    });
+
+    function fallbackCopy(txt) {
+        var ta = document.createElement('textarea');
+        ta.value = txt;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        tT('Report copied!', 'success');
+    }
+
+    // ---- Init ----
+    odb_init();
+    ld();
+    startClk();
+
+    function odb_init() { oDB().catch(function() {}); }
+
+    if (ttD.driverName) {
+        document.getElementById('tt-nav').style.display = 'block';
+        go('dash');
+    }
 }
 </script>
+
 </body>
 </html>
