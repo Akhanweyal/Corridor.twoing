@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Corridor Towing & Transportation Services</title>
+<title>Corridor Towing</title>
 <link rel="icon" href="images/logo.jpeg" type="image/png">
 <link rel="shortcut icon" href="images/logo.jpeg" type="image/png">
 <link rel="apple-touch-icon" href="images/logo.jpeg">
@@ -185,7 +185,7 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
   <div class="container header-inner">
     <div class="logo-container">
       <div class="logo"><img src="images/logo.jpeg" alt="Corridor Towing Logo"></div>
-      <div class="company-name">Corridor Towing & Transportation</div>
+      <div class="company-name">Corridor Towing</div>
     </div>
     <div class="header-actions">
       <button class="manager-portal-btn" onclick="openDP('mgr')"><i class="fas fa-user-shield"></i><span>Manager</span></button>
@@ -821,7 +821,7 @@ function downloadMgrExcel(){
   var wb=XLSX.utils.book_new(),cur=mgr_cp(),pv=mgr_ppv();
   function makeSheet(records,label,period){
     var totalMs=0;records.forEach(function(r){var ms=getMs(r);if(ms!=null)totalMs+=ms;});
-    var data=[['CORRIDOR TOWING & TRANSPORTATION SERVICES'],['MANAGER REPORT — '+label],[''],['Period:',period?(mgr_fD(period.s.getTime())+' — '+mgr_fD(period.e.getTime())):'All Time'],['Total Time:',msToHM(totalMs)],['Total Hours (decimal):',msToHrsDecimal(totalMs)],['Total Shifts:',records.length],[''],['Driver','Date','Day','Check In','Check Out','Duration','Hours (decimal)','Has Photo']];
+    var data=[['CORRIDOR TOWING'],['MANAGER REPORT — '+label],[''],['Period:',period?(mgr_fD(period.s.getTime())+' — '+mgr_fD(period.e.getTime())):'All Time'],['Total Time:',msToHM(totalMs)],['Total Hours (decimal):',msToHrsDecimal(totalMs)],['Total Shifts:',records.length],[''],['Driver','Date','Day','Check In','Check Out','Duration','Hours (decimal)','Has Photo']];
     records.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).forEach(function(r){
       var dp=r.date.split('-');var d=new Date(+dp[0],+dp[1]-1,+dp[2]);
       var ms=getMs(r);
@@ -1031,7 +1031,7 @@ function initTT(){
   function rS(){document.getElementById('tt-set-n').value=ttD.driverName;}
 
   // Report text
-  function rptT(label,period){var recs=rp(period);var totMs=0;recs.forEach(function(r){var ms=getMs(r);if(ms!=null)totMs+=ms;});var lines=['CORRIDOR TOWING & TRANSPORTATION SERVICES','Driver: '+ttD.driverName,'Period: '+label+' ('+fD(period.s.getTime())+' — '+fD(period.e.getTime())+')','Total Time: '+msToHM(totMs)+' ('+msToHrsDecimal(totMs)+' hrs decimal)','Days Worked: '+recs.length,''];recs.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).forEach(function(r){var d=pDK(r.date);var ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',weekday:'short'});var iT=(r.checkIn&&r.checkIn.time)?fT(r.checkIn.time):'N/A';var oT=(r.checkOut&&r.checkOut.time)?fT(r.checkOut.time):'N/A';var ms=getMs(r);var hr=ms!=null?msToHM(ms)+' ('+msToHrsDecimal(ms)+' hrs)':'OPEN';lines.push(ds+'  In: '+iT+'  Out: '+oT+'  '+hr);});return lines.join('\n');}
+  function rptT(label,period){var recs=rp(period);var totMs=0;recs.forEach(function(r){var ms=getMs(r);if(ms!=null)totMs+=ms;});var lines=['CORRIDOR TOWING','Driver: '+ttD.driverName,'Period: '+label+' ('+fD(period.s.getTime())+' — '+fD(period.e.getTime())+')','Total Time: '+msToHM(totMs)+' ('+msToHrsDecimal(totMs)+' hrs decimal)','Days Worked: '+recs.length,''];recs.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).forEach(function(r){var d=pDK(r.date);var ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',weekday:'short'});var iT=(r.checkIn&&r.checkIn.time)?fT(r.checkIn.time):'N/A';var oT=(r.checkOut&&r.checkOut.time)?fT(r.checkOut.time):'N/A';var ms=getMs(r);var hr=ms!=null?msToHM(ms)+' ('+msToHrsDecimal(ms)+' hrs)':'OPEN';lines.push(ds+'  In: '+iT+'  Out: '+oT+'  '+hr);});return lines.join('\n');}
 
   // Excel download
   function downloadExcel(){
@@ -1039,7 +1039,7 @@ function initTT(){
     var wb=XLSX.utils.book_new(),cur=cp(),prev=pv();
     function makeSheet(recs,label,period){
       var totMs=0;recs.forEach(function(r){var ms=getMs(r);if(ms!=null)totMs+=ms;});
-      var data=[['CORRIDOR TOWING & TRANSPORTATION SERVICES'],['DRIVER PAYROLL REPORT — '+label],[''],['Driver:',ttD.driverName],['Period:',fD(period.s.getTime())+' — '+fD(period.e.getTime())],['Total Time:',msToHM(totMs)],['Total Hours (decimal):',msToHrsDecimal(totMs)],['Days Worked:',recs.length],[''],['Date','Day','Check In','Check Out','Duration','Hours (decimal)']];
+      var data=[['CORRIDOR TOWING'],['DRIVER PAYROLL REPORT — '+label],[''],['Driver:',ttD.driverName],['Period:',fD(period.s.getTime())+' — '+fD(period.e.getTime())],['Total Time:',msToHM(totMs)],['Total Hours (decimal):',msToHrsDecimal(totMs)],['Days Worked:',recs.length],[''],['Date','Day','Check In','Check Out','Duration','Hours (decimal)']];
       recs.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).forEach(function(r){var d=pDK(r.date);var ms=getMs(r);data.push([d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),d.toLocaleDateString('en-US',{weekday:'short'}),(r.checkIn&&r.checkIn.time)?fT(r.checkIn.time):'N/A',(r.checkOut&&r.checkOut.time)?fT(r.checkOut.time):'N/A',ms!=null?msToHM(ms):'OPEN',ms!=null?msToHrsDecimal(ms):'']);});
       data.push(['','','','TOTAL:',msToHM(totMs),msToHrsDecimal(totMs)]);
       var ws=XLSX.utils.aoa_to_sheet(data);ws['!cols']=[{wch:22},{wch:8},{wch:14},{wch:14},{wch:12},{wch:14}];ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:5}},{s:{r:1,c:0},e:{r:1,c:5}}];return ws;
