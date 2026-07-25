@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feedback | Corridor Towing</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Outfit',sans-serif;background:#0a0a0a;color:#f0f0f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .card{background:#141414;border:1px solid #262626;border-radius:18px;padding:28px;width:100%;max-width:420px}
+  h1{font-size:22px;font-weight:900;margin-bottom:6px}
+  p.sub{font-size:14px;color:#6b6b6b;margin-bottom:20px}
+  label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin-bottom:8px}
+  select,textarea{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid #262626;background:#1a1a1a;color:#f0f0f0;font-family:inherit;font-size:15px;margin-bottom:16px;outline:none}
+  select:focus,textarea:focus{border-color:#f59e0b}
+  textarea{min-height:100px;resize:vertical}
+  button{width:100%;padding:16px;border:none;border-radius:14px;font-weight:900;font-size:16px;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#ea580c);color:#000;font-family:inherit}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .ok{text-align:center;padding:20px 0}
+  .ok h2{color:#10b981;margin-bottom:8px}
+  .err{color:#ef4444;font-size:13px;margin-bottom:12px;display:none}
+</style>
+</head>
+<body>
+<div class="card" id="box">
+  <h1>How was your experience?</h1>
+  <p class="sub">Corridor Towing · Thank you for choosing us</p>
+  <p class="err" id="err"></p>
+  <form id="fb">
+    <label>Rating</label>
+    <select name="rating" required>
+      <option value="">Select rating</option>
+      <option value="5">5 — Excellent</option>
+      <option value="4">4 — Good</option>
+      <option value="3">3 — Okay</option>
+      <option value="2">2 — Fair</option>
+      <option value="1">1 — Poor</option>
+    </select>
+    <label>Comments (optional)</label>
+    <textarea name="comment" placeholder="Anything we should know?"></textarea>
+    <button type="submit" id="btn">Submit Feedback</button>
+  </form>
+</div>
+<script>
+(function(){
+  var token=new URLSearchParams(location.search).get('token');
+  var FIREBASE_URL='https://corridortowing-default-rtdb.firebaseio.com';
+  var err=document.getElementById('err');
+  if(!token){err.style.display='block';err.textContent='Invalid or missing feedback link.';document.getElementById('fb').style.display='none';return;}
+
+  document.getElementById('fb').addEventListener('submit',async function(e){
+    e.preventDefault();
+    var btn=document.getElementById('btn');
+    btn.disabled=true;btn.textContent='Submitting…';
+    var rating=e.target.rating.value;
+    var comment=(e.target.comment.value||'').slice(0,1000);
+    try{
+      // Find job by feedbackToken
+      var res=await fetch(FIREBASE_URL+'/jobs.json');
+      var data=await res.json();
+      var jobId=null,job=null;
+      if(data){for(var id in data){if(data[id]&&data[id].feedbackToken===token){jobId=id;job=data[id];break;}}}
+      if(!jobId)throw new Error('Link invalid or expired.');
+      if(job.feedbackSubmitted)throw new Error('Feedback already submitted. Thank you!');
+      await fetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        feedbackSubmitted:true,
+        feedbackRating:Number(rating),
+        feedbackComment:comment,
+        feedbackAt:Date.now()
+      })});
+      document.getElementById('box').innerHTML='<div class="ok"><h2>✓ Thank you!</h2><p class="sub">Your feedback helps us improve.</p></div>';
+    }catch(ex){
+      err.style.display='block';err.textContent=ex.message||'Could not submit.';
+      btn.disabled=false;btn.textContent='Submit Feedback';
+    }
+  });
+})();
+</script>
+</body>
+</html>
