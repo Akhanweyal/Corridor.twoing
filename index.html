@@ -1787,11 +1787,20 @@ function initTT(){
         var destMap=destOk?(typeof mapsSearchLink==='function'?mapsSearchLink(j.destinationAddress):('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(j.destinationAddress))):'';
         var navPu=typeof mapsLink==='function'?mapsLink(j.pickupAddress):puMap;
         var navDest=destMap?(typeof mapsLink==='function'?mapsLink(j.destinationAddress):destMap):'';
-        html+='<div class="tt-card" style="border-left:3px solid '+color+';padding:14px">';
+        var complete=isJobComplete(j.status);
+        html+='<div class="tt-card" style="border-left:3px solid '+(complete?'#10b981':color)+';padding:14px">';
         html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px">';
         html+='<div><p style="font-weight:800;font-size:17px;margin:0">'+(j.customerName||'Customer')+'</p>';
         html+='<p style="font-size:11px;color:#6b6b6b;margin:2px 0 0">'+(isTow?'Towing':'Roadside')+'</p></div>';
-        html+='<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;color:'+color+';border:1px solid '+color+'">'+jobStatusLabel(j.status)+'</span></div>';
+        html+='<div style="text-align:right;flex-shrink:0">';
+        if(complete){
+          html+='<span style="display:inline-block;font-size:10px;font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(16,185,129,.15);color:#10b981;border:1px solid #10b981">COMPLETE</span>';
+          html+='<p style="font-size:10px;color:#6b6b6b;margin:4px 0 0">'+jobStatusLabel(j.status)+'</p>';
+        }else{
+          html+='<span style="display:inline-block;font-size:10px;font-weight:800;padding:4px 10px;border-radius:20px;color:'+color+';border:1px solid '+color+'">'+jobStatusLabel(j.status)+'</span>';
+          html+='<p style="font-size:10px;color:#f59e0b;margin:4px 0 0">Not complete</p>';
+        }
+        html+='</div></div>';
 
         html+='<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;font-size:13px">';
         html+='<p style="color:#aaa;margin:0"><i class="fas fa-phone" style="width:16px;color:#60a5fa"></i> <a href="tel:'+(j.customerPhone||'')+'" style="color:#60a5fa;font-weight:600">'+(j.customerPhone||'—')+'</a></p>';
@@ -1816,7 +1825,12 @@ function initTT(){
         }
 
         if(drvJobFilter==='history'){
-          html+='<p style="font-size:11px;color:#6b6b6b;margin-top:8px">Completed · no further actions</p>';
+          var when=j.droppedOffAt||j.updatedAt||j.assignedAt;
+          var whenStr=when?new Date(when).toLocaleString():'';
+          html+='<div style="margin-top:10px;padding:10px 12px;border-radius:10px;background:'+(complete?'rgba(16,185,129,.08)':'rgba(245,158,11,.08)')+';border:1px solid '+(complete?'rgba(16,185,129,.25)':'rgba(245,158,11,.25)')+'">';
+          html+='<p style="font-size:13px;font-weight:700;margin:0;color:'+(complete?'#10b981':'#f59e0b')+'">'+(complete?'✓ Job complete':'○ Job not complete')+'</p>';
+          html+='<p style="font-size:11px;color:#6b6b6b;margin:4px 0 0">Status: '+jobStatusLabel(j.status)+(whenStr?' · '+whenStr:'')+'</p>';
+          html+='</div>';
         }else{
           html+='<div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">';
           if(j.status==='assigned')html+='<button onclick="driverUpdateStatus(\''+j.id+'\',\'enroute\')" style="padding:14px;border:none;border-radius:12px;font-weight:800;font-size:15px;background:#a78bfa;color:#000;cursor:pointer;font-family:\'Outfit\',sans-serif">En Route</button>';
