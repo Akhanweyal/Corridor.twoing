@@ -442,6 +442,17 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
       </div>
     </div>
   </div>
+
+  <!-- Active jobs on Home so drivers always see them -->
+  <div id="tt-dash-jobs" class="tt-card" style="margin-top:16px;margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#6b6b6b;margin:0"><i class="fas fa-truck" style="color:#f59e0b;margin-right:6px"></i>My Active Jobs</p>
+      <button type="button" id="tt-btn-open-jobs" style="background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.35);color:#f59e0b;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">Open Jobs →</button>
+    </div>
+    <div id="tt-dash-jobs-list">
+      <p style="font-size:13px;color:#6b6b6b;margin:0">Loading jobs…</p>
+    </div>
+  </div>
 </div>
 </div>
 
@@ -823,7 +834,7 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
 <nav id="tt-nav" class="tt-bnav" style="display:none">
   <div style="display:flex;align-items:center;justify-content:space-around;max-width:480px;margin:0 auto">
     <button class="tt-ni active" data-s="dash"><i class="fas fa-house"></i><span>Home</span></button>
-    <button class="tt-ni" data-s="jobs"><i class="fas fa-truck"></i><span>Jobs</span></button>
+    <button class="tt-ni" data-s="jobs" style="position:relative"><i class="fas fa-truck"></i><span>Jobs</span><span id="tt-jobs-badge" style="display:none;position:absolute;top:2px;right:8px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#f59e0b;color:#000;font-size:10px;font-weight:900;line-height:16px;text-align:center">0</span></button>
     <button class="tt-ni" data-s="hist"><i class="fas fa-clock-rotate-left"></i><span>History</span></button>
     <button class="tt-ni" data-s="rpt"><i class="fas fa-file-lines"></i><span>Reports</span></button>
     <button class="tt-ni" data-s="set"><i class="fas fa-gear"></i><span>Settings</span></button>
@@ -1259,24 +1270,113 @@ function openAssignModal(jobId){
   document.getElementById('mgr-assign-modal').classList.add('active');
 }
 
-function notifyDriverChannels(job,driver){
+var FORMSPREE_URL='https://formspree.io/f/xdkyonjb';
+function mapsLink(addr){
+  if(!addr||addr==='N/A')return '';
+  return 'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(addr);
+}
+function mapsSearchLink(addr){
+  if(!addr||addr==='N/A')return '';
+  return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(addr);
+}
+
+/** Send notification via Formspree (same form as website requests). Uses _cc so driver/customer get a copy when enabled on your Formspree plan. */
+function formspreeNotify(payload){
+  return fetch(FORMSPREE_URL,{
+    method:'POST',
+    headers:{'Accept':'application/json','Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).then(function(res){
+    if(!res.ok)return res.json().then(function(d){throw new Error((d&&d.error)||('HTTP '+res.status));});
+    return res.json().catch(function(){return {};});
+  }).catch(function(err){console.warn('Formspree notify:',err);return null;});
+}
+
+function notifyDriverChannels(job,driver,action){
+  action=action||'assigned';
   var detail=buildJobDetailText(job);
-  var hint=buildCustomerStatusHint(job);
-  // 1) Email driver if email on file
-  if(driver.email){
-    var subj='New Job Assigned — Corridor Towing — '+(job.customerName||'');
-    var body=detail+'\n\n'+hint+'\n\n— Corridor Towing Dispatch';
-    window.open('mailto:'+encodeURIComponent(driver.email)+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body),'_blank');
+  var pickupMap=mapsLink(job.pickupAddress);
+  var destMap=job.destinationAddress&&job.destinationAddress!=='N/A'?mapsLink(job.destinationAddress):'';
+  var subj=(action==='unassigned'
+    ?('Job REMOVED — '+(job.customerName||'')+' — Corridor Towing')
+    :('New Job ASSIGNED — '+(job.customerName||'')+' — Corridor Towing'));
+  var msg=(action==='unassigned'
+    ?('You have been UNASSIGNED from this job.\n\n')
+    :('You have been ASSIGNED a new job.\n\n'))+
+    detail+'\n\n'+
+    'Pickup Maps: '+(pickupMap||'N/A')+'\n'+
+    'Destination Maps: '+(destMap||'N/A')+'\n\n'+
+    'Open Driver Portal → Jobs to update status.\n'+
+    'https://corridortowing.org/#driverPortal\n\n'+
+    buildCustomerStatusHint(job);
+
+  // Automatic email via Formspree (company inbox + CC driver when supported)
+  var fsBody={
+    _subject:subj,
+    message:msg,
+    notification_type:action==='unassigned'?'driver_unassigned':'driver_assigned',
+    driver_name:driver.name||'',
+    driver_phone:driver.phone||'',
+    driver_email:driver.email||'',
+    customer_name:job.customerName||'',
+    customer_phone:job.customerPhone||'',
+    customer_email:job.customerEmail||'',
+    pickup:job.pickupAddress||'',
+    destination:job.destinationAddress||'',
+    service:job.service||'',
+    vehicle:job.vehicle||'',
+    amount:job.amount!=null?String(job.amount):'',
+    email:driver.email||'corridor.towing.services@gmail.com',
+    _replyto:driver.email||'corridor.towing.services@gmail.com'
+  };
+  if(driver.email)fsBody._cc=driver.email;
+  formspreeNotify(fsBody);
+
+  // Manual SMS popup to driver (until Twilio)
+  if(driver.phone){
+    setTimeout(function(){
+      var smsBody=(action==='unassigned'?'JOB REMOVED\n\n':'NEW JOB\n\n')+detail+
+        '\nPickup map: '+(pickupMap||'')+
+        '\nCustomer phone: '+(job.customerPhone||'');
+      window.location.href='sms:'+String(driver.phone).replace(/\s/g,'')+'?&body='+encodeURIComponent(smsBody);
+    },400);
   }
-  // 2) SMS to driver with full job details (manager sends manually)
-  setTimeout(function(){
-    if(driver.phone){
-      var smsBody=detail+'\n\nCustomer for status texts: '+(job.customerPhone||'N/A');
-      // iOS uses &body=, Android often uses ?body=
-      var smsUrl='sms:'+String(driver.phone).replace(/\s/g,'')+'?&body='+encodeURIComponent(smsBody);
-      window.location.href=smsUrl;
-    }
-  },driver.email?600:0);
+}
+
+function notifyCustomerStatusEmail(job,status,extra){
+  var labels={enroute:'Driver En Route',picked_up:'Vehicle Picked Up',dropped_off:'Vehicle Dropped Off'};
+  var label=labels[status]||status;
+  var body='Corridor Towing status update\n\n'+
+    'Hello '+(job.customerName||'')+',\n\n'+
+    'Status: '+label+'\n'+
+    'Service: '+(job.service||'')+'\n'+
+    'Vehicle: '+(job.vehicle||'')+'\n'+
+    'Pickup: '+(job.pickupAddress||'')+'\n'+
+    'Destination: '+(job.destinationAddress||'N/A')+'\n';
+  if(status==='dropped_off'){
+    body+='\nThank you for choosing Corridor Towing!\n';
+    if(job.feedbackToken)body+='Please leave feedback: https://corridortowing.org/feedback.html?token='+job.feedbackToken+'\n';
+    if(extra&&extra.lat!=null)body+='Drop-off location: https://www.google.com/maps?q='+extra.lat+','+extra.lng+'\n';
+  }else if(status==='enroute'){
+    body+='\nA driver is on the way to your location.\n';
+  }else if(status==='picked_up'){
+    body+='\nYour vehicle has been picked up. We will update you when it is dropped off.\n';
+  }
+  body+='\nQuestions? Call (804) 292-8414\n— Corridor Towing';
+
+  var fsBody={
+    _subject:'Corridor Towing — '+label+' — '+(job.customerName||''),
+    message:body,
+    notification_type:'customer_status_'+status,
+    customer_name:job.customerName||'',
+    customer_phone:job.customerPhone||'',
+    customer_email:job.customerEmail||'',
+    status:status,
+    email:job.customerEmail||'corridor.towing.services@gmail.com',
+    _replyto:job.customerEmail||'corridor.towing.services@gmail.com'
+  };
+  if(job.customerEmail)fsBody._cc=job.customerEmail;
+  return formspreeNotify(fsBody);
 }
 
 async function assignJobToDriver(jobId,driverId){
@@ -1288,32 +1388,35 @@ async function assignJobToDriver(jobId,driverId){
       status:'assigned',
       assignedDriverId:driverId,
       assignedDriverName:driver.name,
+      assignedDriverEmail:driver.email||null,
+      assignedDriverPhone:driver.phone||null,
       assignedAt:Date.now(),
       updatedAt:Date.now()
     })});
     document.getElementById('mgr-assign-modal').classList.remove('active');
-    job.customerName=job.customerName||'';
-    job.customerPhone=job.customerPhone||'';
-    job.service=job.service||'';
-    job.vehicle=job.vehicle||'';
-    job.pickupAddress=job.pickupAddress||'';
-    job.destinationAddress=job.destinationAddress||'N/A';
-    job.amount=job.amount;
-    notifyDriverChannels(job,driver);
+    job.assignedDriverName=driver.name;
+    notifyDriverChannels(job,driver,'assigned');
     await loadMgrJobs();
   }catch(e){alert('Assign failed: '+e.message);}
 }
 
 async function unassignJob(jobId){
   if(!confirm('Remove this job from the current driver and return it to Pending?'))return;
+  var job=mgrJobs.find(function(j){return j.id===jobId;})||{};
+  var driver=mgrDrivers.find(function(d){return d.id===job.assignedDriverId;})||
+    mgrDrivers.find(function(d){return d.name===job.assignedDriverName;})||
+    {name:job.assignedDriverName||'Driver',phone:job.assignedDriverPhone||'',email:job.assignedDriverEmail||''};
   try{
     await fetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       status:'pending',
       assignedDriverId:null,
       assignedDriverName:null,
+      assignedDriverEmail:null,
+      assignedDriverPhone:null,
       assignedAt:null,
       updatedAt:Date.now()
     })});
+    if(driver&&(driver.email||driver.phone))notifyDriverChannels(job,driver,'unassigned');
     await loadMgrJobs();
   }catch(e){alert('Unassign failed: '+e.message);}
 }
@@ -1322,12 +1425,10 @@ async function resendJobNotify(jobId){
   var job=mgrJobs.find(function(j){return j.id===jobId;});
   if(!job||!job.assignedDriverId){alert('No driver assigned');return;}
   var driver=mgrDrivers.find(function(d){return d.id===job.assignedDriverId;});
-  if(!driver){
-    // fallback: match by name
-    driver=mgrDrivers.find(function(d){return d.name===job.assignedDriverName;});
-  }
-  if(!driver){alert('Driver record not found. Reassign to refresh contact info.');return;}
-  notifyDriverChannels(job,driver);
+  if(!driver)driver=mgrDrivers.find(function(d){return d.name===job.assignedDriverName;});
+  if(!driver)driver={name:job.assignedDriverName||'',phone:job.assignedDriverPhone||'',email:job.assignedDriverEmail||''};
+  if(!driver.phone&&!driver.email){alert('Driver contact not found. Reassign to refresh.');return;}
+  notifyDriverChannels(job,driver,'assigned');
 }
 
 async function addMgrDriver(){
@@ -1514,6 +1615,41 @@ function initTT(){
   // Screen nav
   function go(id){document.querySelectorAll('.tt-screen').forEach(function(s){s.classList.remove('active');});var sc=document.getElementById('tt-scr-'+id);if(sc)sc.classList.add('active');document.querySelectorAll('.tt-ni').forEach(function(n){n.classList.toggle('active',n.dataset.s===id);});if(id==='dash')rD();else if(id==='hist')rH();else if(id==='rpt')rR();else if(id==='set')rS();else if(id==='jobs')loadDriverJobs();}
 
+  async function loadDashJobsPreview(){
+    var box=document.getElementById('tt-dash-jobs-list');
+    var badge=document.getElementById('tt-jobs-badge');
+    if(!box)return;
+    try{
+      var res=await fetch(FIREBASE_URL+'/jobs.json');
+      var data=await res.json();
+      var mine=[];
+      var myName=(ttD.driverName||'').trim().toLowerCase();
+      if(data){for(var id in data){var j=data[id];if(!j)continue;j.id=id;
+        if((j.assignedDriverName||'').trim().toLowerCase()===myName&&j.status!=='dropped_off'&&j.status!=='cancelled')mine.push(j);
+      }}
+      mine.sort(function(a,b){return(b.assignedAt||b.createdAt||0)-(a.assignedAt||a.createdAt||0);});
+      if(badge){if(mine.length){badge.style.display='inline-block';badge.textContent=String(mine.length);}else{badge.style.display='none';}}
+      if(!mine.length){
+        box.innerHTML='<p style="font-size:13px;color:#6b6b6b;margin:0">No jobs assigned right now. When a manager assigns you a job, it will show here and under the <strong style="color:#f59e0b">Jobs</strong> tab below.</p>';
+        return;
+      }
+      var html='';
+      mine.forEach(function(j){
+        var color=({assigned:'#60a5fa',enroute:'#a78bfa',picked_up:'#10b981'})[j.status]||'#f59e0b';
+        html+='<div style="background:#1a1a1a;border:1px solid #262626;border-left:3px solid '+color+';border-radius:10px;padding:12px;margin-bottom:8px">';
+        html+='<div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:4px"><p style="font-weight:700;font-size:14px;margin:0">'+(j.customerName||'Customer')+'</p>';
+        html+='<span style="font-size:9px;font-weight:700;color:'+color+'">'+(j.status||'').replace('_',' ')+'</span></div>';
+        html+='<p style="font-size:12px;color:#aaa;margin:0 0 4px">'+(j.service||'')+' · <a href="tel:'+(j.customerPhone||'')+'" style="color:#60a5fa">'+(j.customerPhone||'')+'</a></p>';
+        html+='<p style="font-size:11px;color:#6b6b6b;margin:0 0 8px;line-height:1.35">'+(j.pickupAddress||'')+'</p>';
+        html+='<button type="button" onclick="document.querySelector(\'.tt-ni[data-s=jobs]\').click()" style="width:100%;padding:10px;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#ea580c);color:#000;font-family:\'Outfit\',sans-serif">View details &amp; update status</button>';
+        html+='</div>';
+      });
+      box.innerHTML=html;
+    }catch(e){
+      box.innerHTML='<p style="font-size:13px;color:#ef4444;margin:0">Could not load jobs. Check connection.</p>';
+    }
+  }
+
   async function loadDriverJobs(){
     var list=document.getElementById('drv-jobs-list');if(!list)return;
     list.innerHTML='<div style="text-align:center;color:#6b6b6b;padding:24px 0;font-size:13px"><i class="fas fa-spinner fa-spin"></i> Loading…</div>';
@@ -1531,16 +1667,43 @@ function initTT(){
       var html='';
       mine.forEach(function(j){
         var color=({pending:'#f59e0b',assigned:'#60a5fa',enroute:'#a78bfa',picked_up:'#10b981'})[j.status]||'#6b6b6b';
-        html+='<div class="tt-card" style="border-left:3px solid '+color+'">';
-        html+='<p style="font-weight:700;font-size:16px;margin-bottom:4px">'+(j.customerName||'')+'</p>';
-        html+='<p style="font-size:13px;color:#aaa;margin-bottom:2px"><i class="fas fa-phone" style="margin-right:4px"></i><a href="tel:'+(j.customerPhone||'')+'" style="color:#60a5fa">'+(j.customerPhone||'')+'</a></p>';
-        html+='<p style="font-size:13px;color:#aaa;margin-bottom:2px"><i class="fas fa-map-marker-alt" style="color:#f59e0b;margin-right:4px"></i>'+(j.pickupAddress||'')+'</p>';
-        if(j.destinationAddress&&j.destinationAddress!=='N/A')html+='<p style="font-size:13px;color:#aaa;margin-bottom:2px"><i class="fas fa-flag-checkered" style="color:#10b981;margin-right:4px"></i>'+j.destinationAddress+'</p>';
-        html+='<p style="font-size:12px;color:#6b6b6b;margin:8px 0">'+(j.service||'')+' · '+(j.vehicle||'')+' · Status: <span style="color:'+color+';font-weight:700">'+(j.status||'')+'</span></p>';
-        html+='<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">';
-        if(j.status==='assigned')html+='<button onclick="driverUpdateStatus(\''+j.id+'\',\'enroute\')" style="padding:12px;border:none;border-radius:12px;font-weight:700;background:#a78bfa;color:#000;cursor:pointer;font-family:\'Outfit\',sans-serif">Mark En Route</button>';
-        if(j.status==='assigned'||j.status==='enroute')html+='<button onclick="driverUpdateStatus(\''+j.id+'\',\'picked_up\')" style="padding:12px;border:none;border-radius:12px;font-weight:700;background:#10b981;color:#fff;cursor:pointer;font-family:\'Outfit\',sans-serif">Vehicle Picked Up</button>';
-        if(j.status==='picked_up'||j.status==='enroute'||j.status==='assigned')html+='<button onclick="driverUpdateStatus(\''+j.id+'\',\'dropped_off\')" style="padding:12px;border:none;border-radius:12px;font-weight:700;background:#f59e0b;color:#000;cursor:pointer;font-family:\'Outfit\',sans-serif">Vehicle Dropped Off</button>';
+        var puMap=typeof mapsSearchLink==='function'?mapsSearchLink(j.pickupAddress):('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(j.pickupAddress||''));
+        var destMap=(j.destinationAddress&&j.destinationAddress!=='N/A')?(typeof mapsSearchLink==='function'?mapsSearchLink(j.destinationAddress):('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(j.destinationAddress))):'';
+        var navPu=typeof mapsLink==='function'?mapsLink(j.pickupAddress):puMap;
+        var navDest=destMap?(typeof mapsLink==='function'?mapsLink(j.destinationAddress):destMap):'';
+        html+='<div class="tt-card" style="border-left:3px solid '+color+';padding:14px">';
+        html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px">';
+        html+='<p style="font-weight:800;font-size:17px;margin:0">'+(j.customerName||'Customer')+'</p>';
+        html+='<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;color:'+color+';border:1px solid '+color+'">'+(j.status||'').replace('_',' ').toUpperCase()+'</span></div>';
+
+        html+='<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;font-size:13px">';
+        html+='<p style="color:#aaa;margin:0"><i class="fas fa-phone" style="width:16px;color:#60a5fa"></i> <a href="tel:'+(j.customerPhone||'')+'" style="color:#60a5fa;font-weight:600">'+(j.customerPhone||'—')+'</a></p>';
+        if(j.customerEmail)html+='<p style="color:#aaa;margin:0"><i class="fas fa-envelope" style="width:16px;color:#6b6b6b"></i> '+j.customerEmail+'</p>';
+        html+='<p style="color:#aaa;margin:0"><i class="fas fa-truck" style="width:16px;color:#f59e0b"></i> '+(j.service||'—')+'</p>';
+        html+='<p style="color:#aaa;margin:0"><i class="fas fa-car" style="width:16px;color:#6b6b6b"></i> '+(j.vehicle||'—')+'</p>';
+        html+='<p style="color:#aaa;margin:0"><i class="fas fa-info-circle" style="width:16px;color:#6b6b6b"></i> Starts: '+(j.starts||'?')+' · Neutral: '+(j.neutral||'?')+' · Attended: '+(j.attended||'?')+'</p>';
+        if(j.towMethod)html+='<p style="color:#aaa;margin:0"><i class="fas fa-trailer" style="width:16px;color:#6b6b6b"></i> Tow method: '+j.towMethod+'</p>';
+        html+='<p style="color:#aaa;margin:0"><i class="fas fa-dollar-sign" style="width:16px;color:#10b981"></i> $'+(j.amount!=null?Number(j.amount).toFixed(2):'0.00')+'</p>';
+        html+='</div>';
+
+        html+='<div style="background:#1a1a1a;border-radius:10px;padding:10px 12px;margin-bottom:8px">';
+        html+='<p style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin-bottom:4px">Pickup</p>';
+        html+='<p style="font-size:13px;color:#f0f0f0;margin:0 0 8px;line-height:1.35">'+(j.pickupAddress||'—')+'</p>';
+        if(j.pickupAddress)html+='<div style="display:flex;gap:6px;flex-wrap:wrap"><a href="'+navPu+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.35);color:#f59e0b;font-size:12px;font-weight:700"><i class="fas fa-location-arrow"></i> Navigate</a><a href="'+puMap+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;background:#141414;border:1px solid #262626;color:#aaa;font-size:12px;font-weight:600"><i class="fas fa-map"></i> Map</a></div>';
+        html+='</div>';
+
+        if(j.destinationAddress&&j.destinationAddress!=='N/A'){
+          html+='<div style="background:#1a1a1a;border-radius:10px;padding:10px 12px;margin-bottom:10px">';
+          html+='<p style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin-bottom:4px">Destination</p>';
+          html+='<p style="font-size:13px;color:#f0f0f0;margin:0 0 8px;line-height:1.35">'+j.destinationAddress+'</p>';
+          html+='<div style="display:flex;gap:6px;flex-wrap:wrap"><a href="'+navDest+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.35);color:#10b981;font-size:12px;font-weight:700"><i class="fas fa-location-arrow"></i> Navigate</a><a href="'+destMap+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;background:#141414;border:1px solid #262626;color:#aaa;font-size:12px;font-weight:600"><i class="fas fa-map"></i> Map</a></div>';
+          html+='</div>';
+        }
+
+        html+='<div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">';
+        if(j.status==='assigned')html+='<button onclick="driverUpdateStatus(\''+j.id+'\',\'enroute\')" style="padding:14px;border:none;border-radius:12px;font-weight:800;font-size:15px;background:#a78bfa;color:#000;cursor:pointer;font-family:\'Outfit\',sans-serif">Mark En Route</button>';
+        if(j.status==='assigned'||j.status==='enroute')html+='<button onclick="driverUpdateStatus(\''+j.id+'\',\'picked_up\')" style="padding:14px;border:none;border-radius:12px;font-weight:800;font-size:15px;background:#10b981;color:#fff;cursor:pointer;font-family:\'Outfit\',sans-serif">Vehicle Picked Up</button>';
+        if(j.status==='picked_up'||j.status==='enroute'||j.status==='assigned')html+='<button onclick="driverUpdateStatus(\''+j.id+'\',\'dropped_off\')" style="padding:14px;border:none;border-radius:12px;font-weight:800;font-size:15px;background:#f59e0b;color:#000;cursor:pointer;font-family:\'Outfit\',sans-serif">Vehicle Dropped Off</button>';
         html+='</div></div>';
       });
       list.innerHTML=html;
@@ -1549,10 +1712,10 @@ function initTT(){
 
   window.driverUpdateStatus=async function(jobId,status){
     var payload={status:status,updatedAt:Date.now()};
+    var geoExtra=null;
     if(status==='picked_up')payload.pickedUpAt=Date.now();
     if(status==='dropped_off'){
       payload.droppedOffAt=Date.now();
-      // Capture GPS
       try{
         var pos=await new Promise(function(resolve,reject){
           if(!navigator.geolocation)return reject(new Error('no geo'));
@@ -1561,15 +1724,19 @@ function initTT(){
         payload.dropoffLat=pos.coords.latitude;
         payload.dropoffLng=pos.coords.longitude;
         payload.dropoffAccuracy=pos.coords.accuracy;
+        geoExtra={lat:pos.coords.latitude,lng:pos.coords.longitude};
       }catch(geoErr){console.warn('GPS unavailable',geoErr);}
     }
     try{
       await fetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-      // Open SMS to customer for status update (until Twilio is wired)
-      try{
-        var jr=await fetch(FIREBASE_URL+'/jobs/'+jobId+'.json');
-        var job=await jr.json();
-        if(job&&job.customerPhone){
+      var jr=await fetch(FIREBASE_URL+'/jobs/'+jobId+'.json');
+      var job=await jr.json();
+      if(job){
+        job.id=jobId;
+        // Email customer + company via Formspree
+        if(typeof notifyCustomerStatusEmail==='function')notifyCustomerStatusEmail(job,status,geoExtra);
+        // Also open SMS for customer (manual until Twilio)
+        if(job.customerPhone){
           var text='';
           if(status==='picked_up')text='Corridor Towing: Your vehicle has been picked up. We\'ll update you when it\'s dropped off.';
           if(status==='dropped_off'){
@@ -1577,9 +1744,13 @@ function initTT(){
             text='Corridor Towing: Your vehicle has been dropped off. Thank you! Please rate your experience: '+link;
           }
           if(status==='enroute')text='Corridor Towing: A driver is en route to your location.';
-          if(text)window.open('sms:'+job.customerPhone+'?&body='+encodeURIComponent(text),'_self');
+          if(text){
+            setTimeout(function(){
+              window.location.href='sms:'+String(job.customerPhone).replace(/\s/g,'')+'?&body='+encodeURIComponent(text);
+            },500);
+          }
         }
-      }catch(e2){}
+      }
       tT('Status updated: '+status,'success');
       loadDriverJobs();
     }catch(e){tT('Update failed','error');}
@@ -1610,6 +1781,7 @@ function initTT(){
         if(today.checkOut){gP(today.id+'_out').then(function(data){if(data){var img=document.createElement('img');img.src=data;img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:10px;display:block';var w=document.getElementById('tt-ph-out-wrap');w.innerHTML='';w.appendChild(img);w.style.cursor='pointer';w.onclick=(function(d){return function(){vP(d);};})(data);}}).catch(function(){});}
       }
     }else{phDiv.style.display='none';}
+    loadDashJobsPreview();
   }
 
   // History
@@ -1837,6 +2009,8 @@ function initTT(){
   document.getElementById('tt-pvw').addEventListener('click',function(){this.classList.remove('active');});
   document.getElementById('tt-spop').addEventListener('click',function(){this.classList.remove('active');});
   document.getElementById('tt-nav').addEventListener('click',function(e){var it=e.target.closest('.tt-ni');if(!it)return;go(it.dataset.s);});
+  var openJobsBtn=document.getElementById('tt-btn-open-jobs');
+  if(openJobsBtn)openJobsBtn.addEventListener('click',function(){go('jobs');});
   document.getElementById('tt-ptabs').addEventListener('click',function(e){var b=e.target.closest('.tt-pt');if(!b)return;histPeriod=b.dataset.p;document.querySelectorAll('#tt-ptabs .tt-pt').forEach(function(t){t.classList.remove('on');});b.classList.add('on');rH();});
   document.getElementById('tt-btn-ss').addEventListener('click',function(){var name=document.getElementById('tt-set-n').value.trim();if(!name){tT('Name cannot be empty','warning');return;}ttD.driverName=name;sv();tT('Name saved!','success');rD();});
   document.getElementById('tt-btn-email').addEventListener('click',function(){var cur=cp();var txt=rptT('Current Period',cur);var subj='TowTrack Report — '+ttD.driverName+' — '+fD(cur.s.getTime())+' to '+fD(cur.e.getTime());window.location.href='mailto:'+COMPANY_EMAIL+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(txt);});
