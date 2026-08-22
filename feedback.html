@@ -44,10 +44,15 @@
 </div>
 <script>
 (function(){
-  var token=new URLSearchParams(location.search).get('token');
+  var params=new URLSearchParams(location.search);
+  var jobId=params.get('job');
+  // Back-compat: old links only carried ?token= with no job id — those can no longer
+  // be resolved without listing every job (which the database rules now block), since
+  // the database is no longer open to the public. Only new-format links (?job=&t=) work.
+  var token=params.get('t')||params.get('token');
   var FIREBASE_URL='https://corridortowing-default-rtdb.firebaseio.com';
   var err=document.getElementById('err');
-  if(!token){err.style.display='block';err.textContent='Invalid or missing feedback link.';document.getElementById('fb').style.display='none';return;}
+  if(!jobId||!token){err.style.display='block';err.textContent='Invalid or missing feedback link.';document.getElementById('fb').style.display='none';return;}
 
   document.getElementById('fb').addEventListener('submit',async function(e){
     e.preventDefault();
@@ -56,19 +61,20 @@
     var rating=e.target.rating.value;
     var comment=(e.target.comment.value||'').slice(0,1000);
     try{
-      // Find job by feedbackToken
-      var res=await fetch(FIREBASE_URL+'/jobs.json');
-      var data=await res.json();
-      var jobId=null,job=null;
-      if(data){for(var id in data){if(data[id]&&data[id].feedbackToken===token){jobId=id;job=data[id];break;}}}
-      if(!jobId)throw new Error('Link invalid or expired.');
-      if(job.feedbackSubmitted)throw new Error('Feedback already submitted. Thank you!');
-      await fetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        feedbackSubmitted:true,
-        feedbackRating:Number(rating),
-        feedbackComment:comment,
-        feedbackAt:Date.now()
-      })});
+      // Write directly to this job's feedback fields. The database rules only allow this
+      // unauthenticated write when "_proof" matches the feedbackToken already stored on
+      // the job (set once, server-side, at job creation) and feedback hasn't been submitted yet.
+      var res=await fetch(FIREBASE_URL+'/jobs/'+encodeURIComponent(jobId)+'.json',{
+        method:'PATCH',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          feedbackSubmitted:true,
+          feedbackRating:Number(rating),
+          feedbackComment:comment,
+          feedbackAt:Date.now(),
+          _proof:token
+        })
+      });
+      if(!res.ok)throw new Error('Link invalid, expired, or feedback already submitted.');
       document.getElementById('box').innerHTML='<div class="ok"><h2>✓ Thank you!</h2><p class="sub">Your feedback helps us improve.</p></div>';
     }catch(ex){
       err.style.display='block';err.textContent=ex.message||'Could not submit.';

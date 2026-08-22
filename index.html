@@ -23,6 +23,8 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script>tailwind.config={corePlugins:{preflight:false}}</script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -813,19 +815,20 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
   <p style="font-size:12px;color:#6b6b6b">Tap anywhere to close</p>
 </div>
 
-<!-- MANAGER PASSCODE MODAL -->
+<!-- EMPLOYEE LOGIN MODAL -->
 <div id="tt-mgr-modal" class="tt-cfbg">
   <div class="tt-card" style="width:100%;max-width:360px">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
       <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,.15);display:flex;align-items:center;justify-content:center"><i class="fas fa-user-shield" style="color:#60a5fa;font-size:18px"></i></div>
-      <h3 style="font-size:18px;font-weight:700">Manager Access</h3>
+      <h3 id="tt-login-title" style="font-size:18px;font-weight:700">Employee Sign In</h3>
     </div>
-    <p style="font-size:14px;color:#6b6b6b;margin-bottom:16px">Enter manager passcode to view all driver data</p>
-    <input type="password" id="tt-mgr-code" class="tt-inp" placeholder="Enter passcode" style="margin-bottom:8px" onkeydown="if(event.key==='Enter')verifyMgr()">
-    <p id="tt-mgr-error" style="font-size:14px;color:#ef4444;display:none;margin-bottom:8px">Incorrect passcode</p>
+    <p style="font-size:14px;color:#6b6b6b;margin-bottom:16px">Sign in with your company email to access driver/dispatch tools.</p>
+    <input type="email" id="tt-login-email" class="tt-inp" placeholder="Email" autocomplete="username" style="margin-bottom:8px">
+    <input type="password" id="tt-login-pass" class="tt-inp" placeholder="Password" autocomplete="current-password" style="margin-bottom:8px" onkeydown="if(event.key==='Enter')signInEmployee()">
+    <p id="tt-login-error" style="font-size:14px;color:#ef4444;display:none;margin-bottom:8px">Sign-in failed. Check your email and password.</p>
     <div style="display:flex;gap:12px">
-      <button onclick="closeMgrModal()" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#1e1e1e;border:1px solid #262626;color:#f0f0f0;cursor:pointer;font-family:'Outfit',sans-serif">Cancel</button>
-      <button onclick="verifyMgr()" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#0b3d91;border:none;color:#fff;cursor:pointer;font-family:'Outfit',sans-serif">Access</button>
+      <button onclick="cancelLoginGate()" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#1e1e1e;border:1px solid #262626;color:#f0f0f0;cursor:pointer;font-family:'Outfit',sans-serif">Cancel</button>
+      <button id="tt-login-btn" onclick="signInEmployee()" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#0b3d91;border:none;color:#fff;cursor:pointer;font-family:'Outfit',sans-serif">Sign In</button>
     </div>
   </div>
 </div>
@@ -864,6 +867,9 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
 
 <!-- ========== PUBLIC SITE JS ========== -->
 <script>
+// Private ntfy.sh topic for instant new-request push alerts. Install the ntfy app
+// (ntfy.sh) and subscribe to this exact topic name to get notified on your phone.
+var NTFY_TOPIC='corridor-towing-b2e5e69500315953';
 var mT=document.querySelector('.menu-toggle'),nM=document.getElementById('nav-menu');
 function toggleMenu(){nM.classList.toggle('show')}
 document.addEventListener('click',function(e){if(!mT.contains(e.target)&&!nM.contains(e.target)&&!e.target.closest('.driver-portal-btn')&&!e.target.closest('.manager-portal-btn'))nM.classList.remove('show')});
@@ -879,8 +885,8 @@ function openDP(mode){
   document.body.style.paddingTop='0';
   document.body.style.background='#0a0a0a';
   window.scrollTo(0,0);
-  if(mode==='mgr'){window.location.hash='managerPortal';showMgrPasscode();}
-  else{window.location.hash='driverPortal';initTT();}
+  window.location.hash=mode==='mgr'?'managerPortal':'driverPortal';
+  showLoginGate(mode);
 }
 function closeDP(){
   document.getElementById('driver-app').style.display='none';
@@ -894,7 +900,7 @@ function closeDP(){
   document.getElementById('mgr-badge').style.display='none';
   document.getElementById('tt-nav').style.display='none';
   if(ttCS){ttCS.getTracks().forEach(function(t){t.stop()});ttCS=null;}
-  
+  if(window.fbAuth&&fbAuth.currentUser)fbAuth.signOut().catch(function(){});
 }
 window.addEventListener('load',function(){var h=window.location.hash.replace('#','');if(h==='driverPortal'||h==='driverlog')openDP();else if(h==='managerPortal')openDP('mgr');});
 window.addEventListener('hashchange',function(){var h=window.location.hash.replace('#','');var av=document.getElementById('driver-app').style.display==='block';if(h==='driverPortal'||h==='driverlog'){if(!av)openDP();}else if(h==='managerPortal'){if(!av)openDP('mgr');}else{if(av)closeDP();}});
@@ -965,6 +971,8 @@ var feedbackToken=Math.random().toString(36).slice(2)+Math.random().toString(36)
 var now=Date.now();
 var jobPayload={status:'pending',jobType:jobType,serviceCode:fd.serviceCode,createdAt:now,updatedAt:now,customerName:fd.name,customerPhone:fd.phone,customerEmail:fd.email,service:fd.service,vehicle:fd.vehicle,starts:fd.starts,neutral:fd.neutral,attended:fd.attended,towMethod:jobType==='tow'?fd.towmethod:null,pickupAddress:fd.location,destinationAddress:fd.destination,enrouteMiles:Number(fd.enroute)||0,towMiles:Number(fd.tow)||0,amount:Number(fd.amount)||0,paymentPref:fd.payment,assignedDriverId:null,assignedDriverName:null,assignedDriverPhone:null,assignedAt:null,pickedUpAt:null,droppedOffAt:null,dropoffLat:null,dropoffLng:null,feedbackToken:feedbackToken,feedbackSubmitted:false,feedbackRating:null,feedbackComment:null};
 var jobPromise=fetch('https://corridortowing-default-rtdb.firebaseio.com/jobs/'+jobId+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(jobPayload)}).catch(function(err){console.warn('Job save failed (check Firebase rules):',err);});
+/* 3) Instant push notification to owner's phone via ntfy.sh (free, no account) — fire-and-forget so a failure here never blocks the customer's confirmation */
+fetch('https://ntfy.sh/'+NTFY_TOPIC,{method:'POST',headers:{'Title':'New '+(jobType==='tow'?'Tow':'Roadside')+' Request','Priority':'urgent','Tags':'rotating_light'},body:fd.name+' — '+fd.phone+'\n'+fd.service+'\n'+fd.location+(jobType==='tow'?' → '+fd.destination:'')+'\n$'+fd.amount}).catch(function(err){console.warn('Push notify failed:',err);});
 Promise.all([formspreePromise,jobPromise]).then(function(){
   var c=document.getElementById('confirmation');c.style.display='block';c.innerHTML='<strong>Thank you!</strong> Request sent. We\'ll call shortly.';
   if(fd.payment==='pay-now'){document.getElementById('paymentAmountDisplay').textContent='$'+fd.amount;c.innerHTML+='<br><br><strong>Complete payment below.</strong>';setTimeout(function(){window.scrollTo({top:document.getElementById('payment').offsetTop-100,behavior:'smooth'});},1500);}
@@ -976,8 +984,35 @@ window.addEventListener('load',function(){calculateTotal();});
 
 <!-- ========== MANAGER PORTAL JS ========== -->
 <script>
-var MGR_CODE='corridor2025',mgrAuth=false,mgrAllRecords=[],mgrPeriod='current';
+var mgrAuth=false,mgrAllRecords=[],mgrPeriod='current';
 var FIREBASE_URL='https://corridortowing-default-rtdb.firebaseio.com';
+
+// ---- Firebase Auth (gates driver/manager portal access) ----
+// TODO: replace with the values from Firebase console > Project settings > General > Your apps > Web app
+var firebaseConfig={
+  apiKey:'REPLACE_WITH_YOUR_FIREBASE_WEB_API_KEY',
+  authDomain:'corridortowing.firebaseapp.com',
+  databaseURL:FIREBASE_URL,
+  projectId:'corridortowing'
+};
+firebase.initializeApp(firebaseConfig);
+var fbAuth=firebase.auth();
+window.fbAuth=fbAuth;
+// TODO: replace with your real manager email(s), lowercase. Any other signed-in account gets driver-only access.
+var MANAGER_EMAILS=['owner@corridortowing.org'];
+function isManagerEmail(email){return !!email&&MANAGER_EMAILS.indexOf(String(email).toLowerCase())!==-1;}
+
+// Attaches the signed-in employee's Firebase ID token to every internal Firebase Database
+// request so the (now locked-down) database rules can verify the caller is authenticated.
+async function fbFetch(url,opts){
+  opts=opts||{};
+  var user=fbAuth.currentUser;
+  if(user){
+    var token=await user.getIdToken();
+    url+=(url.indexOf('?')>-1?'&':'?')+'auth='+encodeURIComponent(token);
+  }
+  return fetch(url,opts);
+}
 
 // ---- CORE TIME MATH ----
 // All times stored as Unix ms timestamps in checkIn.time / checkOut.time
@@ -1024,14 +1059,61 @@ function getMs(r){
   return v;
 }
 
-function showMgrPasscode(){document.getElementById('tt-mgr-code').value='';document.getElementById('tt-mgr-error').style.display='none';document.getElementById('tt-mgr-modal').classList.add('active');setTimeout(function(){document.getElementById('tt-mgr-code').focus();},200);}
+var pendingPortalMode=null;
+function showLoginGate(mode){
+  pendingPortalMode=mode||null;
+  document.getElementById('tt-login-title').textContent=mode==='mgr'?'Manager Sign In':'Driver Sign In';
+  document.getElementById('tt-login-email').value='';
+  document.getElementById('tt-login-pass').value='';
+  document.getElementById('tt-login-error').style.display='none';
+  document.getElementById('tt-mgr-modal').classList.add('active');
+  setTimeout(function(){document.getElementById('tt-login-email').focus();},200);
+}
 function closeMgrModal(){document.getElementById('tt-mgr-modal').classList.remove('active');}
-function verifyMgr(){var code=document.getElementById('tt-mgr-code').value.trim();if(code===MGR_CODE){mgrAuth=true;closeMgrModal();document.getElementById('mgr-badge').style.display='inline-flex';document.getElementById('tt-nav').style.display='none';document.querySelectorAll('.tt-screen').forEach(function(s){s.classList.remove('active');});document.getElementById('tt-scr-mgr').classList.add('active');loadMgrData();}else{document.getElementById('tt-mgr-error').style.display='block';document.getElementById('tt-mgr-code').value='';document.getElementById('tt-mgr-code').focus();}}
+function cancelLoginGate(){closeMgrModal();closeDP();}
+async function signInEmployee(){
+  var email=document.getElementById('tt-login-email').value.trim();
+  var pass=document.getElementById('tt-login-pass').value;
+  var errEl=document.getElementById('tt-login-error');
+  var btn=document.getElementById('tt-login-btn');
+  errEl.style.display='none';
+  if(!email||!pass){errEl.textContent='Enter your email and password.';errEl.style.display='block';return;}
+  btn.disabled=true;btn.textContent='Signing in…';
+  try{
+    await fbAuth.signInWithEmailAndPassword(email,pass);
+    closeMgrModal();
+    enterPortal(pendingPortalMode);
+  }catch(e){
+    errEl.textContent='Sign-in failed. Check your email and password.';
+    errEl.style.display='block';
+  }finally{
+    btn.disabled=false;btn.textContent='Sign In';
+  }
+}
+function enterPortal(mode){
+  if(mode==='mgr'){
+    var email=fbAuth.currentUser&&fbAuth.currentUser.email;
+    if(!isManagerEmail(email)){
+      alert('This account is signed in but is not authorized for Manager access.');
+      closeDP();
+      return;
+    }
+    mgrAuth=true;
+    document.getElementById('mgr-badge').style.display='inline-flex';
+    document.getElementById('tt-nav').style.display='none';
+    document.querySelectorAll('.tt-screen').forEach(function(s){s.classList.remove('active');});
+    document.getElementById('tt-scr-mgr').classList.add('active');
+    switchMgrMainTab('dispatch');
+    loadMgrData();loadMgrJobs();loadMgrDrivers();
+  }else{
+    initTT();
+  }
+}
 
 async function loadMgrData(){
   document.getElementById('mgr-logs-tb').innerHTML='<tr><td colspan="5" style="text-align:center;color:#6b6b6b;padding:30px 0"><i class="fas fa-spinner fa-spin"></i> Loading from cloud...</td></tr>';
   try{
-    var res=await fetch(FIREBASE_URL+'/driverLogs.json');
+    var res=await fbFetch(FIREBASE_URL+'/driverLogs.json');
     if(!res.ok)throw new Error('HTTP '+res.status);
     var data=await res.json();
     if(!data){mgrAllRecords=[];renderMgrDash();return;}
@@ -1204,7 +1286,7 @@ function isJobActiveStatus(s){return s==='assigned'||s==='enroute'||s==='on_loca
 
 async function loadMgrJobs(){
   try{
-    var res=await fetch(FIREBASE_URL+'/jobs.json');
+    var res=await fbFetch(FIREBASE_URL+'/jobs.json');
     var data=await res.json();
     mgrJobs=[];
     if(data){for(var id in data){var j=data[id];if(j){j.id=id;mgrJobs.push(j);}}}
@@ -1214,7 +1296,7 @@ async function loadMgrJobs(){
 }
 async function loadMgrDrivers(){
   try{
-    var res=await fetch(FIREBASE_URL+'/drivers.json');
+    var res=await fbFetch(FIREBASE_URL+'/drivers.json');
     var data=await res.json();
     mgrDrivers=[];
     if(data){for(var id in data){var d=data[id];if(d){d.id=id;mgrDrivers.push(d);}}}
@@ -1446,8 +1528,8 @@ function notifyCustomerStatusEmail(job,status,extra){
     else if(status==='on_location')body+='\nOur driver has arrived and is working on your vehicle.\n';
     else if(status==='done')body+='\nYour service is complete. Thank you!\n';
   }
-  if((status==='dropped_off'||status==='done')&&job.feedbackToken){
-    body+='\nRate your experience:\nhttps://corridortowing.org/feedback.html?token='+job.feedbackToken+'\n';
+  if((status==='dropped_off'||status==='done')&&job.feedbackToken&&job.id){
+    body+='\nRate your experience:\nhttps://corridortowing.org/feedback.html?job='+encodeURIComponent(job.id)+'&t='+encodeURIComponent(job.feedbackToken)+'\n';
   }
   body+='\nCall us: (804) 292-8414\n— Corridor Towing';
 
@@ -1466,7 +1548,7 @@ async function assignJobToDriver(jobId,driverId){
   if(!driver)return;
   var job=mgrJobs.find(function(j){return j.id===jobId;})||{};
   try{
-    await fetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       status:'assigned',
       assignedDriverId:driverId,
       assignedDriverName:driver.name,
@@ -1489,7 +1571,7 @@ async function unassignJob(jobId){
     mgrDrivers.find(function(d){return d.name===job.assignedDriverName;})||
     {name:job.assignedDriverName||'Driver',phone:job.assignedDriverPhone||'',email:job.assignedDriverEmail||''};
   try{
-    await fetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       status:'pending',
       assignedDriverId:null,
       assignedDriverName:null,
@@ -1520,7 +1602,7 @@ async function addMgrDriver(){
   if(!name||!phone){alert('Name and phone required');return;}
   var id=name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')+'_'+Date.now().toString(36);
   try{
-    await fetch(FIREBASE_URL+'/drivers/'+id+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    await fbFetch(FIREBASE_URL+'/drivers/'+id+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       name:name,phone:phone,email:email,active:true,createdAt:Date.now()
     })});
     document.getElementById('mgr-drv-name').value='';
@@ -1561,28 +1643,6 @@ document.getElementById('tt-btn-mgr-refresh').addEventListener('click',function(
   loadMgrDrivers();
 });
 
-// Patch verifyMgr success path to also load jobs/drivers
-(function(){
-  var _orig=verifyMgr;
-  verifyMgr=function(){
-    var code=document.getElementById('tt-mgr-code').value.trim();
-    if(code===MGR_CODE){
-      mgrAuth=true;closeMgrModal();
-      document.getElementById('mgr-badge').style.display='inline-flex';
-      document.getElementById('tt-nav').style.display='none';
-      document.querySelectorAll('.tt-screen').forEach(function(s){s.classList.remove('active');});
-      document.getElementById('tt-scr-mgr').classList.add('active');
-      switchMgrMainTab('dispatch');
-      loadMgrData();
-      loadMgrJobs();
-      loadMgrDrivers();
-    }else{
-      document.getElementById('tt-mgr-error').style.display='block';
-      document.getElementById('tt-mgr-code').value='';
-      document.getElementById('tt-mgr-code').focus();
-    }
-  };
-})();
 </script>
 
 <!-- ========== DRIVER PORTAL JS ========== -->
@@ -1594,8 +1654,8 @@ var COMPANY_EMAIL='corridor.towing@gmail.com';
 // ---- Firebase ----
 function setSyncStatus(s){var el=document.getElementById('tt-sync-status');if(!el)return;if(s==='synced'){el.className='tt-sync-indicator synced';el.innerHTML='<i class="fas fa-cloud"></i> Synced';}else if(s==='syncing'){el.className='tt-sync-indicator syncing';el.innerHTML='<i class="fas fa-spinner fa-spin"></i> Syncing';}else if(s==='error'){el.className='tt-sync-indicator error';el.innerHTML='<i class="fas fa-cloud-exclamation"></i> Offline';}else{el.className='tt-sync-indicator';el.innerHTML='<i class="fas fa-cloud"></i> Cloud';}}
 function getDriverId(n){return n.toLowerCase().replace(/[^a-z0-9]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'');}
-async function firebaseSaveRecord(rec){if(!ttD.driverName)return false;setSyncStatus('syncing');try{var res=await fetch(FIREBASE_URL+'/driverLogs/'+getDriverId(ttD.driverName)+'/'+rec.id+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({driverName:ttD.driverName,date:rec.date,checkIn:rec.checkIn,checkOut:rec.checkOut,hours:rec.hours,updatedAt:Date.now()})});if(!res.ok)throw new Error('HTTP '+res.status);setSyncStatus('synced');return true;}catch(err){setSyncStatus('error');return false;}}
-async function firebaseLoadRecords(){if(!ttD.driverName)return null;setSyncStatus('syncing');try{var res=await fetch(FIREBASE_URL+'/driverLogs/'+getDriverId(ttD.driverName)+'.json');if(!res.ok)throw new Error('HTTP '+res.status);var data=await res.json();setSyncStatus('synced');if(!data)return[];var records=[];for(var id in data){var r=data[id];if(r&&r.date)records.push({id:id,date:r.date,checkIn:r.checkIn||null,checkOut:r.checkOut||null,hours:r.hours!=null?r.hours:null});}return records;}catch(err){setSyncStatus('error');return null;}}
+async function firebaseSaveRecord(rec){if(!ttD.driverName)return false;setSyncStatus('syncing');try{var res=await fbFetch(FIREBASE_URL+'/driverLogs/'+getDriverId(ttD.driverName)+'/'+rec.id+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({driverName:ttD.driverName,date:rec.date,checkIn:rec.checkIn,checkOut:rec.checkOut,hours:rec.hours,updatedAt:Date.now()})});if(!res.ok)throw new Error('HTTP '+res.status);setSyncStatus('synced');return true;}catch(err){setSyncStatus('error');return false;}}
+async function firebaseLoadRecords(){if(!ttD.driverName)return null;setSyncStatus('syncing');try{var res=await fbFetch(FIREBASE_URL+'/driverLogs/'+getDriverId(ttD.driverName)+'.json');if(!res.ok)throw new Error('HTTP '+res.status);var data=await res.json();setSyncStatus('synced');if(!data)return[];var records=[];for(var id in data){var r=data[id];if(r&&r.date)records.push({id:id,date:r.date,checkIn:r.checkIn||null,checkOut:r.checkOut||null,hours:r.hours!=null?r.hours:null});}return records;}catch(err){setSyncStatus('error');return null;}}
 
 
 // ---- Global checklist state (accessible from onclick attributes) ----
@@ -1733,7 +1793,7 @@ function initTT(){
     var badge=document.getElementById('tt-jobs-badge');
     if(!box)return;
     try{
-      var res=await fetch(FIREBASE_URL+'/jobs.json');
+      var res=await fbFetch(FIREBASE_URL+'/jobs.json');
       var data=await res.json();
       var mine=[];
       var myName=(ttD.driverName||'').trim().toLowerCase();
@@ -1861,7 +1921,7 @@ function initTT(){
     var list=document.getElementById('drv-jobs-list');if(!list)return;
     list.innerHTML='<div style="text-align:center;color:#6b6b6b;padding:24px 0;font-size:13px"><i class="fas fa-spinner fa-spin"></i> Loading…</div>';
     try{
-      var res=await fetch(FIREBASE_URL+'/jobs.json');
+      var res=await fbFetch(FIREBASE_URL+'/jobs.json');
       var data=await res.json();
       var mine=[];
       if(data){for(var id in data){var j=data[id];if(!j)continue;j.id=id;
@@ -1894,8 +1954,8 @@ function initTT(){
       }catch(geoErr){console.warn('GPS unavailable',geoErr);}
     }
     try{
-      await fetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-      var jr=await fetch(FIREBASE_URL+'/jobs/'+jobId+'.json');
+      await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      var jr=await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json');
       var job=await jr.json();
       if(job){
         job.id=jobId;
@@ -1912,8 +1972,9 @@ function initTT(){
           if(status==='enroute')text='Corridor Towing: '+dName+' is en route. Call '+dPhone+' if needed.';
           if(status==='on_location')text='Corridor Towing: '+dName+' is on location and starting service.';
           if(status==='picked_up')text='Corridor Towing: Your vehicle has been picked up by '+dName+'.';
-          if(status==='dropped_off')text='Corridor Towing: Your vehicle has been dropped off. Thank you! Feedback: https://corridortowing.org/feedback.html?token='+(job.feedbackToken||'');
-          if(status==='done')text='Corridor Towing: Your service is complete. Thank you! Feedback: https://corridortowing.org/feedback.html?token='+(job.feedbackToken||'');
+          var fbUrl='https://corridortowing.org/feedback.html?job='+encodeURIComponent(job.id||'')+'&t='+encodeURIComponent(job.feedbackToken||'');
+          if(status==='dropped_off')text='Corridor Towing: Your vehicle has been dropped off. Thank you! Feedback: '+fbUrl;
+          if(status==='done')text='Corridor Towing: Your service is complete. Thank you! Feedback: '+fbUrl;
           if(text){
             setTimeout(function(){
               window.location.href='sms:'+String(job.customerPhone).replace(/\s/g,'')+'?&body='+encodeURIComponent(text);
