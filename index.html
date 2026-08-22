@@ -990,7 +990,7 @@ var FIREBASE_URL='https://corridortowing-default-rtdb.firebaseio.com';
 // ---- Firebase Auth (gates driver/manager portal access) ----
 // TODO: replace with the values from Firebase console > Project settings > General > Your apps > Web app
 var firebaseConfig={
-  apiKey:'REPLACE_WITH_YOUR_FIREBASE_WEB_API_KEY',
+  apiKey:'AIzaSyCF_tvhK5awT5YK-bOjC6xrlNYjoFDD3Ak',
   authDomain:'corridortowing.firebaseapp.com',
   databaseURL:FIREBASE_URL,
   projectId:'corridortowing'
@@ -999,7 +999,7 @@ firebase.initializeApp(firebaseConfig);
 var fbAuth=firebase.auth();
 window.fbAuth=fbAuth;
 // TODO: replace with your real manager email(s), lowercase. Any other signed-in account gets driver-only access.
-var MANAGER_EMAILS=['owner@corridortowing.org'];
+var MANAGER_EMAILS=['ajmal@corridortowing.org'];
 function isManagerEmail(email){return !!email&&MANAGER_EMAILS.indexOf(String(email).toLowerCase())!==-1;}
 
 // Attaches the signed-in employee's Firebase ID token to every internal Firebase Database
@@ -1084,7 +1084,7 @@ async function signInEmployee(){
     closeMgrModal();
     enterPortal(pendingPortalMode);
   }catch(e){
-    errEl.textContent='Sign-in failed. Check your email and password.';
+    errEl.textContent='Sign-in failed: '+(e&&(e.code||e.message)||'unknown error');
     errEl.style.display='block';
   }finally{
     btn.disabled=false;btn.textContent='Sign In';
