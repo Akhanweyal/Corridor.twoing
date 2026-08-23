@@ -24,9 +24,17 @@
   .g-btn svg{width:20px;height:20px;flex-shrink:0}
   .call-btn{background:#1e1e1e;color:#f0f0f0;border:1.5px solid #262626;margin-top:12px}
   .skip-link{display:block;text-align:center;margin-top:14px;font-size:13px;color:#6b6b6b;cursor:pointer;background:none;border:none;width:100%;font-family:inherit}
+  .wrap{width:100%;max-width:420px;display:flex;flex-direction:column;gap:16px}
+  #next-steps h2{font-size:16px;margin-bottom:4px}
+  .ns-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #1e1e1e}
+  .ns-row:last-of-type{border-bottom:none}
+  .ns-ico{font-size:20px;flex-shrink:0;width:26px;text-align:center}
+  .ns-title{font-weight:700;font-size:14px}
+  .ns-desc{font-size:12px;color:#6b6b6b;margin-top:2px}
 </style>
 </head>
 <body>
+<div class="wrap">
 <div class="card" id="box">
   <h1>How was your experience?</h1>
   <p class="sub">Corridor Towing · Thank you for choosing us</p>
@@ -45,6 +53,22 @@
     <textarea name="comment" placeholder="Anything we should know?"></textarea>
     <button type="submit" id="btn" class="btn">Submit Feedback</button>
   </form>
+</div>
+<!--
+  Referral section. No formal partner deals are set up yet, so every category routes
+  through a phone call to Corridor Towing rather than a specific business — 100%
+  honest today, and easy to upgrade: once a real partner + referral link/code exists,
+  swap that row's ns-desc/link for a direct href to them instead of the shared tel: link.
+-->
+<div class="card" id="next-steps">
+  <h2>Need Help With What's Next?</h2>
+  <p class="sub" style="margin-bottom:12px">We work with trusted local businesses — happy to point you in the right direction.</p>
+  <div class="ns-row"><div class="ns-ico">🔧</div><div><div class="ns-title">Body Shop</div><div class="ns-desc">Collision damage? We'll connect you with a shop we trust.</div></div></div>
+  <div class="ns-row"><div class="ns-ico">💰</div><div><div class="ns-title">Junkyard / Cash for Cars</div><div class="ns-desc">Vehicle a total loss? Ask us about a fair cash buyer.</div></div></div>
+  <div class="ns-row"><div class="ns-ico">🚗</div><div><div class="ns-title">Rental Car</div><div class="ns-desc">Need wheels while yours is in the shop? We can point you there.</div></div></div>
+  <div class="ns-row"><div class="ns-ico">🪟</div><div><div class="ns-title">Windshield Repair</div><div class="ns-desc">Cracked glass? We know someone who does it right.</div></div></div>
+  <a class="btn call-btn" href="tel:8042928414" style="margin-top:14px">Call (804) 292-8414</a>
+</div>
 </div>
 <script>
 (function(){
