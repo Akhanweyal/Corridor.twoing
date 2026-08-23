@@ -900,6 +900,7 @@ function isJobActiveStatus(s){return s==='assigned'||s==='enroute'||s==='on_loca
 async function loadMgrJobs(){
   try{
     var res=await fbFetch(FIREBASE_URL+'/jobs.json');
+    if(!res.ok)throw new Error('HTTP '+res.status);
     var data=await res.json();
     mgrJobs=[];
     if(data){for(var id in data){var j=data[id];if(j){j.id=id;mgrJobs.push(j);}}}
@@ -910,6 +911,7 @@ async function loadMgrJobs(){
 async function loadMgrDrivers(){
   try{
     var res=await fbFetch(FIREBASE_URL+'/drivers.json');
+    if(!res.ok)throw new Error('HTTP '+res.status);
     var data=await res.json();
     mgrDrivers=[];
     if(data){for(var id in data){var d=data[id];if(d){d.id=id;mgrDrivers.push(d);}}}
@@ -1411,6 +1413,7 @@ function initTT(){
     if(!box)return;
     try{
       var res=await fbFetch(FIREBASE_URL+'/jobs.json');
+      if(!res.ok)throw new Error('HTTP '+res.status);
       var data=await res.json();
       var mine=[];
       var myName=(ttD.driverName||'').trim().toLowerCase();
@@ -1539,6 +1542,7 @@ function initTT(){
     list.innerHTML='<div style="text-align:center;color:#6b6b6b;padding:24px 0;font-size:13px"><i class="fas fa-spinner fa-spin"></i> Loading…</div>';
     try{
       var res=await fbFetch(FIREBASE_URL+'/jobs.json');
+      if(!res.ok)throw new Error('HTTP '+res.status);
       var data=await res.json();
       var mine=[];
       if(data){for(var id in data){var j=data[id];if(!j)continue;j.id=id;

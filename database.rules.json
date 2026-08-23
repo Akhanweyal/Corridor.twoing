@@ -1,9 +1,12 @@
 {
   "rules": {
     "jobs": {
+      // Declared here (not just on $jobId below) because the manager dashboard and
+      // driver app fetch the whole /jobs.json list at once — a read rule nested only
+      // under $jobId only ever applies when a specific job id is requested directly,
+      // never to a list query, so it silently denied every dashboard/driver fetch.
+      ".read": "auth != null",
       "$jobId": {
-        ".read": "auth != null",
-
         // Anyone can submit a new service request (the public form isn't logged in),
         // but only as a brand-new pending job — never overwriting or reading an existing one.
         ".write": "auth != null || (!data.exists() && newData.child('status').val() === 'pending' && newData.child('customerName').isString() && newData.child('customerPhone').isString() && newData.child('feedbackToken').isString())",
