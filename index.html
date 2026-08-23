@@ -276,6 +276,7 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
 <section id="forms" class="request"><div class="container"><h2 class="section-title">Request Towing Service</h2>
 <div class="form-dropdown"><div class="dropdown-content">
 <form id="requestForm" onsubmit="handleRequestSubmit(event)">
+<div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden" aria-hidden="true"><label for="req_website">Leave this field blank</label><input type="text" id="req_website" name="website" tabindex="-1" autocomplete="off"></div>
 <div class="form-group"><label>Full Name *</label><input type="text" id="req_name" required></div>
 <div class="form-group"><label>Phone *</label><input type="tel" id="req_phone" required></div>
 <div class="form-group"><label>Email (for receipt) *</label><input type="email" id="req_email" required></div>
@@ -318,7 +319,7 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
 <option value="pay-now">Pay now (deposit/full)</option>
 </select></div>
 <div id="payMethodGroup" class="form-group"><label>Select Payment Method *</label>
-<select id="payMethod"><option value="">Select</option><option value="venmo">Venmo (@corridortowing)</option><option value="cashapp">Cash App ($corridortowing)</option><option value="paypal">PayPal (drajmalweyal@gmail.com)</option><option value="card">Card (Square)</option></select></div>
+<select id="payMethod"><option value="">Select</option><option value="venmo">Venmo (@corridortowing)</option><option value="cashapp">Cash App ($corridortowing)</option><option value="paypal">PayPal (drajmalweyal@gmail.com)</option><option value="card">Card</option></select></div>
 <div class="payment-note" id="paymentNote"><strong>Payment Info:</strong> Enroute $2/mile. Tow (loaded) $5/mile. No free miles.</div>
 <div class="form-group" style="display:flex;align-items:flex-start;gap:10px;margin-top:12px">
   <input type="checkbox" id="req_sms_consent" required style="width:auto;margin-top:4px">
@@ -343,7 +344,7 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
 <div class="payment-options">
 <a href="https://venmo.com/corridortowing" class="payment-btn" target="_blank"><i class="fab fa-venmo"></i>Venmo</a>
 <a href="https://cash.app/$corridortowing" class="payment-btn" target="_blank"><i class="fas fa-dollar-sign"></i>Cash App</a>
-<a href="https://square.link/u/YOUR_SQUARE_LINK_HERE" class="payment-btn" target="_blank"><i class="fas fa-credit-card"></i>Pay with Card</a>
+<a href="https://swipesimple.com/links/lnk_46a079fb198dda9d4ffc6fb41322f656" class="payment-btn" target="_blank"><i class="fas fa-credit-card"></i>Pay with Card</a>
 <a href="https://paypal.me/CorridorTowing" class="payment-btn" target="_blank"><i class="fab fa-paypal"></i>PayPal</a>
 <div class="payment-btn"><i class="fas fa-money-bill-wave"></i>Cash on Arrival</div>
 </div></div>
@@ -953,7 +954,12 @@ document.getElementById('towDestination').addEventListener('blur',autoCalcMiles)
 onServiceChange();
 async function autoCalcMiles(){var l=document.getElementById('vehicleLocation').value.trim(),d=document.getElementById('towDestination').value.trim(),b=document.getElementById('estimateBar');b.style.display='block';if(!l||!d){b.textContent='Enter both addresses for auto-estimate.';return;}b.textContent='Estimating...';try{var lr=await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(l)+'&limit=1&countrycodes=us');var lj=await lr.json();if(!lj.length)throw 0;var dr=await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(d)+'&limit=1&countrycodes=us');var dj=await dr.json();if(!dj.length)throw 0;var tr=await fetch('https://router.project-osrm.org/route/v1/driving/'+lj[0].lon+','+lj[0].lat+';'+dj[0].lon+','+dj[0].lat+'?overview=false');var tj=await tr.json();var miles=(tj.routes&&tj.routes[0])?(tj.routes[0].distance/1000*0.621371).toFixed(1):'0';document.getElementById('req_tow').value=miles;b.textContent='Estimated: '+miles+' miles';calculateTotal();}catch(e){b.textContent='Auto estimate failed — enter manually.';}}
 function getCurrentLocation(){if(!navigator.geolocation){alert('Not supported.');return;}navigator.geolocation.getCurrentPosition(async function(p){try{var r=await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+p.coords.latitude+'&lon='+p.coords.longitude+'&zoom=18');var d=await r.json();document.getElementById('vehicleLocation').value=d.display_name||'Lat: '+p.coords.latitude.toFixed(6)+', Lon: '+p.coords.longitude.toFixed(6);autoCalcMiles();}catch(e){document.getElementById('vehicleLocation').value='Lat: '+p.coords.latitude.toFixed(6)+', Lon: '+p.coords.longitude.toFixed(6);}},function(e){var m='Location error: ';if(e.code===1)m+='Permission denied.';else if(e.code===2)m+='Unavailable.';else m+='Unknown.';alert(m);},{timeout:10000,enableHighAccuracy:true});}
+var formRenderedAt=Date.now();
 function handleRequestSubmit(e){e.preventDefault();
+// Spam guard: a real visitor never fills the hidden "website" field, and never
+// submits an 8+ field form within 1.5s of it appearing — bots commonly do both.
+if(document.getElementById('req_website').value){return;}
+if(Date.now()-formRenderedAt<1500){return;}
 var jobType=getSelectedJobType();
 if(!jobType){alert('Please select a service.');return;}
 if(jobType==='tow'){
@@ -1653,9 +1659,13 @@ var COMPANY_EMAIL='corridor.towing@gmail.com';
 
 // ---- Firebase ----
 function setSyncStatus(s){var el=document.getElementById('tt-sync-status');if(!el)return;if(s==='synced'){el.className='tt-sync-indicator synced';el.innerHTML='<i class="fas fa-cloud"></i> Synced';}else if(s==='syncing'){el.className='tt-sync-indicator syncing';el.innerHTML='<i class="fas fa-spinner fa-spin"></i> Syncing';}else if(s==='error'){el.className='tt-sync-indicator error';el.innerHTML='<i class="fas fa-cloud-exclamation"></i> Offline';}else{el.className='tt-sync-indicator';el.innerHTML='<i class="fas fa-cloud"></i> Cloud';}}
-function getDriverId(n){return n.toLowerCase().replace(/[^a-z0-9]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'');}
-async function firebaseSaveRecord(rec){if(!ttD.driverName)return false;setSyncStatus('syncing');try{var res=await fbFetch(FIREBASE_URL+'/driverLogs/'+getDriverId(ttD.driverName)+'/'+rec.id+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({driverName:ttD.driverName,date:rec.date,checkIn:rec.checkIn,checkOut:rec.checkOut,hours:rec.hours,updatedAt:Date.now()})});if(!res.ok)throw new Error('HTTP '+res.status);setSyncStatus('synced');return true;}catch(err){setSyncStatus('error');return false;}}
-async function firebaseLoadRecords(){if(!ttD.driverName)return null;setSyncStatus('syncing');try{var res=await fbFetch(FIREBASE_URL+'/driverLogs/'+getDriverId(ttD.driverName)+'.json');if(!res.ok)throw new Error('HTTP '+res.status);var data=await res.json();setSyncStatus('synced');if(!data)return[];var records=[];for(var id in data){var r=data[id];if(r&&r.date)records.push({id:id,date:r.date,checkIn:r.checkIn||null,checkOut:r.checkOut||null,hours:r.hours!=null?r.hours:null});}return records;}catch(err){setSyncStatus('error');return null;}}
+// Time logs are keyed by the signed-in account's Firebase UID (not by the freely-typed
+// name) so two different logged-in drivers can never collide/overwrite each other's
+// records — even if they type the same or a mistyped name. The typed name is still
+// stored on each record purely as a display label for reports.
+function driverUid(){return(fbAuth&&fbAuth.currentUser)?fbAuth.currentUser.uid:null;}
+async function firebaseSaveRecord(rec){var uid=driverUid();if(!uid||!ttD.driverName)return false;setSyncStatus('syncing');try{var res=await fbFetch(FIREBASE_URL+'/driverLogs/'+uid+'/'+rec.id+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({driverName:ttD.driverName,date:rec.date,checkIn:rec.checkIn,checkOut:rec.checkOut,hours:rec.hours,updatedAt:Date.now()})});if(!res.ok)throw new Error('HTTP '+res.status);setSyncStatus('synced');return true;}catch(err){setSyncStatus('error');return false;}}
+async function firebaseLoadRecords(){var uid=driverUid();if(!uid)return null;setSyncStatus('syncing');try{var res=await fbFetch(FIREBASE_URL+'/driverLogs/'+uid+'.json');if(!res.ok)throw new Error('HTTP '+res.status);var data=await res.json();setSyncStatus('synced');if(!data)return[];var records=[];for(var id in data){var r=data[id];if(r&&r.date)records.push({id:id,date:r.date,checkIn:r.checkIn||null,checkOut:r.checkOut||null,hours:r.hours!=null?r.hours:null,driverName:r.driverName||null});}return records;}catch(err){setSyncStatus('error');return null;}}
 
 
 // ---- Global checklist state (accessible from onclick attributes) ----
@@ -1720,7 +1730,9 @@ function cancelChecklist() {
 function initTT(){
   if(initTT_done)return;
   initTT_done=true;
-  var SK='tt_meta_v6';
+  // Namespaced per signed-in account so a shared/borrowed device never shows one
+  // driver's cached name and records to a different driver who signs in after them.
+  var SK='tt_meta_v6_'+((fbAuth&&fbAuth.currentUser&&fbAuth.currentUser.uid)||'anon');
 
   function oDB(){return new Promise(function(rv,rj){if(ttDB){rv(ttDB);return;}var q=indexedDB.open('TowTrackPhotos',1);q.onupgradeneeded=function(e){var db=e.target.result;if(!db.objectStoreNames.contains('photos'))db.createObjectStore('photos',{keyPath:'id'});};q.onsuccess=function(e){ttDB=e.target.result;rv(ttDB);};q.onerror=function(e){rj(e.target.error);};});}
   function sP(id,dataUrl){return oDB().then(function(db){return new Promise(function(rv,rj){var tx=db.transaction('photos','readwrite');tx.objectStore('photos').put({id:id,data:dataUrl});tx.oncomplete=function(){rv();};tx.onerror=function(e){rj(e.target.error);};});});}
