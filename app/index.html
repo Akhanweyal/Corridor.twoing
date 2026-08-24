@@ -299,6 +299,12 @@ img,svg{max-width:100%;height:auto;display:block}
   <div style="display:flex;flex-direction:column;gap:16px">
     <div class="tt-card"><label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#6b6b6b;margin-bottom:8px">Driver Name</label><input id="tt-set-n" type="text" class="tt-inp"></div>
     <button id="tt-btn-ss" style="width:100%;padding:16px;border:none;border-radius:16px;font-weight:700;font-size:15px;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#ea580c);color:#000;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Outfit',sans-serif"><i class="fas fa-check"></i>Save Name</button>
+    <div class="tt-card">
+      <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#6b6b6b;margin-bottom:8px">Change Password</label>
+      <input id="tt-pw-current" type="password" class="tt-inp" placeholder="Current password" autocomplete="current-password" style="margin-bottom:8px">
+      <input id="tt-pw-new" type="password" class="tt-inp" placeholder="New password (min 6 characters)" autocomplete="new-password" style="margin-bottom:8px">
+      <button id="tt-btn-pw" style="width:100%;padding:14px;border:1px solid #262626;border-radius:14px;font-weight:700;font-size:14px;cursor:pointer;background:#1a1a1a;color:#f0f0f0;font-family:'Outfit',sans-serif">Update Password</button>
+    </div>
     <div class="tt-locked"><i class="fas fa-lock"></i><span>Reports are sent to <strong>corridor.towing@gmail.com</strong> only. History cannot be deleted or modified.</span></div>
     <div style="text-align:center;padding:24px 0 8px">
       <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#f59e0b,#ea580c);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;transform:rotate(-6deg)"><i class="fas fa-truck-pickup" style="color:#fff;font-size:20px;transform:rotate(6deg)"></i></div>
@@ -363,11 +369,12 @@ img,svg{max-width:100%;height:auto;display:block}
   <!-- ========== DRIVERS PANEL ========== -->
   <div id="mgr-panel-drivers" style="display:none">
     <div class="tt-card" style="margin-bottom:14px">
-      <p style="font-size:12px;font-weight:700;margin-bottom:10px;color:#f59e0b"><i class="fas fa-user-plus" style="margin-right:6px"></i>Add Driver</p>
+      <p style="font-size:12px;font-weight:700;margin-bottom:2px;color:#f59e0b"><i class="fas fa-user-plus" style="margin-right:6px"></i>Add Driver</p>
+      <p style="font-size:11px;color:#6b6b6b;margin-bottom:10px">Creates both their dispatch entry and a login, with a temporary password shown to you once.</p>
       <div style="display:flex;flex-direction:column;gap:8px">
         <input id="mgr-drv-name" class="tt-inp" placeholder="Full name" style="padding:10px 12px;font-size:14px">
         <input id="mgr-drv-phone" class="tt-inp" placeholder="Phone (+18045551234)" style="padding:10px 12px;font-size:14px">
-        <input id="mgr-drv-email" class="tt-inp" placeholder="Email (optional)" style="padding:10px 12px;font-size:14px">
+        <input id="mgr-drv-email" class="tt-inp" placeholder="Email (required — used for login)" style="padding:10px 12px;font-size:14px">
         <button id="mgr-btn-add-driver" style="padding:12px;border:none;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#ea580c);color:#000;font-family:'Outfit',sans-serif">Save Driver</button>
       </div>
     </div>
@@ -564,6 +571,21 @@ img,svg{max-width:100%;height:auto;display:block}
   </div>
 </div>
 
+<!-- FORCED PASSWORD CHANGE (first login after manager creates an account) -->
+<div id="tt-forcepw-modal" class="tt-cfbg">
+  <div class="tt-card" style="width:100%;max-width:360px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:40px;height:40px;border-radius:10px;background:rgba(245,158,11,.15);display:flex;align-items:center;justify-content:center"><i class="fas fa-key" style="color:#f59e0b;font-size:18px"></i></div>
+      <h3 style="font-size:18px;font-weight:700">Set a New Password</h3>
+    </div>
+    <p style="font-size:14px;color:#6b6b6b;margin-bottom:16px">This is your first sign-in. Choose a new password to replace the temporary one.</p>
+    <input type="password" id="tt-forcepw-new" class="tt-inp" placeholder="New password (min 6 characters)" autocomplete="new-password" style="margin-bottom:8px">
+    <input type="password" id="tt-forcepw-confirm" class="tt-inp" placeholder="Confirm new password" autocomplete="new-password" style="margin-bottom:8px" onkeydown="if(event.key==='Enter')submitForcePasswordChange()">
+    <p id="tt-forcepw-error" style="font-size:14px;color:#ef4444;display:none;margin-bottom:8px"></p>
+    <button id="tt-forcepw-btn" onclick="submitForcePasswordChange()" style="width:100%;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#0b3d91;border:none;color:#fff;cursor:pointer;font-family:'Outfit',sans-serif">Set Password &amp; Continue</button>
+  </div>
+</div>
+
 <!-- DRIVER JOBS SCREEN -->
 <div id="tt-scr-jobs" class="tt-screen">
 <div style="padding:14px 16px 24px">
@@ -625,6 +647,21 @@ async function fbFetch(url,opts){
     url+=(url.indexOf('?')>-1?'&':'?')+'auth='+encodeURIComponent(token);
   }
   return fetch(url,opts);
+}
+
+// A second, separately-named Firebase App instance used ONLY for creating driver
+// accounts. Firebase's client SDK signs you in as whatever account you just created —
+// using the primary fbAuth for that would kick the manager out of their own session.
+// This instance is signed out again immediately after each use.
+function secondaryAuth(){
+  var app=firebase.apps.find(function(a){return a.name==='Secondary';})||firebase.initializeApp(firebaseConfig,'Secondary');
+  return app.auth();
+}
+function genTempPassword(){
+  var chars='ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'; // no 0/O/1/I/l
+  var s='';
+  for(var i=0;i<10;i++)s+=chars[Math.floor(Math.random()*chars.length)];
+  return s;
 }
 
 // ---- CORE TIME MATH ----
@@ -695,12 +732,49 @@ async function signInEmployee(){
   try{
     await fbAuth.signInWithEmailAndPassword(email,pass);
     closeMgrModal();
-    enterPortal(pendingPortalMode);
+    if(await mustChangePassword()){showForcePasswordChange(pendingPortalMode);}
+    else{enterPortal(pendingPortalMode);}
   }catch(e){
     errEl.textContent='Sign-in failed: '+(e&&(e.code||e.message)||'unknown error');
     errEl.style.display='block';
   }finally{
     btn.disabled=false;btn.textContent='Sign In';
+  }
+}
+async function mustChangePassword(){
+  try{
+    var res=await fbFetch(FIREBASE_URL+'/employees/'+fbAuth.currentUser.uid+'.json');
+    if(!res.ok)return false;
+    var data=await res.json();
+    return !!(data&&data.mustChangePassword);
+  }catch(e){return false;}
+}
+function showForcePasswordChange(mode){
+  pendingPortalMode=mode;
+  document.getElementById('tt-forcepw-new').value='';
+  document.getElementById('tt-forcepw-confirm').value='';
+  document.getElementById('tt-forcepw-error').style.display='none';
+  document.getElementById('tt-forcepw-modal').classList.add('active');
+}
+async function submitForcePasswordChange(){
+  var p1=document.getElementById('tt-forcepw-new').value;
+  var p2=document.getElementById('tt-forcepw-confirm').value;
+  var errEl=document.getElementById('tt-forcepw-error');
+  errEl.style.display='none';
+  if(!p1||p1.length<6){errEl.textContent='Password must be at least 6 characters.';errEl.style.display='block';return;}
+  if(p1!==p2){errEl.textContent='Passwords do not match.';errEl.style.display='block';return;}
+  var btn=document.getElementById('tt-forcepw-btn');
+  btn.disabled=true;btn.textContent='Saving…';
+  try{
+    await fbAuth.currentUser.updatePassword(p1);
+    await fbFetch(FIREBASE_URL+'/employees/'+fbAuth.currentUser.uid+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({mustChangePassword:false})});
+    document.getElementById('tt-forcepw-modal').classList.remove('active');
+    enterPortal(pendingPortalMode);
+  }catch(e){
+    errEl.textContent='Could not update password: '+(e&&(e.code||e.message)||'unknown error');
+    errEl.style.display='block';
+  }finally{
+    btn.disabled=false;btn.textContent='Set Password & Continue';
   }
 }
 function enterPortal(mode){
@@ -1214,17 +1288,34 @@ async function addMgrDriver(){
   var name=(document.getElementById('mgr-drv-name').value||'').trim();
   var phone=(document.getElementById('mgr-drv-phone').value||'').trim();
   var email=(document.getElementById('mgr-drv-email').value||'').trim();
-  if(!name||!phone){alert('Name and phone required');return;}
-  var id=name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')+'_'+Date.now().toString(36);
+  if(!name||!phone||!email){alert('Name, phone, and email are all required — email is used to create their login.');return;}
+  var btn=document.getElementById('mgr-btn-add-driver');
+  btn.disabled=true;btn.textContent='Creating…';
+  var tempPassword=genTempPassword();
   try{
+    // Create the login first (separate Firebase App instance so this doesn't sign
+    // the manager out), then approve that account, then add the dispatch roster entry.
+    var sAuth=secondaryAuth();
+    var cred=await sAuth.createUserWithEmailAndPassword(email,tempPassword);
+    var uid=cred.user.uid;
+    await sAuth.signOut();
+    await fbFetch(FIREBASE_URL+'/employees/'+uid+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      email:email,role:'driver',mustChangePassword:true,createdAt:Date.now()
+    })});
+    var id=name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')+'_'+Date.now().toString(36);
     await fbFetch(FIREBASE_URL+'/drivers/'+id+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      name:name,phone:phone,email:email,active:true,createdAt:Date.now()
+      name:name,phone:phone,email:email,active:true,createdAt:Date.now(),uid:uid
     })});
     document.getElementById('mgr-drv-name').value='';
     document.getElementById('mgr-drv-phone').value='';
     document.getElementById('mgr-drv-email').value='';
     await loadMgrDrivers();
-  }catch(e){alert('Could not save driver: '+e.message);}
+    alert('Driver account created!\n\nEmail: '+email+'\nTemp password: '+tempPassword+'\n\nShare these with '+name+'. They\'ll be asked to set their own password the first time they sign in.');
+  }catch(e){
+    alert('Could not create driver account: '+(e&&e.message||e));
+  }finally{
+    btn.disabled=false;btn.textContent='Save Driver';
+  }
 }
 
 function switchMgrMainTab(tab){
@@ -1876,6 +1967,27 @@ function initTT(){
   });
   document.getElementById('tt-ptabs').addEventListener('click',function(e){var b=e.target.closest('.tt-pt');if(!b)return;histPeriod=b.dataset.p;document.querySelectorAll('#tt-ptabs .tt-pt').forEach(function(t){t.classList.remove('on');});b.classList.add('on');rH();});
   document.getElementById('tt-btn-ss').addEventListener('click',function(){var name=document.getElementById('tt-set-n').value.trim();if(!name){tT('Name cannot be empty','warning');return;}ttD.driverName=name;sv();tT('Name saved!','success');rD();});
+  document.getElementById('tt-btn-pw').addEventListener('click',async function(){
+    var cur=document.getElementById('tt-pw-current').value;
+    var next=document.getElementById('tt-pw-new').value;
+    if(!cur||!next){tT('Enter your current and new password','warning');return;}
+    if(next.length<6){tT('New password must be at least 6 characters','warning');return;}
+    var btn=document.getElementById('tt-btn-pw');
+    btn.disabled=true;btn.textContent='Updating…';
+    try{
+      var user=fbAuth.currentUser;
+      var cred=firebase.auth.EmailAuthProvider.credential(user.email,cur);
+      await user.reauthenticateWithCredential(cred);
+      await user.updatePassword(next);
+      document.getElementById('tt-pw-current').value='';
+      document.getElementById('tt-pw-new').value='';
+      tT('Password updated!','success');
+    }catch(e){
+      tT('Could not update password: '+(e&&(e.code||e.message)||'unknown error'),'error');
+    }finally{
+      btn.disabled=false;btn.textContent='Update Password';
+    }
+  });
   document.getElementById('tt-btn-email').addEventListener('click',function(){var cur=cp();var txt=rptT('Current Period',cur);var subj='TowTrack Report — '+ttD.driverName+' — '+fD(cur.s.getTime())+' to '+fD(cur.e.getTime());window.location.href='mailto:'+COMPANY_EMAIL+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(txt);});
   document.getElementById('tt-btn-excel').addEventListener('click',downloadExcel);
   document.getElementById('tt-btn-copy').addEventListener('click',function(){var cur=cp();var txt=rptT('Current Period',cur);if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){tT('Report copied!','success');}).catch(function(){fbCopy(txt);});}else{fbCopy(txt);}});

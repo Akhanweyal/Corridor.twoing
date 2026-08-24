@@ -1,29 +1,37 @@
 {
   "rules": {
+    // Shorthand used throughout below (RTDB rules have no variables, so it's inlined
+    // everywhere): an "employee" is either the hardcoded manager account, or any UID
+    // the manager has explicitly approved in /employees. This exists because Firebase
+    // Auth sign-up is reachable by anyone holding the public API key (it's not a
+    // secret) — auth != null alone would let a self-registered account in. Only the
+    // manager email is a permanent bypass; every other account needs an approval
+    // record that only the manager can create.
+
     "jobs": {
       // Declared here (not just on $jobId below) because the manager dashboard and
       // driver app fetch the whole /jobs.json list at once — a read rule nested only
       // under $jobId only ever applies when a specific job id is requested directly,
       // never to a list query, so it silently denied every dashboard/driver fetch.
-      ".read": "auth != null",
+      ".read": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())",
       "$jobId": {
         // Anyone can submit a new service request (the public form isn't logged in),
         // but only as a brand-new pending job — never overwriting or reading an existing one.
-        ".write": "auth != null || (!data.exists() && newData.child('status').val() === 'pending' && newData.child('customerName').isString() && newData.child('customerPhone').isString() && newData.child('feedbackToken').isString())",
+        ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && newData.child('status').val() === 'pending' && newData.child('customerName').isString() && newData.child('customerPhone').isString() && newData.child('feedbackToken').isString())",
 
         // The public feedback.html page can set these WITHOUT being signed in, but only
         // once, and only by proving it knows this job's feedbackToken via the _proof field.
         "feedbackSubmitted": {
-          ".write": "auth != null || (data.exists() && data.val() === false && newData.val() === true && newData.parent().child('_proof').val() === data.parent().child('feedbackToken').val())"
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (data.exists() && data.val() === false && newData.val() === true && newData.parent().child('_proof').val() === data.parent().child('feedbackToken').val())"
         },
         "feedbackRating": {
-          ".write": "auth != null || (newData.isNumber() && newData.val() >= 1 && newData.val() <= 5)"
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (newData.isNumber() && newData.val() >= 1 && newData.val() <= 5)"
         },
         "feedbackComment": {
-          ".write": "auth != null || (newData.isString() && newData.val().length <= 1000)"
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (newData.isString() && newData.val().length <= 1000)"
         },
         "feedbackAt": {
-          ".write": "auth != null || newData.isNumber()"
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || newData.isNumber()"
         },
         "_proof": {
           ".write": "auth == null",
@@ -33,13 +41,20 @@
     },
 
     "drivers": {
-      ".read": "auth != null",
-      ".write": "auth != null"
+      ".read": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())",
+      ".write": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())"
     },
 
     "driverLogs": {
-      ".read": "auth != null",
-      ".write": "auth != null"
+      ".read": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())",
+      ".write": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())"
+    },
+
+    // Approval list: only the manager can add/remove entries. An entry's existence is
+    // what lets a non-manager account read/write jobs, drivers, and driverLogs above.
+    "employees": {
+      ".read": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())",
+      ".write": "auth != null && auth.token.email === 'ajmal@corridortowing.org'"
     },
 
     // Deny everything else by default.
