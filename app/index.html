@@ -586,6 +586,25 @@ img,svg{max-width:100%;height:auto;display:block}
   </div>
 </div>
 
+<!-- NEW DRIVER CREDENTIALS (shown once, so the manager can copy and relay them) -->
+<div id="tt-newdriver-modal" class="tt-cfbg">
+  <div class="tt-card" style="width:100%;max-width:360px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,.15);display:flex;align-items:center;justify-content:center"><i class="fas fa-check" style="color:#10b981;font-size:18px"></i></div>
+      <h3 style="font-size:18px;font-weight:700">Driver Account Created</h3>
+    </div>
+    <p style="font-size:14px;color:#6b6b6b;margin-bottom:16px">Send these to <span id="tt-newdriver-name" style="color:#f0f0f0;font-weight:700"></span> — this password only works for their first sign-in.</p>
+    <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#6b6b6b;margin-bottom:6px">Email</label>
+    <input id="tt-newdriver-email" class="tt-inp" readonly onclick="this.select()" style="margin-bottom:14px;font-family:'JetBrains Mono',monospace">
+    <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#6b6b6b;margin-bottom:6px">Temporary Password</label>
+    <input id="tt-newdriver-pass" class="tt-inp" readonly onclick="this.select()" style="margin-bottom:16px;font-family:'JetBrains Mono',monospace">
+    <div style="display:flex;gap:12px">
+      <button onclick="copyNewDriverCreds()" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#1e1e1e;border:1px solid #262626;color:#f0f0f0;cursor:pointer;font-family:'Outfit',sans-serif"><i class="fas fa-copy"></i> Copy Both</button>
+      <button onclick="document.getElementById('tt-newdriver-modal').classList.remove('active')" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#0b3d91;border:none;color:#fff;cursor:pointer;font-family:'Outfit',sans-serif">Done</button>
+    </div>
+  </div>
+</div>
+
 <!-- DRIVER JOBS SCREEN -->
 <div id="tt-scr-jobs" class="tt-screen">
 <div style="padding:14px 16px 24px">
@@ -1081,10 +1100,47 @@ function renderMgrDrivers(){
     html+='<div class="tt-card" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px">';
     html+='<div><p style="font-weight:700;font-size:14px">'+(d.name||'')+'</p>';
     html+='<p style="font-size:12px;color:#6b6b6b">'+(d.phone||'')+(d.email?' · '+d.email:'')+'</p></div>';
+    html+='<div style="display:flex;align-items:center;gap:10px;flex-shrink:0">';
     html+='<span style="font-size:10px;font-weight:700;color:'+(d.active!==false?'#10b981':'#6b6b6b')+'">'+(d.active!==false?'Active':'Inactive')+'</span>';
+    html+='<button onclick="deleteMgrDriver(\''+d.id+'\')" title="Delete driver" style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.1);color:#fca5a5;cursor:pointer;flex-shrink:0"><i class="fas fa-trash" style="font-size:12px"></i></button>';
+    html+='</div>';
     html+='</div>';
   });
   list.innerHTML=html;
+}
+
+async function deleteMgrDriver(driverId){
+  var d=mgrDrivers.find(function(x){return x.id===driverId;});
+  if(!d)return;
+  var msg='Remove '+(d.name||'this driver')+' from dispatch?';
+  if(d.uid)msg+=' Their login will also stop working immediately (the account itself isn\'t deleted, just revoked — you can remove it from Firebase Authentication later if you want to fully clean it up).';
+  if(!confirm(msg))return;
+  try{
+    await fbFetch(FIREBASE_URL+'/drivers/'+driverId+'.json',{method:'DELETE'});
+    if(d.uid)await fbFetch(FIREBASE_URL+'/employees/'+d.uid+'.json',{method:'DELETE'});
+    await loadMgrDrivers();
+  }catch(e){alert('Could not remove driver: '+(e&&e.message||e));}
+}
+
+function showNewDriverModal(name,email,pass){
+  document.getElementById('tt-newdriver-name').textContent=name||'this driver';
+  document.getElementById('tt-newdriver-email').value=email;
+  document.getElementById('tt-newdriver-pass').value=pass;
+  document.getElementById('tt-newdriver-modal').classList.add('active');
+}
+function mgrCopyFallback(text){
+  var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');}catch(e){}
+  document.body.removeChild(ta);
+}
+function copyNewDriverCreds(){
+  var text='Email: '+document.getElementById('tt-newdriver-email').value+'\nTemp password: '+document.getElementById('tt-newdriver-pass').value;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).catch(function(){mgrCopyFallback(text);});
+  }else{
+    mgrCopyFallback(text);
+  }
 }
 
 function openAssignModal(jobId){
@@ -1310,7 +1366,7 @@ async function addMgrDriver(){
     document.getElementById('mgr-drv-phone').value='';
     document.getElementById('mgr-drv-email').value='';
     await loadMgrDrivers();
-    alert('Driver account created!\n\nEmail: '+email+'\nTemp password: '+tempPassword+'\n\nShare these with '+name+'. They\'ll be asked to set their own password the first time they sign in.');
+    showNewDriverModal(name,email,tempPassword);
   }catch(e){
     alert('Could not create driver account: '+(e&&e.message||e));
   }finally{
