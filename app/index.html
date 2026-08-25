@@ -786,7 +786,8 @@ async function submitForcePasswordChange(){
   btn.disabled=true;btn.textContent='Saving…';
   try{
     await fbAuth.currentUser.updatePassword(p1);
-    await fbFetch(FIREBASE_URL+'/employees/'+fbAuth.currentUser.uid+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({mustChangePassword:false})});
+    var clearRes=await fbFetch(FIREBASE_URL+'/employees/'+fbAuth.currentUser.uid+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({mustChangePassword:false})});
+    if(!clearRes.ok)throw new Error('Password changed, but HTTP '+clearRes.status+' clearing the flag — you may be asked again next sign-in.');
     document.getElementById('tt-forcepw-modal').classList.remove('active');
     enterPortal(pendingPortalMode);
   }catch(e){
@@ -1116,8 +1117,12 @@ async function deleteMgrDriver(driverId){
   if(d.uid)msg+=' Their login will also stop working immediately (the account itself isn\'t deleted, just revoked — you can remove it from Firebase Authentication later if you want to fully clean it up).';
   if(!confirm(msg))return;
   try{
-    await fbFetch(FIREBASE_URL+'/drivers/'+driverId+'.json',{method:'DELETE'});
-    if(d.uid)await fbFetch(FIREBASE_URL+'/employees/'+d.uid+'.json',{method:'DELETE'});
+    var res=await fbFetch(FIREBASE_URL+'/drivers/'+driverId+'.json',{method:'DELETE'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    if(d.uid){
+      var empRes=await fbFetch(FIREBASE_URL+'/employees/'+d.uid+'.json',{method:'DELETE'});
+      if(!empRes.ok)throw new Error('Removed from roster, but revoking their login failed (HTTP '+empRes.status+') — they may still have access.');
+    }
     await loadMgrDrivers();
   }catch(e){alert('Could not remove driver: '+(e&&e.message||e));}
 }
@@ -1293,7 +1298,7 @@ async function assignJobToDriver(jobId,driverId){
   if(!driver)return;
   var job=mgrJobs.find(function(j){return j.id===jobId;})||{};
   try{
-    await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    var res=await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       status:'assigned',
       assignedDriverId:driverId,
       assignedDriverName:driver.name,
@@ -1302,6 +1307,7 @@ async function assignJobToDriver(jobId,driverId){
       assignedAt:Date.now(),
       updatedAt:Date.now()
     })});
+    if(!res.ok)throw new Error('HTTP '+res.status);
     document.getElementById('mgr-assign-modal').classList.remove('active');
     job.assignedDriverName=driver.name;
     notifyDriverChannels(job,driver,'assigned');
@@ -1316,7 +1322,7 @@ async function unassignJob(jobId){
     mgrDrivers.find(function(d){return d.name===job.assignedDriverName;})||
     {name:job.assignedDriverName||'Driver',phone:job.assignedDriverPhone||'',email:job.assignedDriverEmail||''};
   try{
-    await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    var res=await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       status:'pending',
       assignedDriverId:null,
       assignedDriverName:null,
@@ -1325,6 +1331,7 @@ async function unassignJob(jobId){
       assignedAt:null,
       updatedAt:Date.now()
     })});
+    if(!res.ok)throw new Error('HTTP '+res.status);
     if(driver&&(driver.email||driver.phone))notifyDriverChannels(job,driver,'unassigned');
     await loadMgrJobs();
   }catch(e){alert('Unassign failed: '+e.message);}
@@ -1355,13 +1362,15 @@ async function addMgrDriver(){
     var cred=await sAuth.createUserWithEmailAndPassword(email,tempPassword);
     var uid=cred.user.uid;
     await sAuth.signOut();
-    await fbFetch(FIREBASE_URL+'/employees/'+uid+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    var empRes=await fbFetch(FIREBASE_URL+'/employees/'+uid+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       email:email,role:'driver',mustChangePassword:true,createdAt:Date.now()
     })});
+    if(!empRes.ok)throw new Error('Approval record rejected (HTTP '+empRes.status+') — has the current database.rules.json been published to Firebase? The login was created but is not yet approved.');
     var id=name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')+'_'+Date.now().toString(36);
-    await fbFetch(FIREBASE_URL+'/drivers/'+id+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    var drvRes=await fbFetch(FIREBASE_URL+'/drivers/'+id+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       name:name,phone:phone,email:email,active:true,createdAt:Date.now(),uid:uid
     })});
+    if(!drvRes.ok)throw new Error('Roster entry rejected (HTTP '+drvRes.status+').');
     document.getElementById('mgr-drv-name').value='';
     document.getElementById('mgr-drv-phone').value='';
     document.getElementById('mgr-drv-email').value='';
@@ -1722,8 +1731,10 @@ function initTT(){
       }catch(geoErr){console.warn('GPS unavailable',geoErr);}
     }
     try{
-      await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      var patchRes=await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      if(!patchRes.ok)throw new Error('HTTP '+patchRes.status);
       var jr=await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json');
+      if(!jr.ok)throw new Error('HTTP '+jr.status);
       var job=await jr.json();
       if(job){
         job.id=jobId;
