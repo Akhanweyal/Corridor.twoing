@@ -50,11 +50,17 @@
       ".write": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())"
     },
 
-    // Approval list: only the manager can add/remove entries. An entry's existence is
-    // what lets a non-manager account read/write jobs, drivers, and driverLogs above.
+    // Approval list: only the manager can add/remove/edit entries — except each
+    // employee is also allowed to clear their own mustChangePassword flag (and
+    // only that field, and only on their own record) once they've set a real password.
     "employees": {
       ".read": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())",
-      ".write": "auth != null && auth.token.email === 'ajmal@corridortowing.org'"
+      ".write": "auth != null && auth.token.email === 'ajmal@corridortowing.org'",
+      "$uid": {
+        "mustChangePassword": {
+          ".write": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || auth.uid === $uid)"
+        }
+      }
     },
 
     // Deny everything else by default.
