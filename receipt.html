@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Receipt | Corridor Towing</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Outfit',sans-serif;background:#0a0a0a;color:#f0f0f0;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px}
+  .wrap{width:100%;max-width:440px}
+  .card{background:#141414;border:1px solid #262626;border-radius:18px;padding:28px;margin-bottom:16px}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .brand img{height:44px;width:44px;border-radius:10px;object-fit:cover}
+  .brand h1{font-size:18px;font-weight:900}
+  .brand p{font-size:11px;color:#6b6b6b}
+  h2{font-size:20px;font-weight:900;margin-bottom:2px}
+  .sub{font-size:13px;color:#6b6b6b;margin-bottom:18px}
+  .row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #1e1e1e;font-size:13px}
+  .row:last-of-type{border-bottom:none}
+  .row .k{color:#6b6b6b}
+  .row .v{text-align:right;font-weight:600}
+  .section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6b6b6b;margin:20px 0 8px}
+  .section-title:first-of-type{margin-top:0}
+  .line{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;font-family:'JetBrains Mono',monospace}
+  .line .lbl{font-family:'Outfit',sans-serif;color:#aaa}
+  .total{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:14px;border-top:2px solid rgba(245,158,11,.3)}
+  .total .lbl{font-size:15px;font-weight:700}
+  .total .amt{font-size:26px;font-weight:900;color:#f59e0b;font-family:'JetBrains Mono',monospace}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;margin-top:10px}
+  .badge.paid{background:rgba(16,185,129,.15);color:#10b981}
+  .badge.later{background:rgba(96,165,250,.15);color:#60a5fa}
+  .btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px;border:none;border-radius:14px;font-weight:900;font-size:15px;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#ea580c);color:#000;font-family:inherit;text-decoration:none;box-sizing:border-box;margin-bottom:10px}
+  .btn.ghost{background:#1e1e1e;color:#f0f0f0;border:1.5px solid #262626}
+  .foot{text-align:center;font-size:12px;color:#6b6b6b;line-height:1.6}
+  .foot a{color:#f59e0b}
+  .err{text-align:center;padding:40px 20px;color:#ef4444}
+  @media print{
+    body{background:#fff;color:#000;padding:0}
+    .card{background:#fff;border:1px solid #ccc}
+    .no-print{display:none}
+    .row,.line{border-color:#ddd}
+    .section-title{color:#555}
+    .row .k,.line .lbl{color:#555}
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <div class="err" id="err" style="display:none">Invalid or missing receipt link.</div>
+  <div id="content" style="display:none">
+    <div class="card">
+      <div class="brand">
+        <img src="/images/logo.jpeg" onerror="this.style.display='none'">
+        <div><h1>Corridor Towing</h1><p>8607 Oakview Avenue, Henrico, VA 23228 · (804) 292-8414</p></div>
+      </div>
+      <h2>Service Receipt</h2>
+      <p class="sub" id="r-meta"></p>
+
+      <div class="section-title">Customer</div>
+      <div class="row"><span class="k">Name</span><span class="v" id="r-name"></span></div>
+      <div class="row" id="r-vehicle-row"><span class="k">Vehicle</span><span class="v" id="r-vehicle"></span></div>
+
+      <div class="section-title">Service</div>
+      <div class="row"><span class="k">Type</span><span class="v" id="r-service"></span></div>
+      <div class="row"><span class="k">Location</span><span class="v" id="r-pickup"></span></div>
+      <div class="row" id="r-dest-row"><span class="k">Drop-off</span><span class="v" id="r-dest"></span></div>
+      <div class="row" id="r-driver-row"><span class="k">Driver</span><span class="v" id="r-driver"></span></div>
+
+      <div class="section-title">Charges</div>
+      <div id="r-lines"></div>
+      <div class="total"><span class="lbl">Total</span><span class="amt" id="r-total"></span></div>
+      <div id="r-payment"></div>
+    </div>
+
+    <div class="no-print">
+      <button class="btn" onclick="window.print()"><i>🖨️</i> Save / Print Receipt</button>
+      <button class="btn ghost" id="r-feedback-btn" style="display:none">⭐ Rate Your Experience</button>
+    </div>
+
+    <p class="foot">Questions about this receipt? Call <a href="tel:8042928414">(804) 292-8414</a> or email <a href="mailto:corridor.towing.services@gmail.com">corridor.towing.services@gmail.com</a>.</p>
+  </div>
+</div>
+<script>
+(function(){
+  function b64urlDecode(str){
+    str=str.replace(/-/g,'+').replace(/_/g,'/');
+    while(str.length%4)str+='=';
+    return decodeURIComponent(escape(atob(str)));
+  }
+  var params=new URLSearchParams(location.search);
+  var raw=params.get('d');
+  var d=null;
+  if(raw){
+    try{d=JSON.parse(b64urlDecode(raw));}catch(e){d=null;}
+  }
+  if(!d||!d.n){
+    document.getElementById('err').style.display='block';
+    return;
+  }
+  document.getElementById('content').style.display='block';
+
+  var isTow=d.jt==='tow';
+  var dt=d.dt?new Date(d.dt):new Date();
+  document.getElementById('r-meta').textContent='Job #'+(d.id||'—').slice(-8).toUpperCase()+' · '+dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' '+dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  document.getElementById('r-name').textContent=d.n||'—';
+  if(d.v){document.getElementById('r-vehicle').textContent=d.v;}else{document.getElementById('r-vehicle-row').style.display='none';}
+  document.getElementById('r-service').textContent=d.s||'—';
+  document.getElementById('r-pickup').textContent=d.pu||'—';
+  if(isTow&&d.do){document.getElementById('r-dest').textContent=d.do;}else{document.getElementById('r-dest-row').style.display='none';}
+  if(d.dn){document.getElementById('r-driver').textContent=d.dn;}else{document.getElementById('r-driver-row').style.display='none';}
+
+  var em=Number(d.em)||0, tm=isTow?(Number(d.tm)||0):0, amt=Number(d.amt)||0;
+  var enrouteCost=em*2, towCost=tm*5;
+  var base=amt-enrouteCost-towCost;
+  if(base<0)base=amt; // fall back gracefully if numbers don't reconcile
+
+  var lines='';
+  lines+='<div class="line"><span class="lbl">Base service fee</span><span>$'+base.toFixed(2)+'</span></div>';
+  if(em>0)lines+='<div class="line"><span class="lbl">Enroute — '+em+' mi @ $2/mi</span><span>$'+enrouteCost.toFixed(2)+'</span></div>';
+  if(isTow&&tm>0)lines+='<div class="line"><span class="lbl">Tow (loaded) — '+tm+' mi @ $5/mi</span><span>$'+towCost.toFixed(2)+'</span></div>';
+  document.getElementById('r-lines').innerHTML=lines;
+  document.getElementById('r-total').textContent='$'+amt.toFixed(2);
+
+  var payDiv=document.getElementById('r-payment');
+  if(d.pp==='pay-now'){
+    var methodLabel={venmo:'Venmo',cashapp:'Cash App',paypal:'PayPal',card:'Card'}[d.pm]||'';
+    payDiv.innerHTML='<span class="badge paid">PAID'+(methodLabel?' · '+methodLabel:'')+'</span>';
+  }else{
+    payDiv.innerHTML='<span class="badge later">PAY ON ARRIVAL — cash, card, Venmo, Cash App or PayPal</span>';
+  }
+
+  if(d.id&&d.ft){
+    var fbBtn=document.getElementById('r-feedback-btn');
+    fbBtn.style.display='flex';
+    fbBtn.onclick=function(){location.href='https://corridortowing.org/feedback.html?job='+encodeURIComponent(d.id)+'&t='+encodeURIComponent(d.ft);};
+  }
+})();
+</script>
+</body>
+</html>

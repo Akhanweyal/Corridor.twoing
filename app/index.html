@@ -325,7 +325,10 @@ img,svg{max-width:100%;height:auto;display:block}
       <h2 style="font-size:20px;font-weight:900;margin-bottom:1px">Manager Dashboard</h2>
       <p style="font-size:11px;color:#6b6b6b" id="mgr-period-label">Dispatch · Drivers · Time logs</p>
     </div>
-    <button id="tt-btn-mgr-refresh" style="background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:#60a5fa;padding:7px 12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;font-family:'Outfit',sans-serif"><i class="fas fa-rotate"></i> Refresh</button>
+    <div style="display:flex;gap:8px;flex-shrink:0">
+      <button id="tt-btn-new-job" style="background:linear-gradient(135deg,#f59e0b,#ea580c);border:none;color:#000;padding:7px 12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px;font-family:'Outfit',sans-serif"><i class="fas fa-plus"></i> New Job</button>
+      <button id="tt-btn-mgr-refresh" style="background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:#60a5fa;padding:7px 12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;font-family:'Outfit',sans-serif"><i class="fas fa-rotate"></i> Refresh</button>
+    </div>
   </div>
 
   <!-- Top-level Manager tabs: Dispatch | Drivers | Time Logs -->
@@ -601,6 +604,70 @@ img,svg{max-width:100%;height:auto;display:block}
     <div style="display:flex;gap:12px">
       <button onclick="copyNewDriverCreds()" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#1e1e1e;border:1px solid #262626;color:#f0f0f0;cursor:pointer;font-family:'Outfit',sans-serif"><i class="fas fa-copy"></i> Copy Both</button>
       <button onclick="document.getElementById('tt-newdriver-modal').classList.remove('active')" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#0b3d91;border:none;color:#fff;cursor:pointer;font-family:'Outfit',sans-serif">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECEIPT LINK MODAL -->
+<div id="mgr-receipt-modal" class="tt-cfbg">
+  <div class="tt-card" style="width:100%;max-width:380px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:40px;height:40px;border-radius:10px;background:rgba(245,158,11,.15);display:flex;align-items:center;justify-content:center"><i class="fas fa-receipt" style="color:#f59e0b;font-size:18px"></i></div>
+      <h3 style="font-size:18px;font-weight:700">Customer Receipt</h3>
+    </div>
+    <p style="font-size:13px;color:#6b6b6b;margin-bottom:12px">This link opens a printable receipt built entirely from this job's saved details — no login needed to view it.</p>
+    <input id="mgr-receipt-link" class="tt-inp" readonly onclick="this.select()" style="margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:12px">
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+      <button onclick="copyReceiptLink()" style="width:100%;padding:12px;border-radius:12px;font-weight:700;font-size:14px;background:#1e1e1e;border:1px solid #262626;color:#f0f0f0;cursor:pointer;font-family:'Outfit',sans-serif"><i class="fas fa-copy"></i> Copy Link</button>
+      <a id="mgr-receipt-sms" href="#" style="display:block;text-align:center;width:100%;padding:12px;border-radius:12px;font-weight:700;font-size:14px;background:linear-gradient(135deg,#f59e0b,#ea580c);color:#000;cursor:pointer;font-family:'Outfit',sans-serif;text-decoration:none"><i class="fas fa-comment-dots"></i> Text to Customer</a>
+      <a id="mgr-receipt-email" href="#" style="display:block;text-align:center;width:100%;padding:12px;border-radius:12px;font-weight:700;font-size:14px;background:#0b3d91;color:#fff;cursor:pointer;font-family:'Outfit',sans-serif;text-decoration:none"><i class="fas fa-envelope"></i> Email to Customer</a>
+    </div>
+    <button onclick="document.getElementById('mgr-receipt-modal').classList.remove('active')" style="width:100%;padding:11px;border-radius:10px;font-weight:600;font-size:13px;background:transparent;border:1px solid #262626;color:#6b6b6b;cursor:pointer;font-family:'Outfit',sans-serif">Close</button>
+  </div>
+</div>
+
+<!-- NEW JOB MODAL (phone-in requests entered manually by the manager) -->
+<div id="mgr-newjob-modal" class="tt-cfbg">
+  <div class="tt-card" style="width:100%;max-width:420px;max-height:88vh;overflow-y:auto">
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:4px">New Job (Phone-In)</h3>
+    <p style="font-size:12px;color:#6b6b6b;margin-bottom:14px">For a customer who called instead of using the website form. Saves the same way — assign, status updates, feedback and receipt all work normally.</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <input id="nj-name" class="tt-inp" placeholder="Customer full name *">
+      <input id="nj-phone" class="tt-inp" placeholder="Customer phone *" type="tel">
+      <input id="nj-email" class="tt-inp" placeholder="Customer email (optional, for receipt)" type="email">
+      <select id="nj-service" class="tt-inp">
+        <option value="">Select service *</option>
+        <option value="light-tow" data-base="60" data-jobtype="tow">Light Duty Tow ($60+)</option>
+        <option value="medium-tow" data-base="70" data-jobtype="tow">Medium Duty Tow ($70+)</option>
+        <option value="jumpstart" data-base="50" data-jobtype="roadside">Jumpstart ($50)</option>
+        <option value="lockout" data-base="50" data-jobtype="roadside">Lockout ($50)</option>
+        <option value="tire" data-base="50" data-jobtype="roadside">Tire Change ($50)</option>
+        <option value="fuel" data-base="50" data-jobtype="roadside">Fuel Delivery ($50 + fuel)</option>
+        <option value="extraction" data-base="60" data-jobtype="roadside">Winch Out / Extraction ($60)</option>
+      </select>
+      <input id="nj-vehicle" class="tt-inp" placeholder="Vehicle make & model">
+      <input id="nj-pickup" class="tt-inp" placeholder="Pickup / service location *">
+      <input id="nj-dest" class="tt-inp" placeholder="Drop-off destination (tow only)" style="display:none">
+      <div style="display:flex;gap:8px">
+        <input id="nj-enroute" class="tt-inp" placeholder="Enroute miles" type="number" step="0.1" min="0" value="0" style="flex:1">
+        <input id="nj-tow" class="tt-inp" placeholder="Tow miles" type="number" step="0.1" min="0" value="0" style="flex:1">
+      </div>
+      <input id="nj-amount" class="tt-inp" placeholder="Total amount ($)" type="number" step="0.01" readonly style="background:#1a1a1a;color:#f59e0b;font-weight:700">
+      <select id="nj-payment" class="tt-inp">
+        <option value="pay-later">Pay on arrival</option>
+        <option value="pay-now">Pay now</option>
+      </select>
+      <select id="nj-paymethod" class="tt-inp" style="display:none">
+        <option value="">Select payment method</option>
+        <option value="venmo">Venmo</option>
+        <option value="cashapp">Cash App</option>
+        <option value="paypal">PayPal</option>
+        <option value="card">Card</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button onclick="document.getElementById('mgr-newjob-modal').classList.remove('active')" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#1e1e1e;border:1px solid #262626;color:#f0f0f0;cursor:pointer;font-family:'Outfit',sans-serif">Cancel</button>
+      <button id="nj-submit" onclick="createManualJob()" style="flex:1;padding:12px;border-radius:12px;font-weight:700;font-size:14px;background:linear-gradient(135deg,#f59e0b,#ea580c);border:none;color:#000;cursor:pointer;font-family:'Outfit',sans-serif">Save Job</button>
     </div>
   </div>
 </div>
@@ -1082,6 +1149,9 @@ function renderMgrJobs(){
       }
       html+='</div>';
     }
+    html+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">';
+    html+='<button onclick="openReceiptModal(\''+j.id+'\')" style="flex:1;min-width:100px;padding:9px 10px;border:1px solid #262626;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer;background:#1a1a1a;color:#aaa;font-family:\'Outfit\',sans-serif"><i class="fas fa-receipt"></i> Receipt</button>';
+    html+='</div>';
     if(j.status==='dropped_off'&&j.feedbackSubmitted){
       html+='<p style="font-size:11px;color:#10b981;margin-top:6px"><i class="fas fa-star"></i> '+(j.feedbackRating||'—')+'/5'+(j.feedbackComment?' — '+j.feedbackComment:'')+'</p>';
     }
@@ -1183,6 +1253,61 @@ function mapsSearchLink(addr){
   return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(addr);
 }
 
+// URL-safe base64 so job details can be embedded directly in a receipt link — the
+// receipt page then needs zero Firebase access (no DB rule for anonymous reads
+// required), it just decodes whatever the authenticated app encoded into the URL.
+function b64urlEncode(str){
+  var b64=btoa(unescape(encodeURIComponent(str)));
+  return b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function buildReceiptUrl(job){
+  var isTow=job.jobType==='tow';
+  var d={
+    id:job.id||'',
+    n:job.customerName||'',
+    s:job.service||'',
+    v:job.vehicle||'',
+    pu:job.pickupAddress||'',
+    do:(isTow&&job.destinationAddress&&job.destinationAddress!=='N/A')?job.destinationAddress:'',
+    em:Number(job.enrouteMiles)||0,
+    tm:isTow?(Number(job.towMiles)||0):0,
+    amt:Number(job.amount)||0,
+    pp:job.paymentPref||'',
+    pm:job.payMethod||'',
+    dn:job.assignedDriverName||'',
+    dt:job.droppedOffAt||job.updatedAt||Date.now(),
+    jt:job.jobType||'',
+    ft:job.feedbackToken||''
+  };
+  return 'https://corridortowing.org/receipt.html?d='+b64urlEncode(JSON.stringify(d));
+}
+function openReceiptModal(jobId){
+  var job=mgrJobs.find(function(j){return j.id===jobId;});
+  if(!job){alert('Job not found.');return;}
+  var url=buildReceiptUrl(job);
+  document.getElementById('mgr-receipt-link').value=url;
+  var smsBtn=document.getElementById('mgr-receipt-sms');
+  var mailBtn=document.getElementById('mgr-receipt-email');
+  var text='Corridor Towing: Here\'s your receipt — '+url;
+  smsBtn.href=job.customerPhone?('sms:'+String(job.customerPhone).replace(/\s/g,'')+'?&body='+encodeURIComponent(text)):'#';
+  smsBtn.style.opacity=job.customerPhone?'1':'.4';
+  smsBtn.style.pointerEvents=job.customerPhone?'auto':'none';
+  var custEmail=(job.customerEmail||'').trim();
+  mailBtn.href=custEmail?('mailto:'+custEmail+'?subject='+encodeURIComponent('Your Corridor Towing Receipt')+'&body='+encodeURIComponent(text)):'#';
+  mailBtn.style.opacity=custEmail?'1':'.4';
+  mailBtn.style.pointerEvents=custEmail?'auto':'none';
+  document.getElementById('mgr-receipt-modal').classList.add('active');
+}
+function copyReceiptLink(){
+  var input=document.getElementById('mgr-receipt-link');
+  input.select();
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(input.value).then(function(){tT('Receipt link copied','success');}).catch(function(){mgrCopyFallback(input.value);});
+  }else{
+    mgrCopyFallback(input.value);
+  }
+}
+
 /** Send notification via Formspree (same form as website requests). Uses _cc so driver/customer get a copy when enabled on your Formspree plan. */
 function formspreeNotify(payload){
   return fetch(FORMSPREE_URL,{
@@ -1278,8 +1403,11 @@ function notifyCustomerStatusEmail(job,status,extra){
     else if(status==='on_location')body+='\nOur driver has arrived and is working on your vehicle.\n';
     else if(status==='done')body+='\nYour service is complete. Thank you!\n';
   }
-  if((status==='dropped_off'||status==='done')&&job.feedbackToken&&job.id){
-    body+='\nRate your experience:\nhttps://corridortowing.org/feedback.html?job='+encodeURIComponent(job.id)+'&t='+encodeURIComponent(job.feedbackToken)+'\n';
+  if((status==='dropped_off'||status==='done')&&job.id){
+    body+='\nYour receipt:\n'+buildReceiptUrl(job)+'\n';
+    if(job.feedbackToken){
+      body+='\nRate your experience:\nhttps://corridortowing.org/feedback.html?job='+encodeURIComponent(job.id)+'&t='+encodeURIComponent(job.feedbackToken)+'\n';
+    }
   }
   body+='\nCall us: (804) 292-8414\n— Corridor Towing';
 
@@ -1383,6 +1511,92 @@ async function addMgrDriver(){
   }
 }
 
+function njGetJobType(){
+  var s=document.getElementById('nj-service');
+  var o=s.options[s.selectedIndex];
+  return (o&&o.dataset&&o.dataset.jobtype)?o.dataset.jobtype:'';
+}
+function njOnServiceChange(){
+  var isTow=njGetJobType()==='tow';
+  document.getElementById('nj-dest').style.display=isTow?'block':'none';
+  njCalcTotal();
+}
+function njCalcTotal(){
+  var s=document.getElementById('nj-service');
+  var o=s.options[s.selectedIndex];
+  var b=(o&&o.dataset&&o.dataset.base)?parseFloat(o.dataset.base):0;
+  var en=parseFloat(document.getElementById('nj-enroute').value)||0;
+  var tw=njGetJobType()==='tow'?(parseFloat(document.getElementById('nj-tow').value)||0):0;
+  document.getElementById('nj-amount').value=(b+en*2+tw*5).toFixed(2);
+}
+function njTogglePayMethod(){
+  document.getElementById('nj-paymethod').style.display=document.getElementById('nj-payment').value==='pay-now'?'block':'none';
+}
+function njResetForm(){
+  ['nj-name','nj-phone','nj-email','nj-vehicle','nj-pickup','nj-dest'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('nj-service').value='';
+  document.getElementById('nj-enroute').value='0';
+  document.getElementById('nj-tow').value='0';
+  document.getElementById('nj-payment').value='pay-later';
+  njTogglePayMethod();
+  njOnServiceChange();
+}
+
+// Lets a manager enter a job that came in by phone call (e.g. a customer who was
+// redirected to call instead of using the website form). Saves via the same
+// authenticated write path as everything else the dispatch app does, using the
+// identical job schema the public website writes — so assignment, driver status
+// updates, the customer feedback link, and the receipt link all work exactly the
+// same afterward regardless of how the job was created.
+async function createManualJob(){
+  var name=(document.getElementById('nj-name').value||'').trim();
+  var phone=(document.getElementById('nj-phone').value||'').trim();
+  var email=(document.getElementById('nj-email').value||'').trim();
+  var jobType=njGetJobType();
+  var pickup=(document.getElementById('nj-pickup').value||'').trim();
+  var dest=(document.getElementById('nj-dest').value||'').trim();
+  if(!name||!phone){alert('Customer name and phone are required.');return;}
+  if(!jobType){alert('Please select a service.');return;}
+  if(!pickup){alert('Please enter a pickup / service location.');return;}
+  if(jobType==='tow'&&!dest){alert('Please enter a drop-off destination for towing jobs.');return;}
+  njCalcTotal();
+  var svcSel=document.getElementById('nj-service');
+  var svcText=svcSel.options[svcSel.selectedIndex].text;
+  var btn=document.getElementById('nj-submit');
+  btn.disabled=true;btn.textContent='Saving…';
+  var jobId='job_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  var feedbackToken=Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);
+  var now=Date.now();
+  var payload={
+    status:'pending',jobType:jobType,serviceCode:svcSel.value,createdAt:now,updatedAt:now,
+    customerName:name,customerPhone:phone,customerEmail:email||null,
+    service:svcText,vehicle:document.getElementById('nj-vehicle').value||'Not provided',
+    starts:'unknown',neutral:'unknown',attended:'yes',
+    towMethod:null,pickupAddress:pickup,destinationAddress:jobType==='tow'?dest:'N/A',
+    enrouteMiles:Number(document.getElementById('nj-enroute').value)||0,
+    towMiles:jobType==='tow'?(Number(document.getElementById('nj-tow').value)||0):0,
+    amount:Number(document.getElementById('nj-amount').value)||0,
+    paymentPref:document.getElementById('nj-payment').value,
+    payMethod:document.getElementById('nj-payment').value==='pay-now'?(document.getElementById('nj-paymethod').value||null):null,
+    source:'phone',
+    assignedDriverId:null,assignedDriverName:null,assignedDriverPhone:null,assignedAt:null,
+    pickedUpAt:null,droppedOffAt:null,dropoffLat:null,dropoffLng:null,
+    feedbackToken:feedbackToken,feedbackSubmitted:false,feedbackRating:null,feedbackComment:null
+  };
+  try{
+    var res=await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    document.getElementById('mgr-newjob-modal').classList.remove('active');
+    njResetForm();
+    await loadMgrJobs();
+    tT('Job saved — assign a driver when ready','success');
+  }catch(e){
+    alert('Could not save job: '+(e&&e.message||e));
+  }finally{
+    btn.disabled=false;btn.textContent='Save Job';
+  }
+}
+
 function switchMgrMainTab(tab){
   mgrMainTab=tab;
   document.querySelectorAll('#mgr-maintabs .tt-mgr-tab').forEach(function(t){t.classList.toggle('on',t.dataset.m===tab);});
@@ -1406,6 +1620,11 @@ document.getElementById('mgr-job-filter').addEventListener('click',function(e){
   renderMgrJobs();
 });
 document.getElementById('mgr-btn-add-driver').addEventListener('click',addMgrDriver);
+document.getElementById('tt-btn-new-job').addEventListener('click',function(){njResetForm();document.getElementById('mgr-newjob-modal').classList.add('active');});
+document.getElementById('nj-service').addEventListener('change',njOnServiceChange);
+document.getElementById('nj-enroute').addEventListener('input',njCalcTotal);
+document.getElementById('nj-tow').addEventListener('input',njCalcTotal);
+document.getElementById('nj-payment').addEventListener('change',njTogglePayMethod);
 
 // Override refresh to load everything
 document.getElementById('tt-btn-mgr-refresh').addEventListener('click',function(){
@@ -1752,8 +1971,9 @@ function initTT(){
           if(status==='on_location')text='Corridor Towing: '+dName+' is on location and starting service.';
           if(status==='picked_up')text='Corridor Towing: Your vehicle has been picked up by '+dName+'.';
           var fbUrl='https://corridortowing.org/feedback.html?job='+encodeURIComponent(job.id||'')+'&t='+encodeURIComponent(job.feedbackToken||'');
-          if(status==='dropped_off')text='Corridor Towing: Your vehicle has been dropped off. Thank you! Feedback: '+fbUrl;
-          if(status==='done')text='Corridor Towing: Your service is complete. Thank you! Feedback: '+fbUrl;
+          var rcUrl=buildReceiptUrl(job);
+          if(status==='dropped_off')text='Corridor Towing: Your vehicle has been dropped off. Thank you!\nReceipt: '+rcUrl+'\nFeedback: '+fbUrl;
+          if(status==='done')text='Corridor Towing: Your service is complete. Thank you!\nReceipt: '+rcUrl+'\nFeedback: '+fbUrl;
           if(text){
             setTimeout(function(){
               window.location.href='sms:'+String(job.customerPhone).replace(/\s/g,'')+'?&body='+encodeURIComponent(text);
