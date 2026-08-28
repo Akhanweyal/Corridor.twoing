@@ -42,7 +42,7 @@ nav ul{display:flex;gap:1.5rem;list-style:none;flex-wrap:wrap}
 nav a{color:#fff;font-weight:600;font-size:1rem;padding:.5rem 0;transition:color .3s;cursor:pointer}
 nav a:hover,nav a.active{color:#ffcc00}
 body{padding-top:100px}
-.hero{background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),url('images/truck_enhanced.jpg') center/cover no-repeat;color:#fff;text-align:center;padding:5rem 1rem}
+.hero{background:linear-gradient(rgba(11,61,145,.55),rgba(11,61,145,.55)),url('images/wheellift_hero_mobile.jpg') right center/contain no-repeat,#0b3d91;color:#fff;text-align:center;padding:5rem 1rem}
 .hero h1{font-size:2.5rem;margin-bottom:1rem}
 .hero p{font-size:1.1rem;margin-bottom:1.5rem;max-width:700px;margin-left:auto;margin-right:auto}
 .cta-btn{display:inline-block;background:#ffcc00;color:#0b3d91;padding:.8rem 2rem;border-radius:50px;font-weight:bold;font-size:1.1rem;transition:background .3s;margin:.5rem}
@@ -103,7 +103,14 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
   .nav-driver-item a{color:#ffcc00;font-weight:800;font-size:1.15rem}
   .nav-mgr-item{border-top:2px solid rgba(96,165,250,.3)}
   .nav-mgr-item a{color:rgba(255,255,255,.7);font-weight:600;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:6px}
-  .hero{padding:4rem 1rem}
+  /* The source photo is a tall portrait phone shot, which is why desktop (above)
+     uses contain + a navy letterbox instead of cover — cropping it to a wide cover
+     shot left only a ~200px sliver of the truck visible on wide screens, no matter
+     how it was cropped (same lesson as the previous hero-image fix: cover-scaling
+     behaves very differently across aspect ratios). Mobile's own aspect is close
+     enough to the source's that a plain full-bleed cover shot already works well,
+     so this resets the full shorthand rather than just swapping the image. */
+  .hero{padding:4rem 1rem;background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),url('images/wheellift_hero_mobile.jpg') center/cover no-repeat}
   .hero h1{font-size:2rem}
   .pricing-table{grid-template-columns:1fr}
 }
