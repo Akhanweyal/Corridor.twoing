@@ -229,7 +229,8 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
 <div class="form-group" id="destGroup"><label>Drop-off Destination *</label><input type="text" id="towDestination" placeholder="Where should we tow the vehicle?"><div class="help-text">Required for towing jobs</div></div>
 <div id="estimateBar" class="estimate-bar">Enter pickup and destination for auto tow miles estimate.</div>
 
-<div class="form-group"><label>Enroute Miles ($2/mile)</label><input type="number" id="req_enroute" step="0.1" min="0" value="0" onchange="calculateTotal()"></div>
+<div class="form-group"><label>Enroute Miles ($2/mile)</label><input type="number" id="req_enroute" step="0.1" min="0" value="0" onchange="calculateTotal()"><div class="help-text">Auto-calculated from our shop to your location — you can adjust it if needed.</div></div>
+<div id="enrouteBar" class="estimate-bar" style="display:block">Enter your pickup/service location above for an automatic enroute estimate.</div>
 <div class="form-group" id="towMilesGroup"><label>Tow Miles — loaded ($5/mile)</label><input type="number" id="req_tow" step="0.1" min="0" value="0" onchange="calculateTotal()"></div>
 <div class="form-group"><label>Total Amount ($) *</label><input type="number" id="req_amount" step="0.01" required readonly style="background:#f0f0f0"></div>
 <div class="form-group"><label>Payment Preference *</label>
@@ -364,9 +365,63 @@ document.getElementById('req_service').addEventListener('change',onServiceChange
 document.getElementById('req_enroute').addEventListener('input',calculateTotal);
 document.getElementById('req_tow').addEventListener('input',calculateTotal);
 document.getElementById('towDestination').addEventListener('blur',autoCalcMiles);
+document.getElementById('vehicleLocation').addEventListener('blur',function(){autoCalcEnroute();});
 onServiceChange();
-async function autoCalcMiles(){var l=document.getElementById('vehicleLocation').value.trim(),d=document.getElementById('towDestination').value.trim(),b=document.getElementById('estimateBar');b.style.display='block';if(!l||!d){b.textContent='Enter both addresses for auto-estimate.';return;}b.textContent='Estimating...';try{var lr=await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(l)+'&limit=1&countrycodes=us');var lj=await lr.json();if(!lj.length)throw 0;var dr=await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(d)+'&limit=1&countrycodes=us');var dj=await dr.json();if(!dj.length)throw 0;var tr=await fetch('https://router.project-osrm.org/route/v1/driving/'+lj[0].lon+','+lj[0].lat+';'+dj[0].lon+','+dj[0].lat+'?overview=false');var tj=await tr.json();var miles=(tj.routes&&tj.routes[0])?(tj.routes[0].distance/1000*0.621371).toFixed(1):'0';document.getElementById('req_tow').value=miles;b.textContent='Estimated: '+miles+' miles';calculateTotal();}catch(e){b.textContent='Auto estimate failed — enter manually.';}}
-function getCurrentLocation(){if(!navigator.geolocation){alert('Not supported.');return;}navigator.geolocation.getCurrentPosition(async function(p){try{var r=await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+p.coords.latitude+'&lon='+p.coords.longitude+'&zoom=18');var d=await r.json();document.getElementById('vehicleLocation').value=d.display_name||'Lat: '+p.coords.latitude.toFixed(6)+', Lon: '+p.coords.longitude.toFixed(6);autoCalcMiles();}catch(e){document.getElementById('vehicleLocation').value='Lat: '+p.coords.latitude.toFixed(6)+', Lon: '+p.coords.longitude.toFixed(6);}},function(e){var m='Location error: ';if(e.code===1)m+='Permission denied.';else if(e.code===2)m+='Unavailable.';else m+='Unknown.';alert(m);},{timeout:10000,enableHighAccuracy:true});}
+
+// Shop's fixed location (matches the LocalBusiness geo coordinates in the JSON-LD
+// above) — the fixed end of every "enroute" leg, since that's the distance from
+// us to the customer before any tow/service even starts.
+var BASE_LAT=37.6331, BASE_LNG=-77.5026;
+
+async function geocodeAddress(addr){
+  var r=await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(addr)+'&limit=1&countrycodes=us');
+  var j=await r.json();
+  return j.length?{lat:j[0].lat,lon:j[0].lon}:null;
+}
+async function routeMiles(lat1,lon1,lat2,lon2){
+  var r=await fetch('https://router.project-osrm.org/route/v1/driving/'+lon1+','+lat1+';'+lon2+','+lat2+'?overview=false');
+  var j=await r.json();
+  return (j.routes&&j.routes[0])?(j.routes[0].distance/1000*0.621371):null;
+}
+
+async function autoCalcMiles(){
+  var l=document.getElementById('vehicleLocation').value.trim(),d=document.getElementById('towDestination').value.trim(),b=document.getElementById('estimateBar');
+  b.style.display='block';
+  if(!l||!d){b.textContent='Enter both addresses for auto tow-miles estimate.';return;}
+  b.textContent='Estimating...';
+  try{
+    var lp=await geocodeAddress(l);if(!lp)throw 0;
+    var dp=await geocodeAddress(d);if(!dp)throw 0;
+    var miles=await routeMiles(lp.lat,lp.lon,dp.lat,dp.lon);
+    if(miles==null)throw 0;
+    document.getElementById('req_tow').value=miles.toFixed(1);
+    b.textContent='Estimated tow distance: '+miles.toFixed(1)+' miles';
+    calculateTotal();
+  }catch(e){b.textContent='Auto estimate failed — enter tow miles manually.';}
+}
+
+// Enroute = distance from OUR shop to the customer's pickup/service location — this
+// always applies (tow or roadside), unlike tow miles which only applies to tow jobs.
+// fromCoords lets getCurrentLocation() pass the GPS fix straight through instead of
+// re-geocoding the reverse-geocoded address string (faster and more precise).
+async function autoCalcEnroute(fromCoords){
+  var l=document.getElementById('vehicleLocation').value.trim();
+  var b=document.getElementById('enrouteBar');
+  b.style.display='block';
+  if(!l&&!fromCoords){b.textContent='Enter your pickup/service location above for an automatic enroute estimate.';return;}
+  b.textContent='Calculating distance from our shop…';
+  try{
+    var lp=fromCoords||await geocodeAddress(l);
+    if(!lp)throw 0;
+    var miles=await routeMiles(BASE_LAT,BASE_LNG,lp.lat,lp.lon);
+    if(miles==null)throw 0;
+    document.getElementById('req_enroute').value=miles.toFixed(1);
+    b.textContent='Estimated enroute: '+miles.toFixed(1)+' miles from our shop';
+    calculateTotal();
+  }catch(e){b.textContent='Auto estimate failed — enter enroute miles manually.';}
+}
+
+function getCurrentLocation(){if(!navigator.geolocation){alert('Not supported.');return;}navigator.geolocation.getCurrentPosition(async function(p){var coords={lat:p.coords.latitude,lon:p.coords.longitude};try{var r=await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+p.coords.latitude+'&lon='+p.coords.longitude+'&zoom=18');var d=await r.json();document.getElementById('vehicleLocation').value=d.display_name||'Lat: '+p.coords.latitude.toFixed(6)+', Lon: '+p.coords.longitude.toFixed(6);}catch(e){document.getElementById('vehicleLocation').value='Lat: '+p.coords.latitude.toFixed(6)+', Lon: '+p.coords.longitude.toFixed(6);}autoCalcEnroute(coords);autoCalcMiles();},function(e){var m='Location error: ';if(e.code===1)m+='Permission denied.';else if(e.code===2)m+='Unavailable.';else m+='Unknown.';alert(m);},{timeout:10000,enableHighAccuracy:true});}
 var formRenderedAt=Date.now();
 function handleRequestSubmit(e){e.preventDefault();
 // Spam guard: a real visitor never fills the hidden "website" field, and never

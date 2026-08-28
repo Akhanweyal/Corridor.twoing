@@ -648,6 +648,7 @@ img,svg{max-width:100%;height:auto;display:block}
       <input id="nj-vehicle" class="tt-inp" placeholder="Vehicle make & model">
       <input id="nj-pickup" class="tt-inp" placeholder="Pickup / service location *">
       <input id="nj-dest" class="tt-inp" placeholder="Drop-off destination (tow only)" style="display:none">
+      <p id="nj-enroute-status" style="font-size:11px;color:#6b6b6b;margin:-2px 0 0">Enter a pickup location for an automatic enroute estimate.</p>
       <div style="display:flex;gap:8px">
         <input id="nj-enroute" class="tt-inp" placeholder="Enroute miles" type="number" step="0.1" min="0" value="0" style="flex:1">
         <input id="nj-tow" class="tt-inp" placeholder="Tow miles" type="number" step="0.1" min="0" value="0" style="flex:1">
@@ -1538,8 +1539,52 @@ function njResetForm(){
   document.getElementById('nj-enroute').value='0';
   document.getElementById('nj-tow').value='0';
   document.getElementById('nj-payment').value='pay-later';
+  document.getElementById('nj-enroute-status').textContent='Enter a pickup location for an automatic enroute estimate.';
   njTogglePayMethod();
   njOnServiceChange();
+}
+
+// Shop's fixed location (same coordinates as the LocalBusiness JSON-LD on the
+// public site) — the "enroute" leg always runs from here to the pickup location.
+var NJ_BASE_LAT=37.6331, NJ_BASE_LNG=-77.5026;
+async function njGeocodeAddress(addr){
+  var r=await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(addr)+'&limit=1&countrycodes=us');
+  var j=await r.json();
+  return j.length?{lat:j[0].lat,lon:j[0].lon}:null;
+}
+async function njRouteMiles(lat1,lon1,lat2,lon2){
+  var r=await fetch('https://router.project-osrm.org/route/v1/driving/'+lon1+','+lat1+';'+lon2+','+lat2+'?overview=false');
+  var j=await r.json();
+  return (j.routes&&j.routes[0])?(j.routes[0].distance/1000*0.621371):null;
+}
+async function njAutoCalcEnroute(){
+  var l=(document.getElementById('nj-pickup').value||'').trim();
+  var status=document.getElementById('nj-enroute-status');
+  if(!l){status.textContent='Enter a pickup location for an automatic enroute estimate.';return;}
+  status.textContent='Calculating distance from our shop…';
+  try{
+    var lp=await njGeocodeAddress(l);
+    if(!lp)throw 0;
+    var miles=await njRouteMiles(NJ_BASE_LAT,NJ_BASE_LNG,lp.lat,lp.lon);
+    if(miles==null)throw 0;
+    document.getElementById('nj-enroute').value=miles.toFixed(1);
+    status.textContent='Estimated enroute: '+miles.toFixed(1)+' miles from our shop';
+    njCalcTotal();
+  }catch(e){status.textContent='Auto estimate failed — enter enroute miles manually.';}
+}
+async function njAutoCalcTowMiles(){
+  if(njGetJobType()!=='tow')return;
+  var l=(document.getElementById('nj-pickup').value||'').trim();
+  var d=(document.getElementById('nj-dest').value||'').trim();
+  if(!l||!d)return;
+  try{
+    var lp=await njGeocodeAddress(l);if(!lp)return;
+    var dp=await njGeocodeAddress(d);if(!dp)return;
+    var miles=await njRouteMiles(lp.lat,lp.lon,dp.lat,dp.lon);
+    if(miles==null)return;
+    document.getElementById('nj-tow').value=miles.toFixed(1);
+    njCalcTotal();
+  }catch(e){/* leave tow miles for manual entry */}
 }
 
 // Lets a manager enter a job that came in by phone call (e.g. a customer who was
@@ -1625,6 +1670,8 @@ document.getElementById('nj-service').addEventListener('change',njOnServiceChang
 document.getElementById('nj-enroute').addEventListener('input',njCalcTotal);
 document.getElementById('nj-tow').addEventListener('input',njCalcTotal);
 document.getElementById('nj-payment').addEventListener('change',njTogglePayMethod);
+document.getElementById('nj-pickup').addEventListener('blur',function(){njAutoCalcEnroute();njAutoCalcTowMiles();});
+document.getElementById('nj-dest').addEventListener('blur',njAutoCalcTowMiles);
 
 // Override refresh to load everything
 document.getElementById('tt-btn-mgr-refresh').addEventListener('click',function(){
