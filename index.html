@@ -214,14 +214,14 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
 
 <div id="towOnlyFields">
 <div class="form-group"><label>Preferred Tow Method (optional)</label>
-<select id="req_towmethod"><option value="any">Any available (recommended)</option><option value="flatbed">Flatbed only</option><option value="wheellift">Wheel Lift only</option></select></div>
+<select id="req_towmethod"><option value="any">Any available (recommended)</option><option value="flatbed">Flatbed only</option><option value="wheellift">Wheel Lift only</option></select><div class="help-text">Not sure? Leave "Any" — the Neutral question below tells us which truck to send.</div></div>
 </div>
 
 <div class="form-group"><label>Vehicle Make & Model</label><input type="text" id="req_vehicle" placeholder="e.g. Toyota Camry 2018"></div>
 <div class="vehicle-group" id="vehicleDetailFields">
-<div class="form-group"><label>Does it start?</label><select id="req_starts"><option value="yes">Yes</option><option value="no" selected>No</option><option value="unknown">Unknown</option></select></div>
-<div class="form-group"><label>In neutral / park?</label><select id="req_neutral"><option value="yes">Yes</option><option value="no" selected>No</option><option value="unknown">Unknown</option></select></div>
-<div class="form-group"><label>Attended?</label><select id="req_attended"><option value="yes" selected>Yes (someone there)</option><option value="no">No (unattended)</option></select></div>
+<div class="form-group"><label>Does the engine start?</label><select id="req_starts"><option value="unknown" selected>Not sure</option><option value="yes">Yes, it starts</option><option value="no">No, it won't start</option></select></div>
+<div class="form-group" id="neutralGroup"><label>Can it be shifted into Neutral?</label><select id="req_neutral"><option value="unknown" selected>Not sure</option><option value="yes">Yes</option><option value="no">No — it's stuck in Park</option></select><div class="help-text">Tells us if we can tow it with a wheel-lift, or need to bring a flatbed.</div></div>
+<div class="form-group"><label>Will someone be with the vehicle?</label><select id="req_attended"><option value="yes" selected>Yes, I'll be there</option><option value="no">No, it's unattended</option></select></div>
 </div>
 
 <div class="form-group"><label id="locLabel">Service / Pickup Location *</label><input type="text" id="vehicleLocation" required placeholder="Enter full address (street, city, state, ZIP)"><div class="help-text" id="locHelp">Where should we meet you?</div><button type="button" class="location-btn" onclick="getCurrentLocation()">Use My Current Location</button></div>
@@ -333,6 +333,7 @@ function onServiceChange(){
   var destGroup=document.getElementById('destGroup');
   var towMiles=document.getElementById('towMilesGroup');
   var towOnly=document.getElementById('towOnlyFields');
+  var neutralGroup=document.getElementById('neutralGroup');
   var est=document.getElementById('estimateBar');
   var dest=document.getElementById('towDestination');
   var locLabel=document.getElementById('locLabel');
@@ -341,6 +342,11 @@ function onServiceChange(){
   if(destGroup)destGroup.style.display=isTow?'block':'none';
   if(towMiles)towMiles.style.display=isTow?'block':'none';
   if(towOnly)towOnly.style.display=isTow?'block':'none';
+  // Whether it can shift into neutral only matters when a truck is actually towing
+  // it (wheel-lift needs rolling wheels; flatbed doesn't) — irrelevant for a
+  // lockout/jumpstart/tire/fuel/winch call, so don't ask and don't submit a stale
+  // answer left over from a previous tow selection.
+  if(neutralGroup){neutralGroup.style.display=isTow?'block':'none';if(!isTow)document.getElementById('req_neutral').value='unknown';}
   if(est)est.style.display=isTow?'block':'none';
   if(dest){dest.required=isTow;if(!isTow)dest.value='';}
   if(locLabel)locLabel.textContent=isTow?'Pickup Location *':'Service Location *';
@@ -365,7 +371,10 @@ document.getElementById('req_service').addEventListener('change',onServiceChange
 document.getElementById('req_enroute').addEventListener('input',calculateTotal);
 document.getElementById('req_tow').addEventListener('input',calculateTotal);
 document.getElementById('towDestination').addEventListener('blur',autoCalcMiles);
-document.getElementById('vehicleLocation').addEventListener('blur',function(){autoCalcEnroute();});
+// Also re-check tow miles when the PICKUP field is the one filled in last (e.g. a
+// customer types the destination first) — previously only destination's blur ever
+// triggered this, so that order left tow miles stuck at 0 with no estimate shown.
+document.getElementById('vehicleLocation').addEventListener('blur',function(){autoCalcEnroute();if(getSelectedJobType()==='tow')autoCalcMiles();});
 onServiceChange();
 
 // Shop's fixed location (matches the LocalBusiness geo coordinates in the JSON-LD
@@ -433,6 +442,9 @@ if(!jobType){alert('Please select a service.');return;}
 if(jobType==='tow'){
   var destVal=(document.getElementById('towDestination').value||'').trim();
   if(!destVal){alert('Please enter a drop-off destination for towing jobs.');return;}
+}
+if(document.getElementById('paymentPreference').value==='pay-now'&&!document.getElementById('payMethod').value){
+  alert('Please select how you\'d like to pay now.');return;
 }
 var btn=document.getElementById('submitBtn');btn.disabled=true;btn.textContent='Sending...';
 var fd={name:document.getElementById('req_name').value,phone:document.getElementById('req_phone').value,email:document.getElementById('req_email').value,vehicle:document.getElementById('req_vehicle').value||'Not provided',towmethod:document.getElementById('req_towmethod').value,starts:document.getElementById('req_starts').value,neutral:document.getElementById('req_neutral').value,attended:document.getElementById('req_attended').value,location:document.getElementById('vehicleLocation').value,destination:jobType==='tow'?(document.getElementById('towDestination').value||'N/A'):'N/A — roadside on-site',service:document.getElementById('req_service').options[document.getElementById('req_service').selectedIndex].text,serviceCode:document.getElementById('req_service').value,jobType:jobType,enroute:document.getElementById('req_enroute').value,tow:jobType==='tow'?document.getElementById('req_tow').value:'0',amount:document.getElementById('req_amount').value,payment:document.getElementById('paymentPreference').value,payMethod:document.getElementById('payMethod')?document.getElementById('payMethod').value:'N/A'};

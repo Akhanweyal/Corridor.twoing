@@ -124,10 +124,14 @@
   document.getElementById('r-lines').innerHTML=lines;
   document.getElementById('r-total').textContent='$'+amt.toFixed(2);
 
+  // "pay-now" only records what the customer chose when requesting service, before
+  // clicking a Venmo/Cash App/PayPal/card link — this system has no payment webhook,
+  // so nothing here actually confirms money changed hands. Say "selected", not "paid",
+  // so this can't be misread (by a driver, or in a dispute) as proof of payment.
   var payDiv=document.getElementById('r-payment');
   if(d.pp==='pay-now'){
     var methodLabel={venmo:'Venmo',cashapp:'Cash App',paypal:'PayPal',card:'Card'}[d.pm]||'';
-    payDiv.innerHTML='<span class="badge paid">PAID'+(methodLabel?' · '+methodLabel:'')+'</span>';
+    payDiv.innerHTML='<span class="badge paid">PAY NOW SELECTED'+(methodLabel?' · '+methodLabel:'')+'</span>';
   }else{
     payDiv.innerHTML='<span class="badge later">PAY ON ARRIVAL — cash, card, Venmo, Cash App or PayPal</span>';
   }
