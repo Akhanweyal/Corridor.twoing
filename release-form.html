@@ -56,9 +56,14 @@
   .sig-signed-display img{max-width:100%;max-height:100px;background:#fff;border-radius:6px}
   .sig-signed-typed{font-family:'Dancing Script',cursive;font-size:34px;color:#fff}
   .sig-err{color:#ef4444;font-size:12px;margin-bottom:8px;display:none}
+  .content-grid{display:block}
+  .print-cols{display:block}
+  .print-col,.print-sec{min-width:0}
+  @page{size:A4;margin:12mm}
   @media print{
-    body{background:#fff;color:#000;padding:0}
-    .card{background:#fff;border:1px solid #ccc}
+    body{background:#fff;color:#000;padding:0;display:block}
+    .wrap{max-width:100%;width:100%}
+    .card{background:#fff;border:none;border-radius:0;padding:0;margin-bottom:0}
     .no-print{display:none}
     .row,.line{border-color:#ddd}
     .section-title{color:#555}
@@ -67,6 +72,25 @@
     .sig-line{border-color:#000}
     .sig-label{color:#555}
     .sig-signed-typed{color:#000}
+    /* The on-screen layout is one narrow stacked column (fine for a phone) — on
+       a physical page that wastes width and pushes the form past one sheet.
+       Named grid areas reflow the same four sections (DOM order stays the
+       sensible Vehicle→Storage→Fees→Released for on-screen viewing) into two
+       real columns for print, which roughly halves the printed height — that's
+       what actually gets everything onto one A4 page. */
+    .content-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-areas:"veh sto" "fee rel";column-gap:28px}
+    #sec-vehicle{grid-area:veh}
+    #sec-storage{grid-area:sto}
+    #sec-fees{grid-area:fee}
+    #sec-released{grid-area:rel}
+    .print-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
+    .sig-cols{margin-top:18px;gap:0 40px}
+    .row{font-size:12px;padding:6px 0}
+    .section-title{margin:14px 0 6px;font-size:10px}
+    .section-title:first-of-type{margin-top:0}
+    .release-text{font-size:11px;padding:10px;margin-top:8px}
+    .sig-line{height:30px}
+    .sig-label{font-size:10px}
   }
 </style>
 </head>
@@ -83,38 +107,61 @@
       <p class="sub" id="r-meta"></p>
       <span class="badge" id="r-source"></span>
 
-      <div class="section-title">Vehicle</div>
-      <div class="row"><span class="k">Vehicle</span><span class="v" id="r-vehicle"></span></div>
-      <div class="row" id="r-color-row"><span class="k">Color</span><span class="v" id="r-color"></span></div>
-      <div class="row" id="r-plate-row"><span class="k">Plate</span><span class="v" id="r-plate"></span></div>
-      <div class="row" id="r-vin-row"><span class="k">VIN</span><span class="v" id="r-vin"></span></div>
-
-      <div class="section-title">Storage</div>
-      <div class="row"><span class="k">Date stored</span><span class="v" id="r-in-date"></span></div>
-      <div class="row"><span class="k">Date released</span><span class="v" id="r-out-date"></span></div>
-      <div class="row"><span class="k">Nights stored</span><span class="v" id="r-nights"></span></div>
-
-      <div class="section-title">Fees</div>
-      <div id="r-lines"></div>
-      <div class="total"><span class="lbl">Total Release Fee</span><span class="amt" id="r-total"></span></div>
-      <div id="r-paid-status"></div>
-
-      <div class="section-title">Released To</div>
-      <div class="row"><span class="k">Name</span><span class="v" id="r-name"></span></div>
-      <div class="row" id="r-phone-row"><span class="k">Phone</span><span class="v" id="r-phone"></span></div>
-      <div class="row"><span class="k">Relationship</span><span class="v" id="r-relation"></span></div>
-      <div class="row" id="r-dl-row"><span class="k">License #</span><span class="v" id="r-dl"></span></div>
-      <div class="row" id="r-notes-row"><span class="k">Notes</span><span class="v" id="r-notes"></span></div>
+      <!-- print-cols is a plain stacked block on screen (fine for a phone, and
+           keeps the natural Vehicle→Storage→Fees→Released reading order for
+           anyone viewing the link itself rather than the printed page) — on a
+           printed page it switches to a named-area grid that reflows the same
+           four sections into two side-by-side columns (Vehicle+Fees left,
+           Storage+Released right), which roughly halves the printed height —
+           that's what actually gets it onto one A4 page, not just widening it.
+           Using grid-template-areas (rather than nesting two sections inside
+           each of two column divs) means DOM order can stay the sensible
+           on-screen order while print freely rearranges without moving markup. -->
+      <div class="content-grid">
+        <div class="print-sec" id="sec-vehicle">
+          <div class="section-title">Vehicle</div>
+          <div class="row"><span class="k">Vehicle</span><span class="v" id="r-vehicle"></span></div>
+          <div class="row" id="r-color-row"><span class="k">Color</span><span class="v" id="r-color"></span></div>
+          <div class="row" id="r-plate-row"><span class="k">Plate</span><span class="v" id="r-plate"></span></div>
+          <div class="row" id="r-vin-row"><span class="k">VIN</span><span class="v" id="r-vin"></span></div>
+        </div>
+        <div class="print-sec" id="sec-storage">
+          <div class="section-title">Storage</div>
+          <div class="row"><span class="k">Date stored</span><span class="v" id="r-in-date"></span></div>
+          <div class="row"><span class="k">Date released</span><span class="v" id="r-out-date"></span></div>
+          <div class="row"><span class="k">Nights stored</span><span class="v" id="r-nights"></span></div>
+        </div>
+        <div class="print-sec" id="sec-fees">
+          <div class="section-title">Fees</div>
+          <div id="r-lines"></div>
+          <div class="total"><span class="lbl">Total Release Fee</span><span class="amt" id="r-total"></span></div>
+          <div id="r-paid-status"></div>
+        </div>
+        <div class="print-sec" id="sec-released">
+          <div class="section-title">Released To</div>
+          <div class="row"><span class="k">Name</span><span class="v" id="r-name"></span></div>
+          <div class="row" id="r-phone-row"><span class="k">Phone</span><span class="v" id="r-phone"></span></div>
+          <div class="row"><span class="k">Relationship</span><span class="v" id="r-relation"></span></div>
+          <div class="row" id="r-dl-row"><span class="k">License #</span><span class="v" id="r-dl"></span></div>
+          <div class="row" id="r-notes-row"><span class="k">Notes</span><span class="v" id="r-notes"></span></div>
+        </div>
+      </div>
 
       <p class="release-text">By signing below, the undersigned acknowledges receipt of the above vehicle in its current condition, confirms payment of the release fee shown above, and releases Corridor Towing &amp; Transportation Services from further responsibility for the vehicle and its storage.</p>
 
-      <div class="sig-block" id="r-releasee-sig-block">
-        <div class="sig-line"></div>
-        <p class="sig-label">Signature of person receiving vehicle · Date</p>
-      </div>
-      <div class="sig-block">
-        <div class="sig-line"></div>
-        <p class="sig-label">Released by (Corridor Towing) · Date</p>
+      <div class="print-cols sig-cols">
+        <div class="print-col">
+          <div class="sig-block" id="r-releasee-sig-block">
+            <div class="sig-line"></div>
+            <p class="sig-label">Signature of person receiving vehicle · Date</p>
+          </div>
+        </div>
+        <div class="print-col">
+          <div class="sig-block">
+            <div class="sig-line"></div>
+            <p class="sig-label">Released by (Corridor Towing) · Date</p>
+          </div>
+        </div>
       </div>
     </div>
 
