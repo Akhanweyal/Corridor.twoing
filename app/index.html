@@ -332,6 +332,7 @@ img,svg{max-width:100%;height:auto;display:block}
     </div>
     <div style="display:flex;gap:8px;flex-shrink:0">
       <button id="tt-btn-new-job" style="background:linear-gradient(135deg,#f59e0b,#ea580c);border:none;color:#000;padding:7px 12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px;font-family:'Outfit',sans-serif"><i class="fas fa-plus"></i> New Job</button>
+      <button id="tt-btn-release-form" style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.35);color:#10b981;padding:7px 12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px;font-family:'Outfit',sans-serif"><i class="fas fa-key"></i> Release Form</button>
       <button id="tt-btn-mgr-refresh" style="background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:#60a5fa;padding:7px 12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;font-family:'Outfit',sans-serif"><i class="fas fa-rotate"></i> Refresh</button>
     </div>
   </div>
@@ -722,6 +723,100 @@ img,svg{max-width:100%;height:auto;display:block}
       <button onclick="document.getElementById('mgr-newjob-modal').classList.remove('active')" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#1e1e1e;border:1px solid #262626;color:#f0f0f0;cursor:pointer;font-family:'Outfit',sans-serif">Cancel</button>
       <button id="nj-submit" onclick="createManualJob()" style="flex:1;padding:12px;border-radius:12px;font-weight:700;font-size:14px;background:linear-gradient(135deg,#f59e0b,#ea580c);border:none;color:#000;cursor:pointer;font-family:'Outfit',sans-serif">Save Job</button>
     </div>
+  </div>
+</div>
+
+<!-- VEHICLE RELEASE FORM — data entry (storage isn't only from our own dispatch;
+     Agero/AAA/Honk jobs never touch the jobs list at all, so this is fully
+     standalone and never requires picking an existing job). -->
+<div id="mgr-release-modal" class="tt-cfbg">
+  <div class="tt-card" style="width:100%;max-width:420px;max-height:88vh;overflow-y:auto">
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:4px"><i class="fas fa-key" style="color:#10b981"></i> Vehicle Release Form</h3>
+    <p style="font-size:12px;color:#6b6b6b;margin-bottom:14px">For a vehicle picked up from storage at the yard. Works the same whether it came from our own dispatch, Agero, AAA, Honk, or a walk-in.</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <select id="rf-source" class="tt-inp">
+        <option value="website">Corridor Towing (our dispatch)</option>
+        <option value="agero">Agero</option>
+        <option value="aaa">AAA</option>
+        <option value="honk">Honk</option>
+        <option value="other">Other</option>
+      </select>
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin:2px 0 -4px">Vehicle</p>
+      <input id="rf-vehicle" class="tt-inp" placeholder="Vehicle — year, make, model *">
+      <div style="display:flex;gap:8px">
+        <input id="rf-color" class="tt-inp" placeholder="Color" style="flex:1">
+        <input id="rf-plate" class="tt-inp" placeholder="License plate" style="flex:1">
+        <input id="rf-state" class="tt-inp" placeholder="St" maxlength="2" style="max-width:64px;text-transform:uppercase">
+      </div>
+      <input id="rf-vin" class="tt-inp" placeholder="VIN (optional)">
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin:6px 0 -4px">Storage</p>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Date stored</label><input id="rf-in-date" type="date" class="tt-inp"></div>
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Date released</label><input id="rf-out-date" type="date" class="tt-inp"></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-end">
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Nights stored</label><input id="rf-nights" type="number" min="0" step="1" class="tt-inp" value="0"></div>
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Storage fee ($100/night)</label><input id="rf-storage-fee" type="number" min="0" step="0.01" class="tt-inp" value="0"></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-end">
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Processing fee</label><input id="rf-processing-fee" type="number" min="0" step="0.01" class="tt-inp" value="50"></div>
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#10b981;margin-bottom:4px">Total release fee</label><input id="rf-total" type="number" step="0.01" class="tt-inp" readonly style="background:#1a1a1a;color:#10b981;font-weight:700"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <input id="rf-paid" class="tt-inp" placeholder="Amount paid ($)" type="number" min="0" step="0.01" style="flex:1">
+        <select id="rf-paymethod" class="tt-inp" style="flex:1">
+          <option value="cash">Cash</option>
+          <option value="card">Card</option>
+          <option value="venmo">Venmo</option>
+          <option value="cashapp">Cash App</option>
+          <option value="paypal">PayPal</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin:6px 0 -4px">Released To</p>
+      <input id="rf-name" class="tt-inp" placeholder="Name of person picking up vehicle *">
+      <div style="display:flex;gap:8px">
+        <input id="rf-phone" class="tt-inp" placeholder="Phone" type="tel" style="flex:1">
+        <select id="rf-relation" class="tt-inp" style="flex:1">
+          <option value="owner">Vehicle Owner</option>
+          <option value="agent">Authorized Agent</option>
+          <option value="lienholder">Lienholder</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <input id="rf-dl" class="tt-inp" placeholder="Driver's license # (optional)">
+      <input id="rf-notes" class="tt-inp" placeholder="Notes (optional) — e.g. existing damage">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button onclick="closeReleaseModal()" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#1e1e1e;border:1px solid #262626;color:#f0f0f0;cursor:pointer;font-family:'Outfit',sans-serif">Cancel</button>
+      <button id="rf-submit" onclick="generateReleaseForm()" style="flex:1;padding:12px;border-radius:12px;font-weight:700;font-size:14px;background:linear-gradient(135deg,#10b981,#059669);border:none;color:#fff;cursor:pointer;font-family:'Outfit',sans-serif">Generate Form</button>
+    </div>
+  </div>
+</div>
+
+<!-- VEHICLE RELEASE FORM — link/print/send, once generated -->
+<div id="mgr-release-result-modal" class="tt-cfbg">
+  <div class="tt-card" style="width:100%;max-width:380px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,.15);display:flex;align-items:center;justify-content:center"><i class="fas fa-check" style="color:#10b981;font-size:18px"></i></div>
+      <h3 style="font-size:18px;font-weight:700">Release Form Ready</h3>
+    </div>
+    <p style="font-size:13px;color:#6b6b6b;margin-bottom:12px">Print it for a signature, or send the link — no login needed to view it.</p>
+    <input id="rf-result-link" class="tt-inp" readonly onclick="this.select()" style="margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:12px">
+    <a id="rf-result-print" href="#" target="_blank" rel="noopener" style="display:block;text-align:center;width:100%;padding:12px;border-radius:12px;font-weight:700;font-size:14px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;cursor:pointer;font-family:'Outfit',sans-serif;text-decoration:none;margin-bottom:8px"><i class="fas fa-print"></i> Open &amp; Print</a>
+    <button onclick="copyReleaseLink()" style="width:100%;padding:12px;border-radius:12px;font-weight:700;font-size:14px;background:#1e1e1e;border:1px solid #262626;color:#f0f0f0;cursor:pointer;font-family:'Outfit',sans-serif;margin-bottom:12px"><i class="fas fa-copy"></i> Copy Link</button>
+    <div style="border-top:1px solid #262626;margin:4px 0 12px"></div>
+    <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin-bottom:6px">Text to a number</label>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <input id="rf-send-phone" class="tt-inp" placeholder="Phone number" type="tel" style="flex:1">
+      <button onclick="sendReleaseSms()" style="padding:0 16px;border-radius:12px;border:none;background:#f59e0b;color:#000;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer">Text</button>
+    </div>
+    <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin-bottom:6px">Email to an address</label>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <input id="rf-send-email" class="tt-inp" placeholder="Email address" type="email" style="flex:1">
+      <button onclick="sendReleaseEmail()" style="padding:0 16px;border-radius:12px;border:none;background:#0b3d91;color:#fff;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer">Send</button>
+    </div>
+    <button onclick="document.getElementById('mgr-release-result-modal').classList.remove('active')" style="width:100%;padding:11px;border-radius:10px;font-weight:600;font-size:13px;background:transparent;border:1px solid #262626;color:#6b6b6b;cursor:pointer;font-family:'Outfit',sans-serif">Close</button>
   </div>
 </div>
 
@@ -1420,6 +1515,132 @@ function copyReceiptLink(){
   }
 }
 
+/* ========== VEHICLE RELEASE FORM ========== */
+// Fully standalone from /jobs — most storage releases come from Agero, AAA, or
+// Honk dispatches that never touch our own jobs list at all, so this never
+// requires (or even offers) picking an existing job; everything is typed in
+// fresh each time, same spirit as the New Job modal but a different real-world
+// event (a vehicle leaving the storage yard, not a tow being dispatched).
+var rfPaidManuallyEdited=false;
+function rfDateInputValue(d){ // yyyy-mm-dd for a <input type=date>, local time
+  var pad=function(n){return String(n).padStart(2,'0');};
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+}
+function openReleaseModal(){
+  rfPaidManuallyEdited=false;
+  document.getElementById('rf-source').value='website';
+  ['rf-vehicle','rf-color','rf-plate','rf-vin','rf-dl','rf-notes'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('rf-state').value='VA';
+  var today=new Date();
+  document.getElementById('rf-in-date').value=rfDateInputValue(today);
+  document.getElementById('rf-out-date').value=rfDateInputValue(today);
+  document.getElementById('rf-nights').value='0';
+  document.getElementById('rf-storage-fee').value='0.00';
+  document.getElementById('rf-processing-fee').value='50.00';
+  document.getElementById('rf-paid').value='';
+  document.getElementById('rf-paymethod').value='cash';
+  document.getElementById('rf-name').value='';
+  document.getElementById('rf-phone').value='';
+  document.getElementById('rf-relation').value='owner';
+  rfRecalcNights();
+  document.getElementById('mgr-release-modal').classList.add('active');
+}
+function closeReleaseModal(){document.getElementById('mgr-release-modal').classList.remove('active');}
+function rfRecalcNights(){
+  var inD=new Date(document.getElementById('rf-in-date').value+'T00:00:00');
+  var outD=new Date(document.getElementById('rf-out-date').value+'T00:00:00');
+  var nights=Math.round((outD-inD)/86400000);
+  if(!isFinite(nights)||nights<0)nights=0;
+  document.getElementById('rf-nights').value=nights;
+  rfRecalcStorageFee();
+}
+function rfRecalcStorageFee(){
+  var nights=Number(document.getElementById('rf-nights').value)||0;
+  document.getElementById('rf-storage-fee').value=(nights*100).toFixed(2);
+  rfRecalcTotal();
+}
+function rfRecalcTotal(){
+  var storage=Number(document.getElementById('rf-storage-fee').value)||0;
+  var processing=Number(document.getElementById('rf-processing-fee').value)||0;
+  var total=storage+processing;
+  document.getElementById('rf-total').value=total.toFixed(2);
+  if(!rfPaidManuallyEdited)document.getElementById('rf-paid').value=total.toFixed(2);
+}
+async function generateReleaseForm(){
+  var vehicle=(document.getElementById('rf-vehicle').value||'').trim();
+  var name=(document.getElementById('rf-name').value||'').trim();
+  if(!vehicle){alert('Enter the vehicle (year, make, model).');return;}
+  if(!name){alert('Enter the name of the person picking up the vehicle.');return;}
+  var btn=document.getElementById('rf-submit');
+  btn.disabled=true;btn.textContent='Generating…';
+  var d={
+    src:document.getElementById('rf-source').value,
+    veh:vehicle,
+    color:document.getElementById('rf-color').value||'',
+    plate:document.getElementById('rf-plate').value||'',
+    state:document.getElementById('rf-state').value||'',
+    vin:document.getElementById('rf-vin').value||'',
+    inDate:new Date(document.getElementById('rf-in-date').value+'T00:00:00').getTime(),
+    outDate:new Date(document.getElementById('rf-out-date').value+'T00:00:00').getTime(),
+    nights:Number(document.getElementById('rf-nights').value)||0,
+    storageFee:Number(document.getElementById('rf-storage-fee').value)||0,
+    processingFee:Number(document.getElementById('rf-processing-fee').value)||0,
+    total:Number(document.getElementById('rf-total').value)||0,
+    paid:Number(document.getElementById('rf-paid').value)||0,
+    payMethod:document.getElementById('rf-paymethod').value,
+    name:name,
+    phone:document.getElementById('rf-phone').value||'',
+    relation:document.getElementById('rf-relation').value,
+    dl:document.getElementById('rf-dl').value||'',
+    notes:document.getElementById('rf-notes').value||'',
+    createdAt:Date.now()
+  };
+  try{
+    var shortId=randomShortId(8);
+    var res=await fbFetch(FIREBASE_URL+'/releaseForms/'+shortId+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
+    var url;
+    if(res.ok){
+      url='https://corridortowing.org/release-form.html?r='+shortId;
+    }else{
+      console.warn('Release form shortlink save failed, using long-form link instead: HTTP '+res.status);
+      url='https://corridortowing.org/release-form.html?d='+b64urlEncode(JSON.stringify(d));
+    }
+    closeReleaseModal();
+    document.getElementById('rf-result-link').value=url;
+    document.getElementById('rf-result-print').href=url;
+    document.getElementById('rf-send-phone').value=document.getElementById('rf-phone').value?document.getElementById('rf-phone').value:'';
+    document.getElementById('rf-send-email').value='';
+    document.getElementById('mgr-release-result-modal').classList.add('active');
+  }catch(e){
+    alert('Could not generate release form: '+(e&&e.message||e));
+  }finally{
+    btn.disabled=false;btn.textContent='Generate Form';
+  }
+}
+function copyReleaseLink(){
+  var input=document.getElementById('rf-result-link');
+  input.select();
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(input.value).then(function(){tT('Release form link copied','success');}).catch(function(){mgrCopyFallback(input.value);});
+  }else{
+    mgrCopyFallback(input.value);
+  }
+}
+function sendReleaseSms(){
+  var phone=(document.getElementById('rf-send-phone').value||'').trim();
+  if(!phone){alert('Enter a phone number first.');return;}
+  var url=document.getElementById('rf-result-link').value;
+  var text='Corridor Towing: Here\'s your vehicle release form — '+url;
+  window.location.href='sms:'+phone.replace(/\s/g,'')+'?&body='+encodeURIComponent(text);
+}
+function sendReleaseEmail(){
+  var email=(document.getElementById('rf-send-email').value||'').trim();
+  if(!email){alert('Enter an email address first.');return;}
+  var url=document.getElementById('rf-result-link').value;
+  var text='Corridor Towing: Here\'s your vehicle release form — '+url;
+  window.location.href='mailto:'+email+'?subject='+encodeURIComponent('Your Corridor Towing Vehicle Release Form')+'&body='+encodeURIComponent(text);
+}
+
 /** Send notification via Formspree (same form as website requests). Uses _cc so driver/customer get a copy when enabled on your Formspree plan. */
 function formspreeNotify(payload){
   return fetch(FORMSPREE_URL,{
@@ -2001,6 +2222,13 @@ document.getElementById('nj-pickup').addEventListener('blur',function(){njAutoCa
 document.getElementById('nj-dest').addEventListener('blur',njAutoCalcTowMiles);
 attachAddressAutocomplete(document.getElementById('nj-pickup'),function(){njAutoCalcEnroute();njAutoCalcTowMiles();});
 attachAddressAutocomplete(document.getElementById('nj-dest'),function(){njAutoCalcTowMiles();});
+document.getElementById('tt-btn-release-form').addEventListener('click',openReleaseModal);
+document.getElementById('rf-in-date').addEventListener('change',rfRecalcNights);
+document.getElementById('rf-out-date').addEventListener('change',rfRecalcNights);
+document.getElementById('rf-nights').addEventListener('input',rfRecalcStorageFee);
+document.getElementById('rf-storage-fee').addEventListener('input',rfRecalcTotal);
+document.getElementById('rf-processing-fee').addEventListener('input',rfRecalcTotal);
+document.getElementById('rf-paid').addEventListener('input',function(){rfPaidManuallyEdited=true;});
 document.getElementById('mgr-biz-ptabs').addEventListener('click',function(e){
   var b=e.target.closest('.tt-mgr-tab');if(!b||!b.dataset.bp)return;
   mgrBizPeriod=b.dataset.bp;

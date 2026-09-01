@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicle Release Form | Corridor Towing</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/images/logo.jpeg" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Outfit',sans-serif;background:#0a0a0a;color:#f0f0f0;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px}
+  .wrap{width:100%;max-width:480px}
+  .card{background:#141414;border:1px solid #262626;border-radius:18px;padding:28px;margin-bottom:16px}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .brand img{height:44px;width:44px;border-radius:10px;object-fit:cover}
+  .brand h1{font-size:18px;font-weight:900}
+  .brand p{font-size:11px;color:#6b6b6b}
+  h2{font-size:20px;font-weight:900;margin-bottom:2px}
+  .sub{font-size:13px;color:#6b6b6b;margin-bottom:6px}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;margin-bottom:16px;background:rgba(96,165,250,.15);color:#60a5fa}
+  .section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6b6b6b;margin:20px 0 8px}
+  .section-title:first-of-type{margin-top:0}
+  .row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #1e1e1e;font-size:13px}
+  .row:last-of-type{border-bottom:none}
+  .row .k{color:#6b6b6b}
+  .row .v{text-align:right;font-weight:600}
+  .line{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;font-family:'JetBrains Mono',monospace}
+  .line .lbl{font-family:'Outfit',sans-serif;color:#aaa}
+  .total{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:14px;border-top:2px solid rgba(16,185,129,.3)}
+  .total .lbl{font-size:15px;font-weight:700}
+  .total .amt{font-size:26px;font-weight:900;color:#10b981;font-family:'JetBrains Mono',monospace}
+  .paidbadge{display:inline-block;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;margin-top:10px}
+  .paidbadge.full{background:rgba(16,185,129,.15);color:#10b981}
+  .paidbadge.balance{background:rgba(239,68,68,.15);color:#f87171}
+  .release-text{font-size:12px;color:#aaa;line-height:1.6;background:#1a1a1a;border-radius:10px;padding:14px;margin-top:8px}
+  .sig-block{margin-top:22px}
+  .sig-line{border-bottom:1.5px solid #444;height:36px;margin-bottom:4px}
+  .sig-label{font-size:11px;color:#6b6b6b}
+  .btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px;border:none;border-radius:14px;font-weight:900;font-size:15px;cursor:pointer;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-family:inherit;text-decoration:none;box-sizing:border-box;margin-bottom:10px}
+  .foot{text-align:center;font-size:12px;color:#6b6b6b;line-height:1.6}
+  .foot a{color:#10b981}
+  .err{text-align:center;padding:40px 20px;color:#ef4444}
+  @media print{
+    body{background:#fff;color:#000;padding:0}
+    .card{background:#fff;border:1px solid #ccc}
+    .no-print{display:none}
+    .row,.line{border-color:#ddd}
+    .section-title{color:#555}
+    .row .k,.line .lbl{color:#555}
+    .release-text{background:#f5f5f5;color:#333}
+    .sig-line{border-color:#000}
+    .sig-label{color:#555}
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <div class="err" id="err" style="display:none">Invalid or missing release form link.</div>
+  <div id="content" style="display:none">
+    <div class="card">
+      <div class="brand">
+        <img src="/images/logo.jpeg" onerror="this.style.display='none'">
+        <div><h1>Corridor Towing</h1><p>8607 Oakview Avenue, Henrico, VA 23228 · (804) 292-8414</p></div>
+      </div>
+      <h2>Vehicle Release Form</h2>
+      <p class="sub" id="r-meta"></p>
+      <span class="badge" id="r-source"></span>
+
+      <div class="section-title">Vehicle</div>
+      <div class="row"><span class="k">Vehicle</span><span class="v" id="r-vehicle"></span></div>
+      <div class="row" id="r-color-row"><span class="k">Color</span><span class="v" id="r-color"></span></div>
+      <div class="row" id="r-plate-row"><span class="k">Plate</span><span class="v" id="r-plate"></span></div>
+      <div class="row" id="r-vin-row"><span class="k">VIN</span><span class="v" id="r-vin"></span></div>
+
+      <div class="section-title">Storage</div>
+      <div class="row"><span class="k">Date stored</span><span class="v" id="r-in-date"></span></div>
+      <div class="row"><span class="k">Date released</span><span class="v" id="r-out-date"></span></div>
+      <div class="row"><span class="k">Nights stored</span><span class="v" id="r-nights"></span></div>
+
+      <div class="section-title">Fees</div>
+      <div id="r-lines"></div>
+      <div class="total"><span class="lbl">Total Release Fee</span><span class="amt" id="r-total"></span></div>
+      <div id="r-paid-status"></div>
+
+      <div class="section-title">Released To</div>
+      <div class="row"><span class="k">Name</span><span class="v" id="r-name"></span></div>
+      <div class="row" id="r-phone-row"><span class="k">Phone</span><span class="v" id="r-phone"></span></div>
+      <div class="row"><span class="k">Relationship</span><span class="v" id="r-relation"></span></div>
+      <div class="row" id="r-dl-row"><span class="k">License #</span><span class="v" id="r-dl"></span></div>
+      <div class="row" id="r-notes-row"><span class="k">Notes</span><span class="v" id="r-notes"></span></div>
+
+      <p class="release-text">By signing below, the undersigned acknowledges receipt of the above vehicle in its current condition, confirms payment of the release fee shown above, and releases Corridor Towing &amp; Transportation Services from further responsibility for the vehicle and its storage.</p>
+
+      <div class="sig-block">
+        <div class="sig-line"></div>
+        <p class="sig-label">Signature of person receiving vehicle · Date</p>
+      </div>
+      <div class="sig-block">
+        <div class="sig-line"></div>
+        <p class="sig-label">Released by (Corridor Towing) · Date</p>
+      </div>
+    </div>
+
+    <div class="no-print">
+      <button class="btn" onclick="window.print()"><i>🖨️</i> Print / Save for Signature</button>
+    </div>
+
+    <p class="foot">Questions? Call <a href="tel:8042928414">(804) 292-8414</a> or email <a href="mailto:corridor.towing.services@gmail.com">corridor.towing.services@gmail.com</a>.</p>
+  </div>
+</div>
+<script>
+(async function(){
+  function b64urlDecode(str){
+    str=str.replace(/-/g,'+').replace(/_/g,'/');
+    while(str.length%4)str+='=';
+    return decodeURIComponent(escape(atob(str)));
+  }
+  var params=new URLSearchParams(location.search);
+  var shortId=params.get('r');
+  var raw=params.get('d');
+  var d=null;
+  if(shortId){
+    try{
+      var res=await fetch('https://corridortowing-default-rtdb.firebaseio.com/releaseForms/'+encodeURIComponent(shortId)+'.json');
+      if(res.ok){
+        var data=await res.json();
+        if(data&&data.veh)d=data;
+      }
+    }catch(e){/* fall through to error state below */}
+  }else if(raw){
+    try{d=JSON.parse(b64urlDecode(raw));}catch(e){d=null;}
+  }
+  if(!d||!d.veh){
+    document.getElementById('err').style.display='block';
+    return;
+  }
+  document.getElementById('content').style.display='block';
+
+  var SOURCE_LABELS={website:'Corridor Towing Dispatch',agero:'Agero',aaa:'AAA',honk:'Honk',other:'Other'};
+  var RELATION_LABELS={owner:'Vehicle Owner',agent:'Authorized Agent',lienholder:'Lienholder',other:'Other'};
+  var PAY_LABELS={cash:'Cash',card:'Card',venmo:'Venmo',cashapp:'Cash App',paypal:'PayPal',other:'Other'};
+
+  var created=d.createdAt?new Date(d.createdAt):new Date();
+  document.getElementById('r-meta').textContent='Generated '+created.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' '+created.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  document.getElementById('r-source').textContent=SOURCE_LABELS[d.src]||d.src||'—';
+
+  document.getElementById('r-vehicle').textContent=d.veh||'—';
+  if(d.color){document.getElementById('r-color').textContent=d.color;}else{document.getElementById('r-color-row').style.display='none';}
+  var plateTxt=[d.plate,d.state].filter(Boolean).join(' · ');
+  if(plateTxt){document.getElementById('r-plate').textContent=plateTxt;}else{document.getElementById('r-plate-row').style.display='none';}
+  if(d.vin){document.getElementById('r-vin').textContent=d.vin;}else{document.getElementById('r-vin-row').style.display='none';}
+
+  var inD=d.inDate?new Date(d.inDate):null, outD=d.outDate?new Date(d.outDate):null;
+  document.getElementById('r-in-date').textContent=inD?inD.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—';
+  document.getElementById('r-out-date').textContent=outD?outD.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—';
+  document.getElementById('r-nights').textContent=(d.nights!=null?d.nights:0)+(d.nights===1?' night':' nights');
+
+  var storageFee=Number(d.storageFee)||0, processingFee=Number(d.processingFee)||0, total=Number(d.total)||(storageFee+processingFee), paid=Number(d.paid)||0;
+  var lines='';
+  lines+='<div class="line"><span class="lbl">Storage — '+(d.nights||0)+' night(s) @ $100/night</span><span>$'+storageFee.toFixed(2)+'</span></div>';
+  lines+='<div class="line"><span class="lbl">Storage processing fee</span><span>$'+processingFee.toFixed(2)+'</span></div>';
+  document.getElementById('r-lines').innerHTML=lines;
+  document.getElementById('r-total').textContent='$'+total.toFixed(2);
+
+  var paidDiv=document.getElementById('r-paid-status');
+  var payMethodLabel=PAY_LABELS[d.payMethod]||'';
+  if(paid>=total&&total>0){
+    paidDiv.innerHTML='<span class="paidbadge full">PAID IN FULL'+(payMethodLabel?' · '+payMethodLabel:'')+'</span>';
+  }else if(paid>0){
+    paidDiv.innerHTML='<span class="paidbadge balance">PAID $'+paid.toFixed(2)+' OF $'+total.toFixed(2)+' — BALANCE $'+(total-paid).toFixed(2)+'</span>';
+  }else{
+    paidDiv.innerHTML='<span class="paidbadge balance">UNPAID — $'+total.toFixed(2)+' DUE</span>';
+  }
+
+  document.getElementById('r-name').textContent=d.name||'—';
+  if(d.phone){document.getElementById('r-phone').textContent=d.phone;}else{document.getElementById('r-phone-row').style.display='none';}
+  document.getElementById('r-relation').textContent=RELATION_LABELS[d.relation]||d.relation||'—';
+  if(d.dl){document.getElementById('r-dl').textContent=d.dl;}else{document.getElementById('r-dl-row').style.display='none';}
+  if(d.notes){document.getElementById('r-notes').textContent=d.notes;}else{document.getElementById('r-notes-row').style.display='none';}
+})();
+</script>
+</body>
+</html>

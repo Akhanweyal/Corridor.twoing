@@ -52,6 +52,15 @@
       }
     },
 
+    // Same pattern as receiptLinks above, for vehicle release-form links
+    // (release-form.html?r=xxxxxxxx) — read scoped to one $id at a time.
+    "releaseForms": {
+      "$id": {
+        ".read": true,
+        ".write": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())"
+      }
+    },
+
     "drivers": {
       ".read": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())",
       ".write": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())"
