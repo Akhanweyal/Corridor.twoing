@@ -366,7 +366,6 @@ img,svg{max-width:100%;height:auto;display:block}
       <button class="tt-mgr-tab" data-jf="enroute">En Route</button>
       <button class="tt-mgr-tab" data-jf="on_location">On Location</button>
       <button class="tt-mgr-tab" data-jf="picked_up">Picked Up</button>
-      <button class="tt-mgr-tab" data-jf="dropped_off">Dropped Off</button>
       <button class="tt-mgr-tab" data-jf="done">Done</button>
       <button class="tt-mgr-tab" data-jf="cancelled">Cancelled</button>
       <button class="tt-mgr-tab" data-jf="all">All</button>
@@ -715,7 +714,6 @@ img,svg{max-width:100%;height:auto;display:block}
         <option value="enroute">En Route</option>
         <option value="on_location">On Location</option>
         <option value="picked_up">Picked Up</option>
-        <option value="dropped_off">Dropped Off</option>
         <option value="done">Done</option>
         <option value="cancelled">Cancelled</option>
       </select>
@@ -1110,7 +1108,7 @@ function downloadMgrExcel(){
 var mgrJobs=[],mgrDrivers=[],mgrJobFilter='pending',mgrMainTab='dispatch',_assignJobId=null;
 
 function randomToken(n){n=n||20;var s='';while(s.length<n)s+=Math.random().toString(36).slice(2);return s.slice(0,n);}
-function jobStatusLabel(s){return({pending:'Pending',assigned:'Assigned',enroute:'En Route',on_location:'On Location',picked_up:'Picked Up',dropped_off:'Dropped Off',done:'Done',cancelled:'Cancelled'})[s]||s;}
+function jobStatusLabel(s){return({pending:'Pending',assigned:'Assigned',enroute:'En Route',on_location:'On Location',picked_up:'Picked Up',dropped_off:'Done',done:'Done',cancelled:'Cancelled'})[s]||s;}
 function jobStatusColor(s){return({pending:'#f59e0b',assigned:'#60a5fa',enroute:'#a78bfa',on_location:'#34d399',picked_up:'#10b981',dropped_off:'#6b6b6b',done:'#6b6b6b',cancelled:'#ef4444'})[s]||'#6b6b6b';}
 function isJobComplete(s){return s==='dropped_off'||s==='done'||s==='cancelled';}
 function isJobActiveStatus(s){return s==='assigned'||s==='enroute'||s==='on_location'||s==='picked_up';}
@@ -1165,7 +1163,7 @@ function renderMgrJobs(){
   mgrJobs.forEach(function(j){
     if(j.status==='pending')pending++;
     else if(isJobActiveStatus(j.status))active++;
-    else if(isJobComplete(j.status)&&(j.droppedOffAt||j.updatedAt||0)>=todayMs)done++;
+    else if((j.status==='done'||j.status==='dropped_off')&&(j.droppedOffAt||j.updatedAt||0)>=todayMs)done++;
   });
   var elP=document.getElementById('mgr-job-pending');if(elP)elP.textContent=pending;
   var elA=document.getElementById('mgr-job-active');if(elA)elA.textContent=active;
@@ -1174,6 +1172,11 @@ function renderMgrJobs(){
   var list=document.getElementById('mgr-jobs-list');if(!list)return;
   var filtered=mgrJobs.filter(function(j){
     if(mgrJobFilter==='all')return true;
+    // "Done" also catches the older "dropped_off" status — the app no longer
+    // creates that distinct status (it was confusingly separate from "Done"
+    // for no real reason), but any job completed before this change still has
+    // it, and it should show up under Done rather than nowhere.
+    if(mgrJobFilter==='done')return j.status==='done'||j.status==='dropped_off';
     return j.status===mgrJobFilter;
   });
   if(!filtered.length){
@@ -1221,7 +1224,7 @@ function renderMgrJobs(){
     }
     html+='<button onclick="deleteMgrJob(\''+j.id+'\')" style="flex:1;min-width:90px;padding:9px 10px;border:1px solid rgba(239,68,68,.35);border-radius:8px;font-weight:600;font-size:12px;cursor:pointer;background:rgba(239,68,68,.1);color:#fca5a5;font-family:\'Outfit\',sans-serif"><i class="fas fa-trash"></i> Delete</button>';
     html+='</div>';
-    if(j.status==='dropped_off'&&j.feedbackSubmitted){
+    if((j.status==='dropped_off'||j.status==='done')&&j.feedbackSubmitted){
       html+='<p style="font-size:11px;color:#10b981;margin-top:6px"><i class="fas fa-star"></i> '+(j.feedbackRating||'—')+'/5'+(j.feedbackComment?' — '+j.feedbackComment:'')+'</p>';
     }
     if(j.dropoffLat!=null){
@@ -1484,17 +1487,24 @@ async function notifyCustomerStatusEmail(job,status,extra){
   var custEmail=(job.customerEmail||job.email||'').trim();
   if(!custEmail){console.warn('No customer email on job');return Promise.resolve(null);}
 
-  var labels={
-    enroute:'Driver is en route',
-    on_location:'Driver is on location',
-    picked_up:'Vehicle picked up',
-    dropped_off:'Vehicle dropped off',
-    done:'Service complete'
-  };
-  var label=labels[status]||status;
   var driverName=job.assignedDriverName||'Your driver';
   var driverPhone=job.assignedDriverPhone||'(804) 292-8414';
   var isTow=(job.jobType==='tow')||/tow/i.test(job.service||'');
+  // "dropped_off" is kept as a synonym for "done" here (not something the app
+  // still creates) purely so any older job record that already has that raw
+  // status value still gets a correct, tow-aware label instead of a blank one.
+  var labels=isTow?{
+    enroute:'Driver is en route',
+    picked_up:'Vehicle picked up',
+    dropped_off:'Vehicle delivered',
+    done:'Vehicle delivered'
+  }:{
+    enroute:'Driver is en route',
+    on_location:'Driver is on location',
+    dropped_off:'Service complete',
+    done:'Service complete'
+  };
+  var label=labels[status]||status;
 
   // Short, clean customer message (only this is emailed — avoids crowded Formspree field dump)
   var body='Corridor Towing update\n\n'+
@@ -1506,11 +1516,11 @@ async function notifyCustomerStatusEmail(job,status,extra){
   if(isTow){
     if(status==='enroute')body+='\nWe are on the way to pick up your vehicle.\n';
     else if(status==='picked_up')body+='\nYour vehicle is on the truck and heading to the destination.\n';
-    else if(status==='dropped_off')body+='\nYour vehicle has been delivered. Thank you!\n';
+    else if(status==='done'||status==='dropped_off')body+='\nYour vehicle has been delivered. Thank you!\n';
   }else{
     if(status==='enroute')body+='\nWe are on the way to your location.\n';
     else if(status==='on_location')body+='\nOur driver has arrived and is working on your vehicle.\n';
-    else if(status==='done')body+='\nYour service is complete. Thank you!\n';
+    else if(status==='done'||status==='dropped_off')body+='\nYour service is complete. Thank you!\n';
   }
   if((status==='dropped_off'||status==='done')&&job.id){
     body+='\nYour receipt:\n'+(await buildReceiptUrl(job))+'\n';
@@ -1687,7 +1697,7 @@ function openEditJobModal(jobId){
   njTogglePayMethod();
   document.getElementById('nj-paymethod').value=job.payMethod||'';
   document.getElementById('nj-status').style.display='block';
-  document.getElementById('nj-status').value=job.status||'pending';
+  document.getElementById('nj-status').value=(job.status==='dropped_off'?'done':job.status)||'pending';
   document.getElementById('nj-enroute-status').textContent='Auto-estimate available if you change the pickup location.';
   document.getElementById('mgr-newjob-modal').classList.add('active');
 }
@@ -2291,7 +2301,7 @@ function initTT(){
           if(j.status==='assigned')html+='<button onclick="driverUpdateStatus(\''+j.id+'\',\'enroute\')" style="padding:14px;border:none;border-radius:12px;font-weight:800;font-size:15px;background:#a78bfa;color:#000;cursor:pointer;font-family:\'Outfit\',sans-serif">En Route</button>';
           if(isTow){
             if(j.status==='enroute')html+='<button onclick="driverUpdateStatus(\''+j.id+'\',\'picked_up\')" style="padding:14px;border:none;border-radius:12px;font-weight:800;font-size:15px;background:#10b981;color:#fff;cursor:pointer;font-family:\'Outfit\',sans-serif">Vehicle Picked Up</button>';
-            if(j.status==='picked_up'||j.status==='enroute')html+='<button onclick="driverUpdateStatus(\''+j.id+'\',\'dropped_off\')" style="padding:14px;border:none;border-radius:12px;font-weight:800;font-size:15px;background:#f59e0b;color:#000;cursor:pointer;font-family:\'Outfit\',sans-serif">Vehicle Dropped Off</button>';
+            if(j.status==='picked_up'||j.status==='enroute')html+='<button onclick="driverUpdateStatus(\''+j.id+'\',\'done\')" style="padding:14px;border:none;border-radius:12px;font-weight:800;font-size:15px;background:#f59e0b;color:#000;cursor:pointer;font-family:\'Outfit\',sans-serif">Vehicle Delivered — Done</button>';
           }else{
             if(j.status==='enroute')html+='<button onclick="driverUpdateStatus(\''+j.id+'\',\'on_location\')" style="padding:14px;border:none;border-radius:12px;font-weight:800;font-size:15px;background:#34d399;color:#000;cursor:pointer;font-family:\'Outfit\',sans-serif">On Location</button>';
             if(j.status==='on_location'||j.status==='enroute')html+='<button onclick="driverUpdateStatus(\''+j.id+'\',\'done\')" style="padding:14px;border:none;border-radius:12px;font-weight:800;font-size:15px;background:#f59e0b;color:#000;cursor:pointer;font-family:\'Outfit\',sans-serif">Service Done</button>';
@@ -2367,14 +2377,19 @@ function initTT(){
         if(job.customerPhone){
           var dName=job.assignedDriverName||'your driver';
           var dPhone=job.assignedDriverPhone||'(804) 292-8414';
+          var isTowJob=(job.jobType==='tow')||/tow/i.test(job.service||'');
           var text='';
           if(status==='enroute')text='Corridor Towing: '+dName+' is en route. Call '+dPhone+' if needed.';
           if(status==='on_location')text='Corridor Towing: '+dName+' is on location and starting service.';
           if(status==='picked_up')text='Corridor Towing: Your vehicle has been picked up by '+dName+'.';
           var fbUrl='https://corridortowing.org/feedback.html?job='+encodeURIComponent(job.id||'')+'&t='+encodeURIComponent(job.feedbackToken||'');
           var rcUrl=await buildReceiptUrl(job);
-          if(status==='dropped_off')text='Corridor Towing: Your vehicle has been dropped off. Thank you!\nReceipt: '+rcUrl+'\nFeedback: '+fbUrl;
-          if(status==='done')text='Corridor Towing: Your service is complete. Thank you!\nReceipt: '+rcUrl+'\nFeedback: '+fbUrl;
+          // "dropped_off" only still appears here for any older job the app itself
+          // no longer creates that status for — "done" is the only completion
+          // status driver actions send now, for both tow and roadside jobs.
+          if(status==='done'||status==='dropped_off'){
+            text=(isTowJob?'Corridor Towing: Your vehicle has been delivered. Thank you!':'Corridor Towing: Your service is complete. Thank you!')+'\nReceipt: '+rcUrl+'\nFeedback: '+fbUrl;
+          }
           if(text){
             setTimeout(function(){
               window.location.href='sms:'+String(job.customerPhone).replace(/\s/g,'')+'?&body='+encodeURIComponent(text);
