@@ -368,6 +368,7 @@ img,svg{max-width:100%;height:auto;display:block}
       <button class="tt-mgr-tab" data-jf="picked_up">Picked Up</button>
       <button class="tt-mgr-tab" data-jf="dropped_off">Dropped Off</button>
       <button class="tt-mgr-tab" data-jf="done">Done</button>
+      <button class="tt-mgr-tab" data-jf="cancelled">Cancelled</button>
       <button class="tt-mgr-tab" data-jf="all">All</button>
     </div>
     <div id="mgr-jobs-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;max-height:calc(100vh - 220px);overflow-y:auto">
@@ -672,8 +673,8 @@ img,svg{max-width:100%;height:auto;display:block}
 <!-- NEW JOB MODAL (phone-in requests entered manually by the manager) -->
 <div id="mgr-newjob-modal" class="tt-cfbg">
   <div class="tt-card" style="width:100%;max-width:420px;max-height:88vh;overflow-y:auto">
-    <h3 style="font-size:17px;font-weight:700;margin-bottom:4px">New Job (Phone-In)</h3>
-    <p style="font-size:12px;color:#6b6b6b;margin-bottom:14px">For a customer who called instead of using the website form. Saves the same way — assign, status updates, feedback and receipt all work normally.</p>
+    <h3 id="nj-modal-title" style="font-size:17px;font-weight:700;margin-bottom:4px">New Job (Phone-In)</h3>
+    <p id="nj-modal-sub" style="font-size:12px;color:#6b6b6b;margin-bottom:14px">For a customer who called instead of using the website form. Saves the same way — assign, status updates, feedback and receipt all work normally.</p>
     <div style="display:flex;flex-direction:column;gap:10px">
       <input id="nj-name" class="tt-inp" placeholder="Customer full name *">
       <input id="nj-phone" class="tt-inp" placeholder="Customer phone *" type="tel">
@@ -707,6 +708,16 @@ img,svg{max-width:100%;height:auto;display:block}
         <option value="cashapp">Cash App</option>
         <option value="paypal">PayPal</option>
         <option value="card">Card</option>
+      </select>
+      <select id="nj-status" class="tt-inp" style="display:none">
+        <option value="pending">Pending</option>
+        <option value="assigned">Assigned</option>
+        <option value="enroute">En Route</option>
+        <option value="on_location">On Location</option>
+        <option value="picked_up">Picked Up</option>
+        <option value="dropped_off">Dropped Off</option>
+        <option value="done">Done</option>
+        <option value="cancelled">Cancelled</option>
       </select>
     </div>
     <div style="display:flex;gap:10px;margin-top:16px">
@@ -1195,8 +1206,20 @@ function renderMgrJobs(){
       }
       html+='</div>';
     }
+    if(isJobActiveStatus(j.status)&&j.driverLat!=null&&j.driverLng!=null){
+      var ageMs=Date.now()-(j.driverLocationAt||0);
+      var ageTxt=ageMs<90000?'just now':Math.round(ageMs/60000)+'m ago';
+      var stale=ageMs>10*60000; // no update in 10+ min — GPS may be off/app backgrounded
+      var driverMapUrl='https://www.google.com/maps?q='+j.driverLat+','+j.driverLng;
+      html+='<p style="font-size:11px;color:'+(stale?'#f59e0b':'#34d399')+';margin-bottom:6px"><i class="fas fa-location-crosshairs"></i> Driver location updated '+ageTxt+(stale?' (may be stale)':'')+' — <a href="'+driverMapUrl+'" target="_blank" rel="noopener" style="color:#60a5fa">View on map</a></p>';
+    }
     html+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">';
-    html+='<button onclick="openReceiptModal(\''+j.id+'\')" style="flex:1;min-width:100px;padding:9px 10px;border:1px solid #262626;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer;background:#1a1a1a;color:#aaa;font-family:\'Outfit\',sans-serif"><i class="fas fa-receipt"></i> Receipt</button>';
+    html+='<button onclick="openReceiptModal(\''+j.id+'\')" style="flex:1;min-width:90px;padding:9px 10px;border:1px solid #262626;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer;background:#1a1a1a;color:#aaa;font-family:\'Outfit\',sans-serif"><i class="fas fa-receipt"></i> Receipt</button>';
+    html+='<button onclick="openEditJobModal(\''+j.id+'\')" style="flex:1;min-width:90px;padding:9px 10px;border:1px solid rgba(96,165,250,.35);border-radius:8px;font-weight:600;font-size:12px;cursor:pointer;background:rgba(96,165,250,.1);color:#60a5fa;font-family:\'Outfit\',sans-serif"><i class="fas fa-pen"></i> Edit</button>';
+    if(j.status!=='cancelled'&&!isJobComplete(j.status)){
+      html+='<button onclick="cancelMgrJob(\''+j.id+'\')" style="flex:1;min-width:90px;padding:9px 10px;border:1px solid rgba(245,158,11,.35);border-radius:8px;font-weight:600;font-size:12px;cursor:pointer;background:rgba(245,158,11,.1);color:#f59e0b;font-family:\'Outfit\',sans-serif"><i class="fas fa-ban"></i> Cancel</button>';
+    }
+    html+='<button onclick="deleteMgrJob(\''+j.id+'\')" style="flex:1;min-width:90px;padding:9px 10px;border:1px solid rgba(239,68,68,.35);border-radius:8px;font-weight:600;font-size:12px;cursor:pointer;background:rgba(239,68,68,.1);color:#fca5a5;font-family:\'Outfit\',sans-serif"><i class="fas fa-trash"></i> Delete</button>';
     html+='</div>';
     if(j.status==='dropped_off'&&j.feedbackSubmitted){
       html+='<p style="font-size:11px;color:#10b981;margin-top:6px"><i class="fas fa-star"></i> '+(j.feedbackRating||'—')+'/5'+(j.feedbackComment?' — '+j.feedbackComment:'')+'</p>';
@@ -1207,6 +1230,26 @@ function renderMgrJobs(){
     html+='</div>';
   });
   list.innerHTML=html;
+}
+async function cancelMgrJob(jobId){
+  var job=mgrJobs.find(function(j){return j.id===jobId;});
+  if(!confirm('Cancel this job'+(job?' for '+(job.customerName||'this customer'):'')+'? The record is kept (visible under the Cancelled filter) but it stops counting toward dispatch, assignment, or the Business revenue/mileage summary.'))return;
+  try{
+    var res=await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'cancelled',updatedAt:Date.now()})});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    await loadMgrJobs();
+    tT('Job cancelled','success');
+  }catch(e){alert('Could not cancel job: '+(e&&e.message||e));}
+}
+async function deleteMgrJob(jobId){
+  var job=mgrJobs.find(function(j){return j.id===jobId;});
+  if(!confirm('Permanently delete this job'+(job?' for '+(job.customerName||'this customer'):'')+'? This cannot be undone. Use this for test/duplicate entries — for a real customer who cancelled, use Cancel instead so the record is kept.'))return;
+  try{
+    var res=await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'DELETE'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    await loadMgrJobs();
+    tT('Job deleted','success');
+  }catch(e){alert('Could not delete job: '+(e&&e.message||e));}
 }
 
 function renderMgrDrivers(){
@@ -1598,7 +1641,15 @@ function njCalcTotal(){
 function njTogglePayMethod(){
   document.getElementById('nj-paymethod').style.display=document.getElementById('nj-payment').value==='pay-now'?'block':'none';
 }
+var _editJobId=null;
 function njResetForm(){
+  _editJobId=null;
+  document.getElementById('nj-modal-title').textContent='New Job (Phone-In)';
+  document.getElementById('nj-modal-sub').textContent='For a customer who called instead of using the website form. Saves the same way — assign, status updates, feedback and receipt all work normally.';
+  document.getElementById('nj-submit').textContent='Save Job';
+  document.getElementById('nj-status').style.display='none';
+  document.getElementById('nj-amount').readOnly=true;
+  document.getElementById('nj-amount').style.background='#1a1a1a';
   ['nj-name','nj-phone','nj-email','nj-vehicle','nj-pickup','nj-dest'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('nj-service').value='';
   document.getElementById('nj-enroute').value='0';
@@ -1607,6 +1658,38 @@ function njResetForm(){
   document.getElementById('nj-enroute-status').textContent='Enter a pickup location for an automatic enroute estimate.';
   njTogglePayMethod();
   njOnServiceChange();
+}
+// Opens the same modal used for phone-in jobs, pre-filled with an existing job's
+// details, so the manager can correct/update anything — including forcing the
+// status directly (e.g. a driver forgot to mark something done).
+function openEditJobModal(jobId){
+  var job=mgrJobs.find(function(j){return j.id===jobId;});
+  if(!job){alert('Job not found.');return;}
+  njResetForm();
+  _editJobId=jobId;
+  document.getElementById('nj-modal-title').textContent='Edit Job';
+  document.getElementById('nj-modal-sub').textContent='Updating an existing job — changes save directly to this job, nothing new is created.';
+  document.getElementById('nj-submit').textContent='Save Changes';
+  document.getElementById('nj-name').value=job.customerName||'';
+  document.getElementById('nj-phone').value=job.customerPhone||'';
+  document.getElementById('nj-email').value=job.customerEmail||'';
+  document.getElementById('nj-service').value=job.serviceCode||'';
+  document.getElementById('nj-vehicle').value=job.vehicle||'';
+  document.getElementById('nj-pickup').value=job.pickupAddress||'';
+  document.getElementById('nj-dest').value=(job.destinationAddress&&job.destinationAddress!=='N/A')?job.destinationAddress:'';
+  document.getElementById('nj-enroute').value=Number(job.enrouteMiles)||0;
+  document.getElementById('nj-tow').value=Number(job.towMiles)||0;
+  njOnServiceChange(); // shows/hides the destination field based on the loaded service's job type
+  document.getElementById('nj-amount').value=job.amount!=null?Number(job.amount).toFixed(2):'0.00';
+  document.getElementById('nj-amount').readOnly=false; // editable here, unlike New Job's auto-calculated field
+  document.getElementById('nj-amount').style.background='#141414';
+  document.getElementById('nj-payment').value=job.paymentPref||'pay-later';
+  njTogglePayMethod();
+  document.getElementById('nj-paymethod').value=job.payMethod||'';
+  document.getElementById('nj-status').style.display='block';
+  document.getElementById('nj-status').value=job.status||'pending';
+  document.getElementById('nj-enroute-status').textContent='Auto-estimate available if you change the pickup location.';
+  document.getElementById('mgr-newjob-modal').classList.add('active');
 }
 
 // Shop's fixed location (same coordinates as the LocalBusiness JSON-LD on the
@@ -1722,11 +1805,41 @@ async function createManualJob(){
   if(!jobType){alert('Please select a service.');return;}
   if(!pickup){alert('Please enter a pickup / service location.');return;}
   if(jobType==='tow'&&!dest){alert('Please enter a drop-off destination for towing jobs.');return;}
-  njCalcTotal();
+  var editing=!!_editJobId;
+  if(!editing)njCalcTotal(); // editing allows a manually-typed amount — don't clobber it with the auto-calc
   var svcSel=document.getElementById('nj-service');
   var svcText=svcSel.options[svcSel.selectedIndex].text;
   var btn=document.getElementById('nj-submit');
   btn.disabled=true;btn.textContent='Saving…';
+
+  if(editing){
+    var editPayload={
+      jobType:jobType,serviceCode:svcSel.value,service:svcText,updatedAt:Date.now(),
+      customerName:name,customerPhone:phone,customerEmail:email||null,
+      vehicle:document.getElementById('nj-vehicle').value||'Not provided',
+      pickupAddress:pickup,destinationAddress:jobType==='tow'?dest:'N/A',
+      enrouteMiles:Number(document.getElementById('nj-enroute').value)||0,
+      towMiles:jobType==='tow'?(Number(document.getElementById('nj-tow').value)||0):0,
+      amount:Number(document.getElementById('nj-amount').value)||0,
+      paymentPref:document.getElementById('nj-payment').value,
+      payMethod:document.getElementById('nj-payment').value==='pay-now'?(document.getElementById('nj-paymethod').value||null):null,
+      status:document.getElementById('nj-status').value
+    };
+    try{
+      var editRes=await fbFetch(FIREBASE_URL+'/jobs/'+_editJobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(editPayload)});
+      if(!editRes.ok)throw new Error('HTTP '+editRes.status);
+      document.getElementById('mgr-newjob-modal').classList.remove('active');
+      njResetForm();
+      await loadMgrJobs();
+      tT('Job updated','success');
+    }catch(e){
+      alert('Could not save changes: '+(e&&e.message||e));
+    }finally{
+      btn.disabled=false;btn.textContent='Save Changes';
+    }
+    return;
+  }
+
   var jobId='job_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
   var feedbackToken=Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);
   var now=Date.now();
@@ -2043,6 +2156,31 @@ function initTT(){
     navStack=['dash'];navIdx=0;go('dash',true);
   };
 
+  // Live driver location while any job is actively assigned to them — lets the
+  // manager see roughly where the driver is on the Dispatch board. Uses
+  // watchPosition (fires on movement) but throttles actual Firebase writes to
+  // once per ~30s to avoid hammering the database or draining battery. Stops
+  // itself automatically once the driver has no active jobs left.
+  var driverLocWatchId=null,driverLocLastSent=0,driverLocActiveIds=[];
+  function ensureDriverLocationTracking(activeJobIds){
+    driverLocActiveIds=activeJobIds||[];
+    if(!driverLocActiveIds.length){
+      if(driverLocWatchId!=null&&navigator.geolocation){navigator.geolocation.clearWatch(driverLocWatchId);driverLocWatchId=null;}
+      return;
+    }
+    if(driverLocWatchId!=null)return; // already tracking
+    if(!navigator.geolocation)return;
+    driverLocWatchId=navigator.geolocation.watchPosition(function(pos){
+      var now=Date.now();
+      if(now-driverLocLastSent<30000)return;
+      driverLocLastSent=now;
+      var payload={driverLat:pos.coords.latitude,driverLng:pos.coords.longitude,driverLocationAt:now};
+      driverLocActiveIds.forEach(function(jobId){
+        fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(function(){});
+      });
+    },function(err){console.warn('Driver location watch error',err);},{enableHighAccuracy:true,maximumAge:20000,timeout:20000});
+  }
+
   async function loadDashJobsPreview(){
     var box=document.getElementById('tt-dash-jobs-list');
     var badge=document.getElementById('tt-jobs-badge');
@@ -2057,6 +2195,7 @@ function initTT(){
         if(jobBelongsToMe(j)&&!isJobComplete(j.status))mine.push(j);
       }}
       mine.sort(function(a,b){return(b.assignedAt||b.createdAt||0)-(a.assignedAt||a.createdAt||0);});
+      ensureDriverLocationTracking(mine.map(function(j){return j.id;}));
       if(badge){if(mine.length){badge.style.display='inline-block';badge.textContent=String(mine.length);}else{badge.style.display='none';}}
       if(!mine.length){
         box.innerHTML='<p style="font-size:13px;color:#6b6b6b;margin:0">No jobs assigned right now. When a manager assigns you a job, it will show here and under the <strong style="color:#f59e0b">Jobs</strong> tab below.</p>';
@@ -2186,6 +2325,7 @@ function initTT(){
       }}
       mine.sort(function(a,b){return(b.assignedAt||b.updatedAt||b.createdAt||0)-(a.assignedAt||a.updatedAt||a.createdAt||0);});
       drvJobsCache=mine;
+      ensureDriverLocationTracking(mine.filter(function(j){return!isJobComplete(j.status);}).map(function(j){return j.id;}));
       renderDriverJobsList();
     }catch(e){
       list.innerHTML='<div style="color:#ef4444;text-align:center;padding:24px 0">Could not load jobs</div>';
