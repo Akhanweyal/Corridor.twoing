@@ -29,6 +29,11 @@ img,svg{max-width:100%;height:auto;display:block}
 .tt-orb:nth-child(2){width:280px;height:280px;background:#10b981;bottom:-8%;right:-8%;animation-delay:-6s}
 @keyframes tt-dr{0%,100%{transform:translate(0,0)}50%{transform:translate(25px,-25px)}}
 .tt-inp{background:#141414;border:1.5px solid #262626;color:#f0f0f0;padding:14px 16px;border-radius:14px;font-size:16px;width:100%;font-family:'Outfit',sans-serif;outline:none;transition:border-color .2s}
+.addr-ac-list{position:absolute;left:0;right:0;top:100%;background:#1a1a1a;border:1.5px solid #262626;border-top:none;border-radius:0 0 14px 14px;max-height:220px;overflow-y:auto;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.5);display:none}
+.addr-ac-list.show{display:block}
+.addr-ac-item{padding:12px 16px;cursor:pointer;font-size:14px;color:#f0f0f0;border-bottom:1px solid #262626;text-align:left}
+.addr-ac-item:last-child{border-bottom:none}
+.addr-ac-item:hover,.addr-ac-item.active{background:rgba(245,158,11,.12)}
 .tt-inp:focus{border-color:#f59e0b}
 .tt-inp::placeholder{color:#6b6b6b}
 .tt-card{background:#141414;border:1px solid #262626;border-radius:18px;padding:20px}
@@ -120,7 +125,7 @@ img,svg{max-width:100%;height:auto;display:block}
     <span id="tt-sync-status" class="tt-sync-indicator"><i class="fas fa-cloud"></i> Cloud</span>
     <span id="mgr-badge" class="mgr-badge" style="display:none"><i class="fas fa-user-shield"></i> MANAGER</span>
   </div>
-  <button onclick="closeDP()" style="flex-shrink:0;background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;font-family:'Outfit',sans-serif">Exit</button>
+  <button id="tt-logout-btn" onclick="closeDP()" style="flex-shrink:0;background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;font-family:'Outfit',sans-serif"><i class="fas fa-right-from-bracket"></i> Log Out</button>
 </div>
 
 <!-- SETUP -->
@@ -336,6 +341,7 @@ img,svg{max-width:100%;height:auto;display:block}
     <button class="tt-mgr-tab on" data-m="dispatch">Dispatch</button>
     <button class="tt-mgr-tab" data-m="drivers">Drivers</button>
     <button class="tt-mgr-tab" data-m="timelogs">Time Logs</button>
+    <button class="tt-mgr-tab" data-m="business">Business</button>
   </div>
 
   <!-- ========== DISPATCH PANEL ========== -->
@@ -424,6 +430,43 @@ img,svg{max-width:100%;height:auto;display:block}
     </div>
     <button id="tt-btn-mgr-excel" style="width:100%;padding:15px;border:1px solid #262626;border-radius:14px;font-weight:600;font-size:14px;cursor:pointer;background:#141414;color:#f0f0f0;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Outfit',sans-serif;margin-bottom:8px">
       <i class="fas fa-file-excel" style="color:#10b981"></i>Download Full Excel Report
+    </button>
+  </div>
+
+  <!-- ========== BUSINESS / TAX PANEL ========== -->
+  <div id="mgr-panel-business" style="display:none">
+    <div class="tt-mgr-tabs" id="mgr-biz-ptabs" style="margin-bottom:16px">
+      <button class="tt-mgr-tab on" data-bp="month">This Month</button>
+      <button class="tt-mgr-tab" data-bp="lastmonth">Last Month</button>
+      <button class="tt-mgr-tab" data-bp="year">This Year</button>
+      <button class="tt-mgr-tab" data-bp="all">All Time</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="mgr-stat-card" style="text-align:center;padding:14px">
+        <p style="font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:#6b6b6b;margin-bottom:6px">Gross Revenue</p>
+        <p id="mgr-biz-revenue" style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:#10b981">$0.00</p>
+      </div>
+      <div class="mgr-stat-card" style="text-align:center;padding:14px">
+        <p style="font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:#6b6b6b;margin-bottom:6px">Jobs Completed</p>
+        <p id="mgr-biz-jobcount" style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:#60a5fa">0</p>
+      </div>
+    </div>
+    <div class="mgr-stat-card" style="text-align:center;padding:14px;margin-bottom:16px">
+      <p style="font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:#6b6b6b;margin-bottom:6px">Total Business Miles (enroute + tow)</p>
+      <p id="mgr-biz-miles" style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:#f59e0b">0</p>
+      <p style="font-size:10px;color:#6b6b6b;margin-top:4px">For the IRS standard mileage deduction — multiply by the current per-mile rate. Not tax advice; check with your accountant.</p>
+    </div>
+    <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6b6b6b;margin-bottom:10px">
+      <i class="fas fa-chart-simple" style="color:#f59e0b;margin-right:6px"></i>Revenue by Service Type
+    </p>
+    <div style="border-radius:16px;overflow:hidden;border:1px solid #262626;margin-bottom:16px">
+      <table class="tt-dtb">
+        <thead><tr><th>Service</th><th>Jobs</th><th>Miles</th><th>Revenue</th></tr></thead>
+        <tbody id="mgr-biz-svc-tb"><tr><td colspan="4" style="text-align:center;color:#6b6b6b;padding:20px 0">No completed jobs in this period</td></tr></tbody>
+      </table>
+    </div>
+    <button id="tt-btn-biz-excel" style="width:100%;padding:15px;border:none;border-radius:14px;font-weight:700;font-size:14px;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#ea580c);color:#000;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Outfit',sans-serif">
+      <i class="fas fa-file-excel"></i>Download Tax Summary (Excel)
     </button>
   </div>
 
@@ -799,6 +842,7 @@ function getMs(r){
 var pendingPortalMode=null;
 function showLoginGate(mode){
   pendingPortalMode=mode||null;
+  document.getElementById('tt-logout-btn').innerHTML='Exit';
   document.getElementById('tt-login-title').textContent=mode==='mgr'?'Manager Sign In':'Driver Sign In';
   document.getElementById('tt-login-email').value='';
   document.getElementById('tt-login-pass').value='';
@@ -866,6 +910,7 @@ async function submitForcePasswordChange(){
   }
 }
 function enterPortal(mode){
+  document.getElementById('tt-logout-btn').innerHTML='<i class="fas fa-right-from-bracket"></i> Log Out';
   if(mode==='mgr'){
     var email=fbAuth.currentUser&&fbAuth.currentUser.email;
     if(!isManagerEmail(email)){
@@ -1261,7 +1306,19 @@ function b64urlEncode(str){
   var b64=btoa(unescape(encodeURIComponent(str)));
   return b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 }
-function buildReceiptUrl(job){
+function randomShortId(n){
+  n=n||8;
+  var chars='abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/l/I — easier to read aloud/retype
+  var s='';
+  for(var i=0;i<n;i++)s+=chars[Math.floor(Math.random()*chars.length)];
+  return s;
+}
+// Saves the receipt payload under a short random ID (/receiptLinks/{id}, public
+// read per database.rules.json) and returns a short link pointing at it, instead
+// of the long base64-blob link this used to build inline. Falls back to the old
+// self-contained long link if the save fails for any reason (rules not yet
+// published, offline, etc.) so a receipt link is still always produced.
+async function buildReceiptUrl(job){
   var isTow=job.jobType==='tow';
   var d={
     id:job.id||'',
@@ -1280,12 +1337,20 @@ function buildReceiptUrl(job){
     jt:job.jobType||'',
     ft:job.feedbackToken||''
   };
-  return 'https://corridortowing.org/receipt.html?d='+b64urlEncode(JSON.stringify(d));
+  try{
+    var shortId=randomShortId(8);
+    var res=await fbFetch(FIREBASE_URL+'/receiptLinks/'+shortId+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    return 'https://corridortowing.org/receipt.html?r='+shortId;
+  }catch(e){
+    console.warn('Receipt shortlink save failed, using long-form link instead:',e);
+    return 'https://corridortowing.org/receipt.html?d='+b64urlEncode(JSON.stringify(d));
+  }
 }
-function openReceiptModal(jobId){
+async function openReceiptModal(jobId){
   var job=mgrJobs.find(function(j){return j.id===jobId;});
   if(!job){alert('Job not found.');return;}
-  var url=buildReceiptUrl(job);
+  var url=await buildReceiptUrl(job);
   document.getElementById('mgr-receipt-link').value=url;
   var smsBtn=document.getElementById('mgr-receipt-sms');
   var mailBtn=document.getElementById('mgr-receipt-email');
@@ -1372,7 +1437,7 @@ function notifyDriverChannels(job,driver,action){
   }
 }
 
-function notifyCustomerStatusEmail(job,status,extra){
+async function notifyCustomerStatusEmail(job,status,extra){
   var custEmail=(job.customerEmail||job.email||'').trim();
   if(!custEmail){console.warn('No customer email on job');return Promise.resolve(null);}
 
@@ -1405,7 +1470,7 @@ function notifyCustomerStatusEmail(job,status,extra){
     else if(status==='done')body+='\nYour service is complete. Thank you!\n';
   }
   if((status==='dropped_off'||status==='done')&&job.id){
-    body+='\nYour receipt:\n'+buildReceiptUrl(job)+'\n';
+    body+='\nYour receipt:\n'+(await buildReceiptUrl(job))+'\n';
     if(job.feedbackToken){
       body+='\nRate your experience:\nhttps://corridortowing.org/feedback.html?job='+encodeURIComponent(job.id)+'&t='+encodeURIComponent(job.feedbackToken)+'\n';
     }
@@ -1572,6 +1637,59 @@ async function njAutoCalcEnroute(){
     njCalcTotal();
   }catch(e){status.textContent='Auto estimate failed — enter enroute miles manually.';}
 }
+// Same address-suggestion pattern as the public site's request form (index.html) —
+// duplicated rather than shared since these are two separate HTML files with no
+// shared script include, consistent with how geocodeAddress/routeMiles are
+// already duplicated as njGeocodeAddress/njRouteMiles above.
+function attachAddressAutocomplete(input,onSelect){
+  var parent=input.parentElement;
+  if(getComputedStyle(parent).position==='static')parent.style.position='relative';
+  var list=document.createElement('div');
+  list.className='addr-ac-list';
+  parent.appendChild(list);
+  var debounceTimer=null,activeIndex=-1,currentItems=[],seq=0;
+  function hide(){list.classList.remove('show');list.innerHTML='';activeIndex=-1;currentItems=[];}
+  function updateActive(){list.querySelectorAll('.addr-ac-item').forEach(function(el,i){el.classList.toggle('active',i===activeIndex);});}
+  function render(items){
+    currentItems=items;
+    if(!items.length){hide();return;}
+    list.innerHTML=items.map(function(it,i){return '<div class="addr-ac-item" data-i="'+i+'">'+it.display_name.replace(/</g,'&lt;')+'</div>';}).join('');
+    list.classList.add('show');activeIndex=-1;
+  }
+  function choose(i){
+    var it=currentItems[i];if(!it)return;
+    input.value=it.display_name;
+    hide();
+    if(onSelect)onSelect({lat:it.lat,lon:it.lon,display_name:it.display_name});
+  }
+  list.addEventListener('mousedown',function(e){
+    var item=e.target.closest('.addr-ac-item');if(!item)return;
+    choose(Number(item.dataset.i));
+  });
+  input.addEventListener('input',function(){
+    clearTimeout(debounceTimer);
+    var q=input.value.trim();
+    if(q.length<3){hide();return;}
+    var mySeq=++seq;
+    debounceTimer=setTimeout(async function(){
+      try{
+        var r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=us&q='+encodeURIComponent(q));
+        var data=await r.json();
+        if(mySeq!==seq)return;
+        render(data||[]);
+      }catch(e){hide();}
+    },450);
+  });
+  input.addEventListener('keydown',function(e){
+    if(!list.classList.contains('show'))return;
+    if(e.key==='ArrowDown'){e.preventDefault();activeIndex=Math.min(activeIndex+1,currentItems.length-1);updateActive();}
+    else if(e.key==='ArrowUp'){e.preventDefault();activeIndex=Math.max(activeIndex-1,0);updateActive();}
+    else if(e.key==='Enter'){if(activeIndex>=0){e.preventDefault();choose(activeIndex);}}
+    else if(e.key==='Escape'){hide();}
+  });
+  input.addEventListener('blur',function(){setTimeout(hide,150);});
+}
+
 async function njAutoCalcTowMiles(){
   if(njGetJobType()!=='tow')return;
   var l=(document.getElementById('nj-pickup').value||'').trim();
@@ -1648,9 +1766,95 @@ function switchMgrMainTab(tab){
   document.getElementById('mgr-panel-dispatch').style.display=tab==='dispatch'?'block':'none';
   document.getElementById('mgr-panel-drivers').style.display=tab==='drivers'?'block':'none';
   document.getElementById('mgr-panel-timelogs').style.display=tab==='timelogs'?'block':'none';
+  document.getElementById('mgr-panel-business').style.display=tab==='business'?'block':'none';
   if(tab==='timelogs')renderMgrDash();
   if(tab==='dispatch')renderMgrJobs();
   if(tab==='drivers')renderMgrDrivers();
+  if(tab==='business'){if(!mgrJobs.length)loadMgrJobs().then(renderMgrBusiness);else renderMgrBusiness();}
+}
+
+/* ========== BUSINESS / TAX SUMMARY ========== */
+var mgrBizPeriod='month',mgrBizCompletedCache=[];
+var SERVICE_LABELS={'light-tow':'Car / SUV Tow','medium-tow':'Truck / Van Tow','jumpstart':'Jumpstart','lockout':'Lockout','tire':'Tire Change','fuel':'Fuel Delivery','extraction':'Winch Out'};
+function bizPeriodLabel(p){return({month:'This Month',lastmonth:'Last Month',year:'This Year',all:'All Time'})[p]||p;}
+function mgrBizRange(period){
+  var now=new Date();
+  if(period==='month')return{s:new Date(now.getFullYear(),now.getMonth(),1).getTime(),e:Date.now()};
+  if(period==='lastmonth'){
+    var s=new Date(now.getFullYear(),now.getMonth()-1,1);
+    var e=new Date(now.getFullYear(),now.getMonth(),0,23,59,59);
+    return{s:s.getTime(),e:e.getTime()};
+  }
+  if(period==='year')return{s:new Date(now.getFullYear(),0,1).getTime(),e:Date.now()};
+  return null; // all time
+}
+// Completed jobs only (dropped_off/done) — pending/cancelled jobs never earned revenue
+// or drove business miles, so they're excluded from every stat here.
+function mgrBizCompletedJobs(period){
+  var range=mgrBizRange(period);
+  return mgrJobs.filter(function(j){
+    if(j.status!=='dropped_off'&&j.status!=='done')return false;
+    var t=j.droppedOffAt||j.updatedAt||j.createdAt||0;
+    if(range&&(t<range.s||t>range.e))return false;
+    return true;
+  });
+}
+function mgrBizAggregate(completed){
+  var revenue=0,miles=0,byService={};
+  completed.forEach(function(j){
+    var amt=Number(j.amount)||0,mi=(Number(j.enrouteMiles)||0)+(Number(j.towMiles)||0);
+    revenue+=amt;miles+=mi;
+    var code=j.serviceCode||'other',label=SERVICE_LABELS[code]||j.service||code;
+    if(!byService[code])byService[code]={label:label,count:0,revenue:0,miles:0};
+    byService[code].count++;byService[code].revenue+=amt;byService[code].miles+=mi;
+  });
+  return{revenue:revenue,miles:miles,byService:byService};
+}
+function renderMgrBusiness(){
+  var completed=mgrBizCompletedJobs(mgrBizPeriod);
+  mgrBizCompletedCache=completed;
+  var agg=mgrBizAggregate(completed);
+  document.getElementById('mgr-biz-revenue').textContent='$'+agg.revenue.toFixed(2);
+  document.getElementById('mgr-biz-jobcount').textContent=completed.length;
+  document.getElementById('mgr-biz-miles').textContent=agg.miles.toFixed(1);
+  var codes=Object.keys(agg.byService).sort(function(a,b){return agg.byService[b].revenue-agg.byService[a].revenue;});
+  var tb=document.getElementById('mgr-biz-svc-tb');
+  if(!codes.length){
+    tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:#6b6b6b;padding:20px 0">No completed jobs in this period</td></tr>';
+  }else{
+    var html='';
+    codes.forEach(function(code){
+      var r=agg.byService[code];
+      html+='<tr><td>'+r.label+'</td><td>'+r.count+'</td><td>'+r.miles.toFixed(1)+'</td><td>$'+r.revenue.toFixed(2)+'</td></tr>';
+    });
+    tb.innerHTML=html;
+  }
+}
+function downloadBizExcel(){
+  if(typeof XLSX==='undefined'){alert('Excel library not loaded.');return;}
+  var completed=mgrBizCompletedCache;
+  if(!completed.length){alert('No completed jobs in this period to export.');return;}
+  var agg=mgrBizAggregate(completed);
+  var wb=XLSX.utils.book_new();
+  var summaryData=[['CORRIDOR TOWING'],['BUSINESS / TAX SUMMARY'],[''],['Period:',bizPeriodLabel(mgrBizPeriod)],['Generated:',new Date().toLocaleString('en-US')],[''],['Gross Revenue:','$'+agg.revenue.toFixed(2)],['Jobs Completed:',completed.length],['Total Business Miles (enroute + tow):',agg.miles.toFixed(1)],[''],['Service Type','Jobs','Miles','Revenue']];
+  Object.keys(agg.byService).sort(function(a,b){return agg.byService[b].revenue-agg.byService[a].revenue;}).forEach(function(code){
+    var r=agg.byService[code];summaryData.push([r.label,r.count,r.miles.toFixed(1),'$'+r.revenue.toFixed(2)]);
+  });
+  var ws1=XLSX.utils.aoa_to_sheet(summaryData);
+  ws1['!cols']=[{wch:26},{wch:16},{wch:12},{wch:14}];
+  ws1['!merges']=[{s:{r:0,c:0},e:{r:0,c:3}},{s:{r:1,c:0},e:{r:1,c:3}}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Summary');
+
+  var itemData=[['Date','Customer','Service','Vehicle','Enroute Mi','Tow Mi','Amount ($)','Driver']];
+  completed.slice().sort(function(a,b){return(a.droppedOffAt||a.updatedAt||0)-(b.droppedOffAt||b.updatedAt||0);}).forEach(function(j){
+    var t=j.droppedOffAt||j.updatedAt||j.createdAt||0;
+    itemData.push([t?new Date(t).toLocaleDateString('en-US'):'',j.customerName||'',j.service||'',j.vehicle||'',Number(j.enrouteMiles)||0,Number(j.towMiles)||0,Number(j.amount)||0,j.assignedDriverName||'']);
+  });
+  var ws2=XLSX.utils.aoa_to_sheet(itemData);
+  ws2['!cols']=[{wch:12},{wch:18},{wch:24},{wch:18},{wch:11},{wch:9},{wch:11},{wch:16}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Itemized Jobs');
+
+  XLSX.writeFile(wb,'Corridor_Towing_Tax_Summary_'+new Date().toISOString().slice(0,10)+'.xlsx');
 }
 
 // Wire manager main tabs + job filter + add driver
@@ -1672,6 +1876,16 @@ document.getElementById('nj-tow').addEventListener('input',njCalcTotal);
 document.getElementById('nj-payment').addEventListener('change',njTogglePayMethod);
 document.getElementById('nj-pickup').addEventListener('blur',function(){njAutoCalcEnroute();njAutoCalcTowMiles();});
 document.getElementById('nj-dest').addEventListener('blur',njAutoCalcTowMiles);
+attachAddressAutocomplete(document.getElementById('nj-pickup'),function(){njAutoCalcEnroute();njAutoCalcTowMiles();});
+attachAddressAutocomplete(document.getElementById('nj-dest'),function(){njAutoCalcTowMiles();});
+document.getElementById('mgr-biz-ptabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tt-mgr-tab');if(!b||!b.dataset.bp)return;
+  mgrBizPeriod=b.dataset.bp;
+  document.querySelectorAll('#mgr-biz-ptabs .tt-mgr-tab').forEach(function(t){t.classList.remove('on');});
+  b.classList.add('on');
+  renderMgrBusiness();
+});
+document.getElementById('tt-btn-biz-excel').addEventListener('click',downloadBizExcel);
 
 // Override refresh to load everything
 document.getElementById('tt-btn-mgr-refresh').addEventListener('click',function(){
@@ -2018,7 +2232,7 @@ function initTT(){
           if(status==='on_location')text='Corridor Towing: '+dName+' is on location and starting service.';
           if(status==='picked_up')text='Corridor Towing: Your vehicle has been picked up by '+dName+'.';
           var fbUrl='https://corridortowing.org/feedback.html?job='+encodeURIComponent(job.id||'')+'&t='+encodeURIComponent(job.feedbackToken||'');
-          var rcUrl=buildReceiptUrl(job);
+          var rcUrl=await buildReceiptUrl(job);
           if(status==='dropped_off')text='Corridor Towing: Your vehicle has been dropped off. Thank you!\nReceipt: '+rcUrl+'\nFeedback: '+fbUrl;
           if(status==='done')text='Corridor Towing: Your service is complete. Thank you!\nReceipt: '+rcUrl+'\nFeedback: '+fbUrl;
           if(text){
@@ -2339,7 +2553,23 @@ function initTT(){
 function enterApp(mode){
   document.getElementById('app-landing').style.display='none';
   document.getElementById('driver-app').style.display='block';
-  showLoginGate(mode);
+  // Firebase Auth persists a session across page loads/refreshes by default, but
+  // it resolves that asynchronously — fbAuth.currentUser is unreliable to read
+  // synchronously right after load, even when a valid session exists. Wait for
+  // onAuthStateChanged's first callback (fires once either way: with a user, or
+  // definitively with none) before deciding whether to prompt for sign-in at all.
+  // Previously this always called showLoginGate() unconditionally, which is why
+  // every refresh looked like it had logged the user out even though the
+  // underlying Firebase session was still there the whole time.
+  var unsub=fbAuth.onAuthStateChanged(async function(user){
+    unsub();
+    if(user){
+      if(await mustChangePassword()){showForcePasswordChange(mode);}
+      else{enterPortal(mode);}
+    }else{
+      showLoginGate(mode);
+    }
+  });
 }
 function closeDP(){
   document.getElementById('driver-app').style.display='none';

@@ -40,6 +40,18 @@
       }
     },
 
+    // Short receipt links (receipt.html?r=xxxxxxxx instead of a long ?d=<base64 blob>
+    // link). Read is scoped to $id only, not the "receiptLinks" node itself, so
+    // knowing one short ID lets you read that one receipt but never lets anyone
+    // list/dump every receipt ever created (same reasoning as the "jobs" comment
+    // above about list-query reads vs. single-record reads).
+    "receiptLinks": {
+      "$id": {
+        ".read": true,
+        ".write": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())"
+      }
+    },
+
     "drivers": {
       ".read": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())",
       ".write": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())"

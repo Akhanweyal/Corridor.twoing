@@ -87,6 +87,11 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
 .vehicle-group{display:flex;gap:1rem;flex-wrap:wrap}
 .vehicle-group .form-group{flex:1;min-width:200px}
 .help-text{font-size:.85rem;color:#555;margin-top:.3rem}
+.addr-ac-list{position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid #ccc;border-top:none;border-radius:0 0 8px 8px;max-height:220px;overflow-y:auto;z-index:50;box-shadow:0 8px 20px rgba(0,0,0,.15);display:none}
+.addr-ac-list.show{display:block}
+.addr-ac-item{padding:10px 12px;cursor:pointer;font-size:.9rem;border-bottom:1px solid #eee;text-align:left}
+.addr-ac-item:last-child{border-bottom:none}
+.addr-ac-item:hover,.addr-ac-item.active{background:#e6f3ff}
 @media(max-width:768px){
   body{padding-top:90px}
   .logo img{height:50px}
@@ -382,6 +387,11 @@ document.getElementById('towDestination').addEventListener('blur',autoCalcMiles)
 // customer types the destination first) — previously only destination's blur ever
 // triggered this, so that order left tow miles stuck at 0 with no estimate shown.
 document.getElementById('vehicleLocation').addEventListener('blur',function(){autoCalcEnroute();if(getSelectedJobType()==='tow')autoCalcMiles();});
+attachAddressAutocomplete(document.getElementById('vehicleLocation'),function(sel){
+  autoCalcEnroute({lat:sel.lat,lon:sel.lon});
+  if(getSelectedJobType()==='tow')autoCalcMiles();
+});
+attachAddressAutocomplete(document.getElementById('towDestination'),function(){autoCalcMiles();});
 onServiceChange();
 
 // Shop's fixed location (matches the LocalBusiness geo coordinates in the JSON-LD
@@ -398,6 +408,59 @@ async function routeMiles(lat1,lon1,lat2,lon2){
   var r=await fetch('https://router.project-osrm.org/route/v1/driving/'+lon1+','+lat1+';'+lon2+','+lat2+'?overview=false');
   var j=await r.json();
   return (j.routes&&j.routes[0])?(j.routes[0].distance/1000*0.621371):null;
+}
+
+// Live address suggestions as the customer types — same public Nominatim endpoint
+// already used for the enroute/tow-mile geocoding above, so no new dependency.
+// Selecting a suggestion hands back the geocoded lat/lon directly, skipping a
+// redundant re-geocode of the exact same address string right after.
+function attachAddressAutocomplete(input,onSelect){
+  var parent=input.parentElement;
+  if(getComputedStyle(parent).position==='static')parent.style.position='relative';
+  var list=document.createElement('div');
+  list.className='addr-ac-list';
+  parent.appendChild(list);
+  var debounceTimer=null,activeIndex=-1,currentItems=[],seq=0;
+  function hide(){list.classList.remove('show');list.innerHTML='';activeIndex=-1;currentItems=[];}
+  function updateActive(){list.querySelectorAll('.addr-ac-item').forEach(function(el,i){el.classList.toggle('active',i===activeIndex);});}
+  function render(items){
+    currentItems=items;
+    if(!items.length){hide();return;}
+    list.innerHTML=items.map(function(it,i){return '<div class="addr-ac-item" data-i="'+i+'">'+it.display_name.replace(/</g,'&lt;')+'</div>';}).join('');
+    list.classList.add('show');activeIndex=-1;
+  }
+  function choose(i){
+    var it=currentItems[i];if(!it)return;
+    input.value=it.display_name;
+    hide();
+    if(onSelect)onSelect({lat:it.lat,lon:it.lon,display_name:it.display_name});
+  }
+  list.addEventListener('mousedown',function(e){ // mousedown (not click) fires before the input's blur
+    var item=e.target.closest('.addr-ac-item');if(!item)return;
+    choose(Number(item.dataset.i));
+  });
+  input.addEventListener('input',function(){
+    clearTimeout(debounceTimer);
+    var q=input.value.trim();
+    if(q.length<3){hide();return;}
+    var mySeq=++seq;
+    debounceTimer=setTimeout(async function(){
+      try{
+        var r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=us&q='+encodeURIComponent(q));
+        var data=await r.json();
+        if(mySeq!==seq)return; // a newer keystroke already superseded this request
+        render(data||[]);
+      }catch(e){hide();}
+    },450);
+  });
+  input.addEventListener('keydown',function(e){
+    if(!list.classList.contains('show'))return;
+    if(e.key==='ArrowDown'){e.preventDefault();activeIndex=Math.min(activeIndex+1,currentItems.length-1);updateActive();}
+    else if(e.key==='ArrowUp'){e.preventDefault();activeIndex=Math.max(activeIndex-1,0);updateActive();}
+    else if(e.key==='Enter'){if(activeIndex>=0){e.preventDefault();choose(activeIndex);}}
+    else if(e.key==='Escape'){hide();}
+  });
+  input.addEventListener('blur',function(){setTimeout(hide,150);}); // delay so the mousedown-select above still fires
 }
 
 async function autoCalcMiles(){

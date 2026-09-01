@@ -84,16 +84,30 @@
   </div>
 </div>
 <script>
-(function(){
+(async function(){
   function b64urlDecode(str){
     str=str.replace(/-/g,'+').replace(/_/g,'/');
     while(str.length%4)str+='=';
     return decodeURIComponent(escape(atob(str)));
   }
   var params=new URLSearchParams(location.search);
+  var shortId=params.get('r');
   var raw=params.get('d');
   var d=null;
-  if(raw){
+  if(shortId){
+    // Short link (?r=xxxxxxxx) — the actual data lives at /receiptLinks/{id} in
+    // Firebase, readable without signing in (see database.rules.json: read is
+    // scoped to one $id at a time, so this can never list every receipt).
+    try{
+      var res=await fetch('https://corridortowing-default-rtdb.firebaseio.com/receiptLinks/'+encodeURIComponent(shortId)+'.json');
+      if(res.ok){
+        var data=await res.json();
+        if(data&&data.n)d=data;
+      }
+    }catch(e){/* fall through to error state below */}
+  }else if(raw){
+    // Old long-form link (?d=<base64 blob>) — still supported so links already
+    // sent to customers before short links existed keep working.
     try{d=JSON.parse(b64urlDecode(raw));}catch(e){d=null;}
   }
   if(!d||!d.n){
