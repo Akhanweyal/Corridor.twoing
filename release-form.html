@@ -6,7 +6,7 @@
 <title>Vehicle Release Form | Corridor Towing</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="/images/logo.jpeg" type="image/png">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=JetBrains+Mono:wght@400;600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Outfit',sans-serif;background:#0a0a0a;color:#f0f0f0;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px}
@@ -41,6 +41,21 @@
   .foot{text-align:center;font-size:12px;color:#6b6b6b;line-height:1.6}
   .foot a{color:#10b981}
   .err{text-align:center;padding:40px 20px;color:#ef4444}
+  .sigpad-tabs{display:flex;gap:8px;margin-bottom:10px}
+  .sigpad-tab{flex:1;padding:9px;border-radius:10px;border:1.5px solid #262626;background:#1a1a1a;color:#aaa;font-family:'Outfit',sans-serif;font-weight:700;font-size:13px;cursor:pointer}
+  .sigpad-tab.on{background:#10b981;color:#000;border-color:#10b981}
+  .sigpad-canvas-wrap{border:1.5px dashed #444;border-radius:10px;background:#fff;margin-bottom:10px;touch-action:none}
+  .sigpad-canvas-wrap canvas{display:block;width:100%;height:140px}
+  .sigpad-type-input{width:100%;padding:14px;border-radius:10px;border:1.5px solid #262626;background:#1a1a1a;color:#f0f0f0;font-size:16px;margin-bottom:10px;font-family:inherit;outline:none}
+  .sigpad-type-preview{font-family:'Dancing Script',cursive;font-size:36px;color:#111;background:#fff;border-radius:10px;padding:10px 16px;margin-bottom:10px;min-height:60px;display:flex;align-items:center;border:1.5px dashed #444}
+  .sigpad-actions{display:flex;gap:8px}
+  .sigpad-btn{padding:12px;border-radius:10px;border:none;font-weight:700;font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif}
+  .sigpad-btn.clear{flex:0 0 auto;padding:12px 16px;background:#1e1e1e;border:1px solid #262626;color:#aaa}
+  .sigpad-btn.confirm{flex:1;background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+  .sig-signed-display{background:#1a1a1a;border-radius:10px;padding:14px;text-align:center}
+  .sig-signed-display img{max-width:100%;max-height:100px;background:#fff;border-radius:6px}
+  .sig-signed-typed{font-family:'Dancing Script',cursive;font-size:34px;color:#fff}
+  .sig-err{color:#ef4444;font-size:12px;margin-bottom:8px;display:none}
   @media print{
     body{background:#fff;color:#000;padding:0}
     .card{background:#fff;border:1px solid #ccc}
@@ -51,6 +66,7 @@
     .release-text{background:#f5f5f5;color:#333}
     .sig-line{border-color:#000}
     .sig-label{color:#555}
+    .sig-signed-typed{color:#000}
   }
 </style>
 </head>
@@ -92,7 +108,7 @@
 
       <p class="release-text">By signing below, the undersigned acknowledges receipt of the above vehicle in its current condition, confirms payment of the release fee shown above, and releases Corridor Towing &amp; Transportation Services from further responsibility for the vehicle and its storage.</p>
 
-      <div class="sig-block">
+      <div class="sig-block" id="r-releasee-sig-block">
         <div class="sig-line"></div>
         <p class="sig-label">Signature of person receiving vehicle · Date</p>
       </div>
@@ -185,6 +201,150 @@
   document.getElementById('r-relation').textContent=RELATION_LABELS[d.relation]||d.relation||'—';
   if(d.dl){document.getElementById('r-dl').textContent=d.dl;}else{document.getElementById('r-dl-row').style.display='none';}
   if(d.notes){document.getElementById('r-notes').textContent=d.notes;}else{document.getElementById('r-notes-row').style.display='none';}
+
+  // ---- Signature: draw with a finger/mouse, or type a name — saved back to
+  // Firebase only when this page was reached via the short link (?r=), since
+  // that's the only case with an actual record to save into. The self-contained
+  // long-form fallback link (?d=) has nowhere to persist a signature, so it
+  // keeps the plain blank print-and-sign line instead of the interactive pad.
+  var sigBlock=document.getElementById('r-releasee-sig-block');
+  if(d.signedAt){
+    renderSignedDisplay();
+  }else if(shortId){
+    renderSignaturePad();
+  }
+
+  function renderSignedDisplay(){
+    var signedDate=new Date(d.signedAt).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+    var inner='';
+    if(d.signatureMode==='draw'&&d.signatureDataUrl){
+      inner='<img src="'+d.signatureDataUrl+'" alt="Signature">';
+    }else if(d.signatureTypedName){
+      inner='<span class="sig-signed-typed">'+String(d.signatureTypedName).replace(/</g,'&lt;')+'</span>';
+    }
+    sigBlock.innerHTML='<div class="sig-signed-display">'+inner+'</div><p class="sig-label">Signature of person receiving vehicle · Signed '+signedDate+'</p>';
+  }
+
+  function renderSignaturePad(){
+    sigBlock.innerHTML=
+      '<p class="sig-err" id="sig-err"></p>'+
+      '<div class="sigpad-tabs">'+
+        '<button type="button" class="sigpad-tab on" id="sig-tab-draw">Draw</button>'+
+        '<button type="button" class="sigpad-tab" id="sig-tab-type">Type</button>'+
+      '</div>'+
+      '<div id="sig-draw-area">'+
+        '<div class="sigpad-canvas-wrap"><canvas id="sig-canvas"></canvas></div>'+
+      '</div>'+
+      '<div id="sig-type-area" style="display:none">'+
+        '<input id="sig-type-input" class="sigpad-type-input" placeholder="Type your full name">'+
+        '<div class="sigpad-type-preview" id="sig-type-preview">&nbsp;</div>'+
+      '</div>'+
+      '<div class="sigpad-actions">'+
+        '<button type="button" class="sigpad-btn clear" id="sig-clear-btn">Clear</button>'+
+        '<button type="button" class="sigpad-btn confirm" id="sig-confirm-btn">Confirm &amp; Sign</button>'+
+      '</div>'+
+      '<p class="sig-label" style="margin-top:8px">Signature of person receiving vehicle</p>';
+
+    var mode='draw';
+    var canvas=document.getElementById('sig-canvas');
+    var pad=initSignaturePad(canvas);
+    var tabDraw=document.getElementById('sig-tab-draw'),tabType=document.getElementById('sig-tab-type');
+    var drawArea=document.getElementById('sig-draw-area'),typeArea=document.getElementById('sig-type-area');
+    var typeInput=document.getElementById('sig-type-input'),typePreview=document.getElementById('sig-type-preview');
+    var errEl=document.getElementById('sig-err');
+
+    tabDraw.addEventListener('click',function(){
+      mode='draw';tabDraw.classList.add('on');tabType.classList.remove('on');
+      drawArea.style.display='block';typeArea.style.display='none';
+    });
+    tabType.addEventListener('click',function(){
+      mode='type';tabType.classList.add('on');tabDraw.classList.remove('on');
+      drawArea.style.display='none';typeArea.style.display='block';
+    });
+    typeInput.addEventListener('input',function(){
+      typePreview.textContent=typeInput.value||' ';
+    });
+    document.getElementById('sig-clear-btn').addEventListener('click',function(){
+      if(mode==='draw')pad.clear();else{typeInput.value='';typePreview.textContent=' ';}
+    });
+    document.getElementById('sig-confirm-btn').addEventListener('click',async function(){
+      errEl.style.display='none';
+      var payload={signedAt:Date.now(),_proof:d.sigToken||''};
+      if(mode==='draw'){
+        if(pad.isEmpty()){errEl.textContent='Please draw a signature first.';errEl.style.display='block';return;}
+        payload.signatureMode='draw';
+        payload.signatureDataUrl=pad.toDataURL();
+      }else{
+        var typedName=(typeInput.value||'').trim();
+        if(!typedName){errEl.textContent='Please type your name.';errEl.style.display='block';return;}
+        payload.signatureMode='type';
+        payload.signatureTypedName=typedName;
+      }
+      var btn=document.getElementById('sig-confirm-btn');
+      btn.disabled=true;btn.textContent='Saving…';
+      try{
+        var res=await fetch('https://corridortowing-default-rtdb.firebaseio.com/releaseForms/'+encodeURIComponent(shortId)+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+        if(!res.ok)throw new Error('HTTP '+res.status);
+        d.signedAt=payload.signedAt;
+        d.signatureMode=payload.signatureMode;
+        if(payload.signatureDataUrl)d.signatureDataUrl=payload.signatureDataUrl;
+        if(payload.signatureTypedName)d.signatureTypedName=payload.signatureTypedName;
+        renderSignedDisplay();
+      }catch(e){
+        errEl.textContent='Could not save signature — check your connection and try again.';
+        errEl.style.display='block';
+        btn.disabled=false;btn.textContent='Confirm & Sign';
+      }
+    });
+  }
+
+  // Minimal from-scratch signature pad (Pointer Events unify mouse/touch/pen —
+  // no library needed for something this small).
+  function initSignaturePad(canvas){
+    var ctx=canvas.getContext('2d');
+    if(!ctx){
+      // Extremely unlikely in a real browser, but fail safe rather than throw —
+      // isEmpty() staying true means "Confirm" correctly asks the user to draw
+      // instead of silently accepting an uninitialized signature.
+      return{clear:function(){},isEmpty:function(){return true;},toDataURL:function(){return '';}};
+    }
+    var logicalW=0,logicalH=0,hasDrawn=false,drawing=false,lastX=0,lastY=0;
+    function resize(){
+      var rect=canvas.getBoundingClientRect();
+      var ratio=window.devicePixelRatio||1;
+      logicalW=rect.width;logicalH=rect.height;
+      canvas.width=logicalW*ratio;canvas.height=logicalH*ratio;
+      ctx.scale(ratio,ratio);
+      ctx.lineWidth=2.2;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#111';
+    }
+    resize();
+    function pos(e){
+      var rect=canvas.getBoundingClientRect();
+      return {x:e.clientX-rect.left,y:e.clientY-rect.top};
+    }
+    canvas.addEventListener('pointerdown',function(e){
+      drawing=true;hasDrawn=true;
+      var p=pos(e);lastX=p.x;lastY=p.y;
+      if(canvas.setPointerCapture)canvas.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+    canvas.addEventListener('pointermove',function(e){
+      if(!drawing)return;
+      var p=pos(e);
+      ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(p.x,p.y);ctx.stroke();
+      lastX=p.x;lastY=p.y;
+      e.preventDefault();
+    });
+    function stop(){drawing=false;}
+    canvas.addEventListener('pointerup',stop);
+    canvas.addEventListener('pointerleave',stop);
+    canvas.addEventListener('pointercancel',stop);
+    return{
+      clear:function(){ctx.clearRect(0,0,logicalW,logicalH);hasDrawn=false;},
+      isEmpty:function(){return !hasDrawn;},
+      toDataURL:function(){return canvas.toDataURL('image/png');}
+    };
+  }
 })();
 </script>
 </body>

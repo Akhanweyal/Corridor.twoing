@@ -57,7 +57,27 @@
     "releaseForms": {
       "$id": {
         ".read": true,
-        ".write": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())"
+        ".write": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())",
+        // The release-form page itself (not signed in) can save a signature —
+        // draw or typed — WITHOUT being signed in, but only once, and only by
+        // proving it knows this form's sigToken via the _proof field. Same
+        // proof-token pattern as jobs/feedbackSubmitted above.
+        "signatureDataUrl": {
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && newData.isString() && newData.parent().child('_proof').val() === data.parent().child('sigToken').val())"
+        },
+        "signatureTypedName": {
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && newData.isString() && newData.val().length <= 100 && newData.parent().child('_proof').val() === data.parent().child('sigToken').val())"
+        },
+        "signatureMode": {
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && (newData.val() === 'draw' || newData.val() === 'type') && newData.parent().child('_proof').val() === data.parent().child('sigToken').val())"
+        },
+        "signedAt": {
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && newData.isNumber() && newData.parent().child('_proof').val() === data.parent().child('sigToken').val())"
+        },
+        "_proof": {
+          ".write": "auth == null",
+          ".validate": "newData.isString()"
+        }
       }
     },
 

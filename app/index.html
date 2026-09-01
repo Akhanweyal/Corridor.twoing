@@ -1627,7 +1627,8 @@ async function generateReleaseForm(){
     relation:document.getElementById('rf-relation').value,
     dl:document.getElementById('rf-dl').value||'',
     notes:document.getElementById('rf-notes').value||'',
-    createdAt:Date.now()
+    createdAt:Date.now(),
+    sigToken:Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)
   };
   try{
     var shortId=randomShortId(8);
