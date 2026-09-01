@@ -156,9 +156,16 @@
   document.getElementById('r-out-date').textContent=outD?outD.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—';
   document.getElementById('r-nights').textContent=(d.nights!=null?d.nights:0)+(d.nights===1?' night':' nights');
 
-  var storageFee=Number(d.storageFee)||0, processingFee=Number(d.processingFee)||0, total=Number(d.total)||(storageFee+processingFee), paid=Number(d.paid)||0;
+  var storageFee=Number(d.storageFee)||0, processingFee=Number(d.processingFee)||0;
+  var towInMiles=Number(d.towInMiles)||0, towInFee=Number(d.towInFee)||0;
+  var towOutMiles=Number(d.towOutMiles)||0, towOutFee=Number(d.towOutFee)||0;
+  var total=Number(d.total)||(storageFee+processingFee+towInFee+towOutFee), paid=Number(d.paid)||0;
   var lines='';
   lines+='<div class="line"><span class="lbl">Storage — '+(d.nights||0)+' night(s) @ $100/night</span><span>$'+storageFee.toFixed(2)+'</span></div>';
+  // Tow legs are optional — a release with no additional tow billed just won't
+  // have either line, rather than showing a $0.00 row that reads as a mistake.
+  if(towInFee>0||towInMiles>0)lines+='<div class="line"><span class="lbl">Tow-in'+(towInMiles?' — '+towInMiles+' mi':'')+'</span><span>$'+towInFee.toFixed(2)+'</span></div>';
+  if(towOutFee>0||towOutMiles>0)lines+='<div class="line"><span class="lbl">Tow-out'+(towOutMiles?' — '+towOutMiles+' mi':'')+'</span><span>$'+towOutFee.toFixed(2)+'</span></div>';
   lines+='<div class="line"><span class="lbl">Storage processing fee</span><span>$'+processingFee.toFixed(2)+'</span></div>';
   document.getElementById('r-lines').innerHTML=lines;
   document.getElementById('r-total').textContent='$'+total.toFixed(2);

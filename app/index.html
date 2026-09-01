@@ -758,6 +758,15 @@ img,svg{max-width:100%;height:auto;display:block}
         <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Nights stored</label><input id="rf-nights" type="number" min="0" step="1" class="tt-inp" value="0"></div>
         <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Storage fee ($100/night)</label><input id="rf-storage-fee" type="number" min="0" step="0.01" class="tt-inp" value="0"></div>
       </div>
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin:6px 0 -4px">Tow Miles (optional — only if a tow is being billed here too)</p>
+      <div style="display:flex;gap:8px;align-items:flex-end">
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Tow-in miles</label><input id="rf-towin-miles" type="number" min="0" step="0.1" class="tt-inp" placeholder="0" value=""></div>
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Tow-in fee ($5/mi)</label><input id="rf-towin-fee" type="number" min="0" step="0.01" class="tt-inp" placeholder="0.00" value=""></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-end">
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Tow-out miles</label><input id="rf-towout-miles" type="number" min="0" step="0.1" class="tt-inp" placeholder="0" value=""></div>
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Tow-out fee ($5/mi)</label><input id="rf-towout-fee" type="number" min="0" step="0.01" class="tt-inp" placeholder="0.00" value=""></div>
+      </div>
       <div style="display:flex;gap:8px;align-items:flex-end">
         <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Processing fee</label><input id="rf-processing-fee" type="number" min="0" step="0.01" class="tt-inp" value="50"></div>
         <div style="flex:1"><label style="display:block;font-size:10px;color:#10b981;margin-bottom:4px">Total release fee</label><input id="rf-total" type="number" step="0.01" class="tt-inp" readonly style="background:#1a1a1a;color:#10b981;font-weight:700"></div>
@@ -1536,6 +1545,10 @@ function openReleaseModal(){
   document.getElementById('rf-out-date').value=rfDateInputValue(today);
   document.getElementById('rf-nights').value='0';
   document.getElementById('rf-storage-fee').value='0.00';
+  document.getElementById('rf-towin-miles').value='';
+  document.getElementById('rf-towin-fee').value='';
+  document.getElementById('rf-towout-miles').value='';
+  document.getElementById('rf-towout-fee').value='';
   document.getElementById('rf-processing-fee').value='50.00';
   document.getElementById('rf-paid').value='';
   document.getElementById('rf-paymethod').value='cash';
@@ -1559,10 +1572,27 @@ function rfRecalcStorageFee(){
   document.getElementById('rf-storage-fee').value=(nights*100).toFixed(2);
   rfRecalcTotal();
 }
+// Both tow legs are optional (most releases are just "customer drives off" —
+// no additional tow to bill). Leaving the miles field blank leaves the fee
+// blank too, and neither contributes to the total; typing miles fills in a
+// suggested fee at $5/mi (same loaded-tow rate used sitewide) that's still
+// freely editable, same pattern as the storage fee above.
+function rfRecalcTowInFee(){
+  var milesVal=document.getElementById('rf-towin-miles').value;
+  document.getElementById('rf-towin-fee').value=milesVal===''?'':(Number(milesVal)*5).toFixed(2);
+  rfRecalcTotal();
+}
+function rfRecalcTowOutFee(){
+  var milesVal=document.getElementById('rf-towout-miles').value;
+  document.getElementById('rf-towout-fee').value=milesVal===''?'':(Number(milesVal)*5).toFixed(2);
+  rfRecalcTotal();
+}
 function rfRecalcTotal(){
   var storage=Number(document.getElementById('rf-storage-fee').value)||0;
+  var towIn=Number(document.getElementById('rf-towin-fee').value)||0;
+  var towOut=Number(document.getElementById('rf-towout-fee').value)||0;
   var processing=Number(document.getElementById('rf-processing-fee').value)||0;
-  var total=storage+processing;
+  var total=storage+towIn+towOut+processing;
   document.getElementById('rf-total').value=total.toFixed(2);
   if(!rfPaidManuallyEdited)document.getElementById('rf-paid').value=total.toFixed(2);
 }
@@ -1584,6 +1614,10 @@ async function generateReleaseForm(){
     outDate:new Date(document.getElementById('rf-out-date').value+'T00:00:00').getTime(),
     nights:Number(document.getElementById('rf-nights').value)||0,
     storageFee:Number(document.getElementById('rf-storage-fee').value)||0,
+    towInMiles:Number(document.getElementById('rf-towin-miles').value)||0,
+    towInFee:Number(document.getElementById('rf-towin-fee').value)||0,
+    towOutMiles:Number(document.getElementById('rf-towout-miles').value)||0,
+    towOutFee:Number(document.getElementById('rf-towout-fee').value)||0,
     processingFee:Number(document.getElementById('rf-processing-fee').value)||0,
     total:Number(document.getElementById('rf-total').value)||0,
     paid:Number(document.getElementById('rf-paid').value)||0,
@@ -2227,6 +2261,10 @@ document.getElementById('rf-in-date').addEventListener('change',rfRecalcNights);
 document.getElementById('rf-out-date').addEventListener('change',rfRecalcNights);
 document.getElementById('rf-nights').addEventListener('input',rfRecalcStorageFee);
 document.getElementById('rf-storage-fee').addEventListener('input',rfRecalcTotal);
+document.getElementById('rf-towin-miles').addEventListener('input',rfRecalcTowInFee);
+document.getElementById('rf-towin-fee').addEventListener('input',rfRecalcTotal);
+document.getElementById('rf-towout-miles').addEventListener('input',rfRecalcTowOutFee);
+document.getElementById('rf-towout-fee').addEventListener('input',rfRecalcTotal);
 document.getElementById('rf-processing-fee').addEventListener('input',rfRecalcTotal);
 document.getElementById('rf-paid').addEventListener('input',function(){rfPaidManuallyEdited=true;});
 document.getElementById('mgr-biz-ptabs').addEventListener('click',function(e){
