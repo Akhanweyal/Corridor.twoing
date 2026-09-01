@@ -53,8 +53,13 @@
     },
 
     // Same pattern as receiptLinks above, for vehicle release-form links
-    // (release-form.html?r=xxxxxxxx) — read scoped to one $id at a time.
+    // (release-form.html?r=xxxxxxxx) — PLUS a list-level read for employees only
+    // (same reasoning as the "jobs" comment up top: a rule nested only under
+    // $id never applies to a list-query fetch of the whole node), so the
+    // Business tab can aggregate every release form's revenue/mileage. The
+    // public single-record read below is unrelated and still unauthenticated.
     "releaseForms": {
+      ".read": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())",
       "$id": {
         ".read": true,
         ".write": "auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())",

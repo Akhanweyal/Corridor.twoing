@@ -1037,7 +1037,7 @@ function enterPortal(mode){
     document.querySelectorAll('.tt-screen').forEach(function(s){s.classList.remove('active');});
     document.getElementById('tt-scr-mgr').classList.add('active');
     switchMgrMainTab('dispatch');
-    loadMgrData();loadMgrJobs();loadMgrDrivers();
+    loadMgrData();loadMgrJobs();loadMgrDrivers();loadMgrReleaseForms();
   }else{
     initTT();
   }
@@ -1227,6 +1227,22 @@ async function loadMgrJobs(){
     mgrJobs.sort(function(a,b){return(b.createdAt||0)-(a.createdAt||0);});
   }catch(e){console.error('loadMgrJobs',e);mgrJobs=[];}
   renderMgrJobs();
+  if(mgrMainTab==='business')renderMgrBusiness();
+}
+// /releaseForms lives separately from /jobs by design — most storage releases
+// (Agero/AAA/Honk) never create a job record at all — so the Business tab needs
+// its own fetch here to fold that revenue/mileage into the tax summary.
+var mgrReleaseForms=[];
+async function loadMgrReleaseForms(){
+  try{
+    var res=await fbFetch(FIREBASE_URL+'/releaseForms.json');
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    var data=await res.json();
+    mgrReleaseForms=[];
+    if(data){for(var id in data){var r=data[id];if(r){r.id=id;mgrReleaseForms.push(r);}}}
+    mgrReleaseForms.sort(function(a,b){return(b.createdAt||0)-(a.createdAt||0);});
+  }catch(e){console.error('loadMgrReleaseForms',e);mgrReleaseForms=[];}
+  if(mgrMainTab==='business')renderMgrBusiness();
 }
 async function loadMgrDrivers(){
   try{
@@ -2149,7 +2165,11 @@ function switchMgrMainTab(tab){
   if(tab==='timelogs')renderMgrDash();
   if(tab==='dispatch')renderMgrJobs();
   if(tab==='drivers')renderMgrDrivers();
-  if(tab==='business'){if(!mgrJobs.length)loadMgrJobs().then(renderMgrBusiness);else renderMgrBusiness();}
+  if(tab==='business'){
+    if(!mgrJobs.length)loadMgrJobs();
+    if(!mgrReleaseForms.length)loadMgrReleaseForms();
+    renderMgrBusiness();
+  }
 }
 
 /* ========== BUSINESS / TAX SUMMARY ========== */
@@ -2178,7 +2198,21 @@ function mgrBizCompletedJobs(period){
     return true;
   });
 }
-function mgrBizAggregate(completed){
+// Every release form is a completed transaction by definition (it only exists
+// once a vehicle is actually released) — unlike jobs there's no separate
+// pending/cancelled status to filter out. signedAt (when the digital signature
+// was captured) is the truest "when this happened" timestamp if present, since
+// createdAt can be well before the actual pickup for a form prepared in advance.
+function mgrBizReleaseFormsInRange(period){
+  var range=mgrBizRange(period);
+  return mgrReleaseForms.filter(function(r){
+    var t=r.signedAt||r.createdAt||0;
+    if(range&&(t<range.s||t>range.e))return false;
+    return true;
+  });
+}
+function mgrBizAggregate(completed,releaseForms){
+  releaseForms=releaseForms||[];
   var revenue=0,miles=0,byService={};
   completed.forEach(function(j){
     var amt=Number(j.amount)||0,mi=(Number(j.enrouteMiles)||0)+(Number(j.towMiles)||0);
@@ -2187,19 +2221,32 @@ function mgrBizAggregate(completed){
     if(!byService[code])byService[code]={label:label,count:0,revenue:0,miles:0};
     byService[code].count++;byService[code].revenue+=amt;byService[code].miles+=mi;
   });
+  releaseForms.forEach(function(r){
+    // Counts what was actually PAID, not the theoretical total — a partially
+    // paid release (rare, but the form allows it) shouldn't overstate revenue
+    // actually collected for tax purposes.
+    var amt=Number(r.paid)||0,mi=(Number(r.towInMiles)||0)+(Number(r.towOutMiles)||0);
+    revenue+=amt;miles+=mi;
+    var code='storage-release',label='Vehicle Storage Release';
+    if(!byService[code])byService[code]={label:label,count:0,revenue:0,miles:0};
+    byService[code].count++;byService[code].revenue+=amt;byService[code].miles+=mi;
+  });
   return{revenue:revenue,miles:miles,byService:byService};
 }
+var mgrBizReleaseFormsCache=[];
 function renderMgrBusiness(){
   var completed=mgrBizCompletedJobs(mgrBizPeriod);
+  var releaseForms=mgrBizReleaseFormsInRange(mgrBizPeriod);
   mgrBizCompletedCache=completed;
-  var agg=mgrBizAggregate(completed);
+  mgrBizReleaseFormsCache=releaseForms;
+  var agg=mgrBizAggregate(completed,releaseForms);
   document.getElementById('mgr-biz-revenue').textContent='$'+agg.revenue.toFixed(2);
   document.getElementById('mgr-biz-jobcount').textContent=completed.length;
   document.getElementById('mgr-biz-miles').textContent=agg.miles.toFixed(1);
   var codes=Object.keys(agg.byService).sort(function(a,b){return agg.byService[b].revenue-agg.byService[a].revenue;});
   var tb=document.getElementById('mgr-biz-svc-tb');
   if(!codes.length){
-    tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:#6b6b6b;padding:20px 0">No completed jobs in this period</td></tr>';
+    tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:#6b6b6b;padding:20px 0">No completed jobs or storage releases in this period</td></tr>';
   }else{
     var html='';
     codes.forEach(function(code){
@@ -2211,16 +2258,16 @@ function renderMgrBusiness(){
 }
 function downloadBizExcel(){
   if(typeof XLSX==='undefined'){alert('Excel library not loaded.');return;}
-  var completed=mgrBizCompletedCache;
-  if(!completed.length){alert('No completed jobs in this period to export.');return;}
-  var agg=mgrBizAggregate(completed);
+  var completed=mgrBizCompletedCache,releaseForms=mgrBizReleaseFormsCache;
+  if(!completed.length&&!releaseForms.length){alert('No completed jobs or storage releases in this period to export.');return;}
+  var agg=mgrBizAggregate(completed,releaseForms);
   var wb=XLSX.utils.book_new();
-  var summaryData=[['CORRIDOR TOWING'],['BUSINESS / TAX SUMMARY'],[''],['Period:',bizPeriodLabel(mgrBizPeriod)],['Generated:',new Date().toLocaleString('en-US')],[''],['Gross Revenue:','$'+agg.revenue.toFixed(2)],['Jobs Completed:',completed.length],['Total Business Miles (enroute + tow):',agg.miles.toFixed(1)],[''],['Service Type','Jobs','Miles','Revenue']];
+  var summaryData=[['CORRIDOR TOWING'],['BUSINESS / TAX SUMMARY'],[''],['Period:',bizPeriodLabel(mgrBizPeriod)],['Generated:',new Date().toLocaleString('en-US')],[''],['Gross Revenue:','$'+agg.revenue.toFixed(2)],['Jobs Completed:',completed.length],['Storage Releases:',releaseForms.length],['Total Business Miles (enroute + tow + storage tow-in/out):',agg.miles.toFixed(1)],[''],['Service Type','Count','Miles','Revenue']];
   Object.keys(agg.byService).sort(function(a,b){return agg.byService[b].revenue-agg.byService[a].revenue;}).forEach(function(code){
     var r=agg.byService[code];summaryData.push([r.label,r.count,r.miles.toFixed(1),'$'+r.revenue.toFixed(2)]);
   });
   var ws1=XLSX.utils.aoa_to_sheet(summaryData);
-  ws1['!cols']=[{wch:26},{wch:16},{wch:12},{wch:14}];
+  ws1['!cols']=[{wch:32},{wch:16},{wch:12},{wch:14}];
   ws1['!merges']=[{s:{r:0,c:0},e:{r:0,c:3}},{s:{r:1,c:0},e:{r:1,c:3}}];
   XLSX.utils.book_append_sheet(wb,ws1,'Summary');
 
@@ -2232,6 +2279,16 @@ function downloadBizExcel(){
   var ws2=XLSX.utils.aoa_to_sheet(itemData);
   ws2['!cols']=[{wch:12},{wch:18},{wch:24},{wch:18},{wch:11},{wch:9},{wch:11},{wch:16}];
   XLSX.utils.book_append_sheet(wb,ws2,'Itemized Jobs');
+
+  var SOURCE_LABELS={website:'Corridor Towing',agero:'Agero',aaa:'AAA',honk:'Honk',other:'Other'};
+  var relData=[['Date','Source','Vehicle','Plate','Nights','Tow-in Mi','Tow-out Mi','Total ($)','Paid ($)']];
+  releaseForms.slice().sort(function(a,b){return(a.signedAt||a.createdAt||0)-(b.signedAt||b.createdAt||0);}).forEach(function(r){
+    var t=r.signedAt||r.createdAt||0;
+    relData.push([t?new Date(t).toLocaleDateString('en-US'):'',SOURCE_LABELS[r.src]||r.src||'',r.veh||'',[r.plate,r.state].filter(Boolean).join(' '),Number(r.nights)||0,Number(r.towInMiles)||0,Number(r.towOutMiles)||0,Number(r.total)||0,Number(r.paid)||0]);
+  });
+  var ws3=XLSX.utils.aoa_to_sheet(relData);
+  ws3['!cols']=[{wch:12},{wch:14},{wch:20},{wch:14},{wch:9},{wch:11},{wch:12},{wch:11},{wch:11}];
+  XLSX.utils.book_append_sheet(wb,ws3,'Itemized Storage Releases');
 
   XLSX.writeFile(wb,'Corridor_Towing_Tax_Summary_'+new Date().toISOString().slice(0,10)+'.xlsx');
 }
@@ -2282,6 +2339,7 @@ document.getElementById('tt-btn-mgr-refresh').addEventListener('click',function(
   loadMgrData();
   loadMgrJobs();
   loadMgrDrivers();
+  loadMgrReleaseForms();
 });
 
 </script>
