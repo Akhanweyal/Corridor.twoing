@@ -681,8 +681,8 @@ img,svg{max-width:100%;height:auto;display:block}
       <input id="nj-email" class="tt-inp" placeholder="Customer email (optional, for receipt)" type="email">
       <select id="nj-service" class="tt-inp">
         <option value="">Select service *</option>
-        <option value="light-tow" data-base="60" data-jobtype="tow">Car / SUV Tow ($60+)</option>
-        <option value="medium-tow" data-base="70" data-jobtype="tow">Truck / Van Tow ($70+)</option>
+        <option value="light-tow" data-base="90" data-jobtype="tow">Car / SUV Tow ($90+)</option>
+        <option value="medium-tow" data-base="90" data-jobtype="tow">Truck / Van Tow ($90+)</option>
         <option value="jumpstart" data-base="50" data-jobtype="roadside">Dead Battery — Jumpstart ($50)</option>
         <option value="lockout" data-base="50" data-jobtype="roadside">Locked Out ($50)</option>
         <option value="tire" data-base="50" data-jobtype="roadside">Flat Tire Change ($50)</option>
@@ -1591,16 +1591,16 @@ function rfRecalcStorageFee(){
 // Both tow legs are optional (most releases are just "customer drives off" —
 // no additional tow to bill). Leaving the miles field blank leaves the fee
 // blank too, and neither contributes to the total; typing miles fills in a
-// suggested fee at $5/mi (same loaded-tow rate used sitewide) that's still
+// suggested fee at $6/mi (same loaded-tow rate used sitewide) that's still
 // freely editable, same pattern as the storage fee above.
 function rfRecalcTowInFee(){
   var milesVal=document.getElementById('rf-towin-miles').value;
-  document.getElementById('rf-towin-fee').value=milesVal===''?'':(Number(milesVal)*5).toFixed(2);
+  document.getElementById('rf-towin-fee').value=milesVal===''?'':(Number(milesVal)*6).toFixed(2);
   rfRecalcTotal();
 }
 function rfRecalcTowOutFee(){
   var milesVal=document.getElementById('rf-towout-miles').value;
-  document.getElementById('rf-towout-fee').value=milesVal===''?'':(Number(milesVal)*5).toFixed(2);
+  document.getElementById('rf-towout-fee').value=milesVal===''?'':(Number(milesVal)*6).toFixed(2);
   rfRecalcTotal();
 }
 function rfRecalcTotal(){
@@ -1918,7 +1918,7 @@ function njCalcTotal(){
   var b=(o&&o.dataset&&o.dataset.base)?parseFloat(o.dataset.base):0;
   var en=parseFloat(document.getElementById('nj-enroute').value)||0;
   var tw=njGetJobType()==='tow'?(parseFloat(document.getElementById('nj-tow').value)||0):0;
-  document.getElementById('nj-amount').value=(b+en*2+tw*5).toFixed(2);
+  document.getElementById('nj-amount').value=(b+en*2+tw*6).toFixed(2);
 }
 function njTogglePayMethod(){
   document.getElementById('nj-paymethod').style.display=document.getElementById('nj-payment').value==='pay-now'?'block':'none';

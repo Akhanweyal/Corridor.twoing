@@ -199,8 +199,8 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
 
 <section id="pricing" class="services"><div class="container"><h2 class="section-title">Our Services & Pricing</h2><p style="text-align:center;margin-bottom:1.5rem;font-size:1rem;color:#555">Not sure which one you need? If it's a regular car, SUV, or small truck, pick <strong>Car &amp; SUV Tow</strong>. Something bigger — full-size truck, van, or RV — pick <strong>Truck &amp; Van Tow</strong>. Everything else just needs Roadside Help.</p>
 <div class="pricing-table">
-<div class="price-card"><h3>Car &amp; SUV Tow</h3><p style="font-size:.85rem;color:#888;margin-bottom:.4rem">Also called "Light Duty"</p><div class="price">$60 base</div><ul><li>Pickup fee: $60</li><li>Enroute: $2/mile</li><li>Tow (loaded): $5/mile</li><li>Sedans, SUVs, small trucks</li><li>e.g. Corolla, Civic, Camry</li><li>Up to 10,000 lbs</li></ul></div>
-<div class="price-card"><h3>Truck &amp; Van Tow</h3><p style="font-size:.85rem;color:#888;margin-bottom:.4rem">Also called "Medium Duty"</p><div class="price">$70 base</div><ul><li>Pickup fee: $70</li><li>Enroute: $2/mile</li><li>Tow (loaded): $5/mile</li><li>Full-size trucks, vans, box trucks</li><li>e.g. F-150, Transit, Sprinter</li><li>Up to 26,000 lbs</li></ul></div>
+<div class="price-card"><h3>Car &amp; SUV Tow</h3><p style="font-size:.85rem;color:#888;margin-bottom:.4rem">Also called "Light Duty"</p><div class="price">$90 base</div><ul><li>Pickup fee: $90</li><li>Enroute: $2/mile</li><li>Tow (loaded): $6/mile</li><li>Sedans, SUVs, small trucks</li><li>e.g. Corolla, Civic, Camry</li><li>Up to 10,000 lbs</li></ul></div>
+<div class="price-card"><h3>Truck &amp; Van Tow</h3><p style="font-size:.85rem;color:#888;margin-bottom:.4rem">Also called "Medium Duty"</p><div class="price">$90 base</div><ul><li>Pickup fee: $90</li><li>Enroute: $2/mile</li><li>Tow (loaded): $6/mile</li><li>Full-size trucks, vans, box trucks</li><li>e.g. F-150, Transit, Sprinter</li><li>Up to 26,000 lbs</li></ul></div>
 <div class="price-card"><h3>Roadside Help</h3><p style="font-size:.85rem;color:#888;margin-bottom:.4rem">No tow needed — we come to you</p><div class="price">From $50</div><ul><li>Dead battery — Jumpstart: $50</li><li>Locked out: $50</li><li>Flat tire change: $50</li><li>Out of gas — Fuel delivery: $50 + fuel</li><li><strong>Stuck — Winch out: $60</strong></li></ul></div>
 </div></div></section>
 
@@ -214,8 +214,8 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
 <div class="form-group"><label>Service Needed *</label>
 <select id="req_service" required onchange="onServiceChange()">
 <option value="">Select service</option>
-<option value="light-tow" data-base="60" data-jobtype="tow">Tow My Car / SUV ($60+)</option>
-<option value="medium-tow" data-base="70" data-jobtype="tow">Tow My Truck / Van ($70+)</option>
+<option value="light-tow" data-base="90" data-jobtype="tow">Tow My Car / SUV ($90+)</option>
+<option value="medium-tow" data-base="90" data-jobtype="tow">Tow My Truck / Van ($90+)</option>
 <option value="jumpstart" data-base="50" data-jobtype="roadside">Dead Battery — Jumpstart ($50)</option>
 <option value="lockout" data-base="50" data-jobtype="roadside">Locked Out ($50)</option>
 <option value="tire" data-base="50" data-jobtype="roadside">Flat Tire Change ($50)</option>
@@ -243,7 +243,7 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
 
 <div class="form-group"><label>Enroute Miles ($2/mile)</label><input type="number" id="req_enroute" step="0.1" min="0" value="0" onchange="calculateTotal()"><div class="help-text">Auto-calculated from our shop to your location — you can adjust it if needed.</div></div>
 <div id="enrouteBar" class="estimate-bar" style="display:block">Enter your pickup/service location above for an automatic enroute estimate.</div>
-<div class="form-group" id="towMilesGroup"><label>Tow Miles — loaded ($5/mile)</label><input type="number" id="req_tow" step="0.1" min="0" value="0" onchange="calculateTotal()"></div>
+<div class="form-group" id="towMilesGroup"><label>Tow Miles — loaded ($6/mile)</label><input type="number" id="req_tow" step="0.1" min="0" value="0" onchange="calculateTotal()"></div>
 <div class="form-group"><label>Total Amount ($) *</label><input type="number" id="req_amount" step="0.01" required readonly style="background:#f0f0f0"></div>
 <div class="form-group"><label>Payment Preference *</label>
 <select id="paymentPreference" required onchange="togglePayMethod()">
@@ -252,7 +252,7 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
 </select></div>
 <div id="payMethodGroup" class="form-group"><label>Select Payment Method *</label>
 <select id="payMethod"><option value="">Select</option><option value="venmo">Venmo (@corridortowing)</option><option value="cashapp">Cash App ($corridortowing)</option><option value="paypal">PayPal (drajmalweyal@gmail.com)</option><option value="card">Card</option></select></div>
-<div class="payment-note" id="paymentNote"><strong>Payment Info:</strong> Enroute $2/mile. Tow (loaded) $5/mile. No free miles.</div>
+<div class="payment-note" id="paymentNote"><strong>Payment Info:</strong> Enroute $2/mile. Tow (loaded) $6/mile. No free miles.</div>
 <div class="form-group" style="display:flex;align-items:flex-start;gap:10px;margin-top:12px">
   <input type="checkbox" id="req_sms_consent" required style="width:auto;margin-top:4px">
   <label for="req_sms_consent" style="font-weight:500;font-size:.9rem;color:#555">I agree to receive service status updates by text/email. Msg &amp; data rates may apply.</label>
@@ -365,7 +365,7 @@ function onServiceChange(){
   if(locHelp)locHelp.textContent=isTow?'Where is the vehicle now?':'Where should we meet you for this service?';
   if(payNote){
     payNote.innerHTML=isTow
-      ?'<strong>Payment Info:</strong> Enroute $2/mile. Tow (loaded) $5/mile. No free miles.'
+      ?'<strong>Payment Info:</strong> Enroute $2/mile. Tow (loaded) $6/mile. No free miles.'
       :'<strong>Payment Info:</strong> Flat service rate + enroute $2/mile if applicable.';
   }
   if(!isTow)document.getElementById('req_tow').value='0';
@@ -377,7 +377,7 @@ function calculateTotal(){
   var b=(o&&o.dataset&&o.dataset.base)?parseFloat(o.dataset.base):0;
   var en=parseFloat(document.getElementById('req_enroute').value)||0;
   var tw=getSelectedJobType()==='tow'?(parseFloat(document.getElementById('req_tow').value)||0):0;
-  document.getElementById('req_amount').value=(b+en*2+tw*5).toFixed(2);
+  document.getElementById('req_amount').value=(b+en*2+tw*6).toFixed(2);
 }
 document.getElementById('req_service').addEventListener('change',onServiceChange);
 document.getElementById('req_enroute').addEventListener('input',calculateTotal);
