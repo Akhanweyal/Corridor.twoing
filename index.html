@@ -526,14 +526,27 @@ var jobId='job_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 var feedbackToken=Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);
 var now=Date.now();
 var jobPayload={status:'pending',jobType:jobType,serviceCode:fd.serviceCode,createdAt:now,updatedAt:now,customerName:fd.name,customerPhone:fd.phone,customerEmail:fd.email,service:fd.service,vehicle:fd.vehicle,starts:fd.starts,neutral:fd.neutral,attended:fd.attended,towMethod:jobType==='tow'?fd.towmethod:null,pickupAddress:fd.location,destinationAddress:fd.destination,enrouteMiles:Number(fd.enroute)||0,towMiles:Number(fd.tow)||0,amount:Number(fd.amount)||0,paymentPref:fd.payment,payMethod:fd.payment==='pay-now'?(fd.payMethod||null):null,source:'website',assignedDriverId:null,assignedDriverName:null,assignedDriverPhone:null,assignedAt:null,pickedUpAt:null,droppedOffAt:null,dropoffLat:null,dropoffLng:null,feedbackToken:feedbackToken,feedbackSubmitted:false,feedbackRating:null,feedbackComment:null};
-var jobPromise=fetch('https://corridortowing-default-rtdb.firebaseio.com/jobs/'+jobId+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(jobPayload)}).catch(function(err){console.warn('Job save failed (check Firebase rules):',err);});
+var jobPromise=fetch('https://corridortowing-default-rtdb.firebaseio.com/jobs/'+jobId+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(jobPayload)}).then(function(res){if(!res.ok)throw new Error('HTTP '+res.status);return true;}).catch(function(err){console.warn('Job save failed (check Firebase rules):',err);return false;});
 /* 3) Instant push notification to owner's phone via ntfy.sh (free, no account) — fire-and-forget so a failure here never blocks the customer's confirmation */
 fetch('https://ntfy.sh/'+NTFY_TOPIC,{method:'POST',headers:{'Title':'New '+(jobType==='tow'?'Tow':'Roadside')+' Request','Priority':'urgent','Tags':'rotating_light'},body:fd.name+' — '+fd.phone+'\n'+fd.service+'\n'+fd.location+(jobType==='tow'?' → '+fd.destination:'')+'\n$'+fd.amount}).catch(function(err){console.warn('Push notify failed:',err);});
-Promise.all([formspreePromise,jobPromise]).then(function(){
+// Formspree (the owner's email copy) and the Firebase job save are independent
+// systems, and Formspree is the one known to silently fail (e.g. hitting its
+// free-plan monthly submission cap) — that must never block the customer's
+// confirmation as long as the job actually made it into Dispatch. Both branches
+// below resolve to true/false instead of rejecting, so only a TOTAL failure
+// (neither system captured the request) falls through to the "call us" alert.
+var formspreeStatus=formspreePromise.then(function(){return true;}).catch(function(err){console.warn('Formspree email failed (owner will not get an email copy of this request — check formspree.io dashboard/plan limits):',err);return false;});
+Promise.all([formspreeStatus,jobPromise]).then(function(results){
+  var emailOk=results[0],jobOk=results[1];
+  if(!emailOk&&!jobOk){
+    btn.disabled=false;btn.textContent='Send Request';
+    alert('Error sending request. Please call (804) 292-8414 directly.');
+    return;
+  }
   var c=document.getElementById('confirmation');c.style.display='block';c.innerHTML='<strong>Thank you!</strong> Request sent. We\'ll call shortly.';
   if(fd.payment==='pay-now'){document.getElementById('paymentAmountDisplay').textContent='$'+fd.amount;c.innerHTML+='<br><br><strong>Complete payment below.</strong>';setTimeout(function(){window.scrollTo({top:document.getElementById('payment').offsetTop-100,behavior:'smooth'});},1500);}
   btn.textContent='Request Sent ✓';
-}).catch(function(err){console.error('Submit error:',err);btn.disabled=false;btn.textContent='Send Request';alert('Error sending request. Please call (804) 292-8414 directly.');});
+});
 }
 window.addEventListener('load',function(){calculateTotal();});
 </script>
