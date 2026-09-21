@@ -17,21 +17,21 @@
       "$jobId": {
         // Anyone can submit a new service request (the public form isn't logged in),
         // but only as a brand-new pending job — never overwriting or reading an existing one.
-        ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && newData.child('status').val() === 'pending' && newData.child('customerName').isString() && newData.child('customerPhone').isString() && newData.child('feedbackToken').isString())",
+        ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && newData.child('status').val() === 'pending' && newData.child('customerName').isString() && newData.child('customerName').val().length <= 100 && newData.child('customerPhone').isString() && newData.child('customerPhone').val().length <= 40 && newData.child('feedbackToken').isString())",
 
         // The public feedback.html page can set these WITHOUT being signed in, but only
         // once, and only by proving it knows this job's feedbackToken via the _proof field.
         "feedbackSubmitted": {
-          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (data.exists() && data.val() === false && newData.val() === true && newData.parent().child('_proof').val() === data.parent().child('feedbackToken').val())"
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (data.exists() && data.val() === false && newData.val() === true && newData.parent().child('_proof').isString() && newData.parent().child('_proof').val() === data.parent().child('feedbackToken').val())"
         },
         "feedbackRating": {
-          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (newData.isNumber() && newData.val() >= 1 && newData.val() <= 5)"
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (newData.isNumber() && newData.val() >= 1 && newData.val() <= 5 && newData.parent().child('_proof').isString() && newData.parent().child('_proof').val() === data.parent().child('feedbackToken').val() && data.parent().child('feedbackSubmitted').val() === false)"
         },
         "feedbackComment": {
-          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (newData.isString() && newData.val().length <= 1000)"
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (newData.isString() && newData.val().length <= 1000 && newData.parent().child('_proof').isString() && newData.parent().child('_proof').val() === data.parent().child('feedbackToken').val() && data.parent().child('feedbackSubmitted').val() === false)"
         },
         "feedbackAt": {
-          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || newData.isNumber()"
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (newData.isNumber() && newData.parent().child('_proof').isString() && newData.parent().child('_proof').val() === data.parent().child('feedbackToken').val() && data.parent().child('feedbackSubmitted').val() === false)"
         },
         "_proof": {
           ".write": "auth == null",
@@ -68,21 +68,33 @@
         // proving it knows this form's sigToken via the _proof field. Same
         // proof-token pattern as jobs/feedbackSubmitted above.
         "signatureDataUrl": {
-          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && newData.isString() && newData.parent().child('_proof').val() === data.parent().child('sigToken').val())"
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && newData.isString() && newData.val().beginsWith('data:image/png;base64,') && newData.val().length <= 500000 && newData.parent().child('_proof').isString() && newData.parent().child('_proof').val() === data.parent().child('sigToken').val())"
         },
         "signatureTypedName": {
-          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && newData.isString() && newData.val().length <= 100 && newData.parent().child('_proof').val() === data.parent().child('sigToken').val())"
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && newData.isString() && newData.val().length <= 100 && newData.parent().child('_proof').isString() && newData.parent().child('_proof').val() === data.parent().child('sigToken').val())"
         },
         "signatureMode": {
-          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && (newData.val() === 'draw' || newData.val() === 'type') && newData.parent().child('_proof').val() === data.parent().child('sigToken').val())"
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && (newData.val() === 'draw' || newData.val() === 'type') && newData.parent().child('_proof').isString() && newData.parent().child('_proof').val() === data.parent().child('sigToken').val())"
         },
         "signedAt": {
-          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && newData.isNumber() && newData.parent().child('_proof').val() === data.parent().child('sigToken').val())"
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && newData.isNumber() && newData.parent().child('_proof').isString() && newData.parent().child('_proof').val() === data.parent().child('sigToken').val())"
         },
         "_proof": {
           ".write": "auth == null",
           ".validate": "newData.isString()"
         }
+      }
+    },
+
+    // Live tracking record for the customer's map (track.html?t=TOKEN). Like receiptLinks,
+    // read is scoped to ONE token so nobody can list every customer's trip; the token itself is
+    // an unguessable random string and the record holds no name/phone/email. The public
+    // request form may create the record once (pending, with a pickup point); after that only
+    // staff can change it (assignment, status, live driver position).
+    "tracking": {
+      "$token": {
+        ".read": true,
+        ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && $token.length >= 16 && newData.child('status').val() === 'pending' && newData.child('pickup').child('lat').isNumber() && newData.child('pickup').child('lng').isNumber() && newData.child('pickup').child('address').isString() && newData.child('pickup').child('address').val().length <= 300 && (!newData.child('dest').exists() || (newData.child('dest').child('lat').isNumber() && newData.child('dest').child('lng').isNumber())) && !newData.child('driver').exists())"
       }
     },
 

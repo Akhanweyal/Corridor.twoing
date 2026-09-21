@@ -224,7 +224,8 @@
   var towOutMiles=Number(d.towOutMiles)||0, towOutFee=Number(d.towOutFee)||0;
   var total=Number(d.total)||(storageFee+processingFee+towInFee+towOutFee), paid=Number(d.paid)||0;
   var lines='';
-  lines+='<div class="line"><span class="lbl">Storage — '+(d.nights||0)+' night(s) @ $100/night</span><span>$'+storageFee.toFixed(2)+'</span></div>';
+  var nightRate=(d.nights>0&&storageFee>0)?Math.round(storageFee/d.nights*100)/100:100;
+  lines+='<div class="line"><span class="lbl">Storage — '+(d.nights||0)+' night(s) @ $'+nightRate+'/night</span><span>$'+storageFee.toFixed(2)+'</span></div>';
   // Tow legs are optional — a release with no additional tow billed just won't
   // have either line, rather than showing a $0.00 row that reads as a mistake.
   if(towInFee>0||towInMiles>0)lines+='<div class="line"><span class="lbl">Tow-in'+(towInMiles?' — '+towInMiles+' mi':'')+'</span><span>$'+towInFee.toFixed(2)+'</span></div>';
@@ -264,10 +265,12 @@
   function renderSignedDisplay(){
     var signedDate=new Date(d.signedAt).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
     var inner='';
-    if(d.signatureMode==='draw'&&d.signatureDataUrl){
+    // The signature field is writable by anyone holding the link, so only a real PNG data URL is
+    // ever allowed into src="" (anything else, e.g. a quote-breaking string, is ignored).
+    if(d.signatureMode==='draw'&&/^data:image\/png;base64,[A-Za-z0-9+\/=]+$/.test(d.signatureDataUrl||'')){
       inner='<img src="'+d.signatureDataUrl+'" alt="Signature">';
     }else if(d.signatureTypedName){
-      inner='<span class="sig-signed-typed">'+String(d.signatureTypedName).replace(/</g,'&lt;')+'</span>';
+      inner='<span class="sig-signed-typed">'+String(d.signatureTypedName).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</span>';
     }
     sigBlock.innerHTML='<div class="sig-signed-display">'+inner+'</div><p class="sig-label">Signature of person receiving vehicle · Signed '+signedDate+'</p>';
   }

@@ -1,0 +1,137 @@
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Helvetica','Arial',sans-serif;line-height:1.6;color:#333;background:#f9f9fb;margin:0}
+a{text-decoration:none;color:inherit}
+img,svg{max-width:100%;height:auto;display:block}
+.container{max-width:1200px;margin:0 auto;padding:0 15px}
+header{background:#0b3d91;color:#fff;padding:1rem 0;position:fixed;top:0;left:0;right:0;z-index:1000}
+.header-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.logo-container{display:flex;align-items:center;gap:12px}
+.logo img{height:60px;width:auto;border-radius:8px}
+.company-name{font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:.5px;white-space:nowrap}
+.header-actions{display:flex;align-items:center;gap:10px}
+.menu-toggle{display:none;font-size:1.8rem;cursor:pointer;color:#fff}
+.driver-portal-btn{display:flex;align-items:center;gap:6px;background:rgba(255,204,0,.15);border:1.5px solid #ffcc00;color:#ffcc00;padding:8px 16px;border-radius:50px;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .3s;white-space:nowrap;font-family:inherit}
+.driver-portal-btn:hover{background:#ffcc00;color:#0b3d91}
+.manager-portal-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);padding:8px 14px;border-radius:50px;font-weight:600;font-size:.8rem;cursor:pointer;transition:all .3s;white-space:nowrap;font-family:inherit}
+.manager-portal-btn:hover{background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.4)}
+nav ul{display:flex;gap:1.5rem;list-style:none;flex-wrap:wrap}
+nav a{color:#fff;font-weight:600;font-size:1rem;padding:.5rem 0;transition:color .3s;cursor:pointer}
+nav a:hover,nav a.active{color:#ffcc00}
+body{padding-top:100px}
+.hero{background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),url('/images/wheellift_hero_mobile.jpg') right center/contain no-repeat,url('/images/redtruck_hero.jpg') center/cover no-repeat;color:#fff;text-align:center;padding:5rem 1rem}
+.hero h1{font-size:2.5rem;margin-bottom:1rem}
+.hero p{font-size:1.1rem;margin-bottom:1.5rem;max-width:700px;margin-left:auto;margin-right:auto}
+.cta-btn{display:inline-block;background:#ffcc00;color:#0b3d91;padding:.8rem 2rem;border-radius:50px;font-weight:bold;font-size:1.1rem;transition:background .3s;margin:.5rem}
+.cta-btn:hover{background:#e6b800}
+section{padding:3rem 0}
+.services{background:#fff}
+.section-title{text-align:center;margin-bottom:2rem;font-size:2rem;color:#0b3d91}
+.pricing-table{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:1.5rem}
+.price-card{background:#fff;border:2px solid #0b3d91;border-radius:12px;padding:1.5rem;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:transform .3s}
+.price-card:hover{transform:translateY(-8px)}
+.price-card h3{color:#0b3d91;margin-bottom:.5rem;font-size:1.3rem}
+.price-card .price{font-size:1.8rem;font-weight:bold;color:#ffcc00;margin:1rem 0}
+.price-card ul{text-align:left;margin:1rem 0;font-size:.95rem}
+.price-card li{margin:.4rem 0}
+.form-dropdown{max-width:600px;margin:2rem auto;background:#fff;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.1);overflow:hidden}
+.dropdown-content{padding:1.8rem}
+.form-group{margin-bottom:1rem}
+label{display:block;margin-bottom:.5rem;font-weight:bold;color:#0b3d91}
+input,select,textarea{width:100%;padding:.75rem;border:1px solid #ccc;border-radius:5px;font-size:1rem}
+textarea{resize:vertical;height:90px}
+.submit-btn{background:#0b3d91;color:#fff;padding:.8rem 2rem;border:none;border-radius:50px;font-weight:bold;cursor:pointer;transition:background .3s;font-size:1.1rem;width:100%;margin-top:.5rem}
+.submit-btn:hover{background:#093070}
+.location-btn{background:#ffcc00;color:#0b3d91;padding:.8rem 1.5rem;border:none;border-radius:50px;font-weight:bold;cursor:pointer;margin-top:.5rem}
+.payment-note{margin-top:1rem;padding:1rem;background:#fff8e1;border-radius:8px;font-size:.95rem;color:#555}
+.services-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;margin-top:2rem}
+.service-img{border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:transform .3s;text-align:center;background:#fff8e1;padding:1rem}
+.service-img:hover{transform:scale(1.03)}
+.service-img img,.service-img svg{width:100%;height:180px;object-fit:contain}
+.payment-options{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin:1.5rem 0}
+.payment-btn{background:#fff;border:2px solid #0b3d91;color:#0b3d91;padding:1rem 1.2rem;border-radius:10px;font-weight:bold;text-align:center;flex:1;min-width:130px;transition:all .3s}
+.payment-btn:hover{background:#0b3d91;color:#fff}
+.payment-btn i{font-size:1.6rem;display:block;margin-bottom:.4rem}
+#contact{background:#0b3d91;color:#fff;text-align:center}
+.contact-info{max-width:600px;margin:0 auto}
+.contact-info h2{margin-bottom:1.5rem;font-size:2rem}
+.contact-info p{margin-bottom:1rem;font-size:1.1rem}
+.contact-info a{color:#ffcc00;font-weight:bold}
+footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:.9rem}
+#payMethodGroup{display:none}
+.estimate-bar{margin:1rem 0;padding:.8rem;background:#e6f3ff;border-radius:8px;font-size:.95rem;color:#0b3d91;display:none}
+#confirmation{display:none;margin-top:1rem;padding:1rem;background:#d4edda;border-radius:8px;text-align:center;font-weight:bold}
+.vehicle-group{display:flex;gap:1rem;flex-wrap:wrap}
+.vehicle-group .form-group{flex:1;min-width:200px}
+.help-text{font-size:.85rem;color:#555;margin-top:.3rem}
+.addr-ac-list{position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid #ccc;border-top:none;border-radius:0 0 8px 8px;max-height:220px;overflow-y:auto;z-index:50;box-shadow:0 8px 20px rgba(0,0,0,.15);display:none}
+.addr-ac-list.show{display:block}
+.addr-ac-item{padding:10px 12px;cursor:pointer;font-size:.9rem;border-bottom:1px solid #eee;text-align:left}
+.addr-ac-item:last-child{border-bottom:none}
+.addr-ac-item:hover,.addr-ac-item.active{background:#e6f3ff}
+@media(max-width:768px){
+  body{padding-top:90px}
+  .logo img{height:50px}
+  .company-name{font-size:.85rem}
+  .menu-toggle{display:block}
+  .driver-portal-btn{display:none}
+  .header-actions{order:2}
+  .logo-container{flex:1;min-width:0}
+  nav ul{display:none;flex-direction:column;width:100%;background:#0b3d91;padding:0;position:fixed;top:80px;left:0;z-index:999;max-height:calc(100vh - 80px);overflow-y:auto}
+  nav ul.show{display:flex}
+  nav li{width:100%;text-align:center}
+  nav a{display:block;padding:1.2rem 0;font-size:1.1rem}
+  .nav-driver-item{border-top:2px solid #ffcc00;margin-top:.5rem}
+  .nav-driver-item a{color:#ffcc00;font-weight:800;font-size:1.15rem}
+  .nav-mgr-item{border-top:2px solid rgba(96,165,250,.3)}
+  .nav-mgr-item a{color:rgba(255,255,255,.7);font-weight:600;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:6px}
+  /* The source photo is a tall portrait phone shot, which is why desktop (above)
+     uses contain + a navy letterbox instead of cover — cropping it to a wide cover
+     shot left only a ~200px sliver of the truck visible on wide screens, no matter
+     how it was cropped (same lesson as the previous hero-image fix: cover-scaling
+     behaves very differently across aspect ratios). Mobile's own aspect is close
+     enough to the source's that a plain full-bleed cover shot already works well,
+     so this resets the full shorthand rather than just swapping the image. */
+  .hero{padding:4rem 1rem;background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),url('/images/wheellift_hero_mobile.jpg') center/cover no-repeat}
+  .hero h1{font-size:2rem}
+  .pricing-table{grid-template-columns:1fr}
+}
+@media(min-width:769px){.nav-driver-item,.nav-mgr-item{display:none}}
+
+
+/* ---- multi-page additions ---- */
+.page-title{background:linear-gradient(135deg,#0b3d91,#082c6b);color:#fff;text-align:center;padding:2.5rem 1rem 2rem}
+.page-title h1{font-size:2rem;margin-bottom:.4rem}
+.page-title p{max-width:640px;margin:0 auto;opacity:.9}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin-top:1.5rem}
+.step{background:#fff;border-radius:12px;padding:1.5rem;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,.08)}
+.step .num{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:#0b3d91;color:#ffcc00;font-weight:800;font-size:1.2rem;margin-bottom:.6rem}
+.linkcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;margin-top:1.5rem}
+.linkcard{display:block;background:#fff;border:2px solid #0b3d91;border-radius:12px;padding:1.5rem;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:transform .3s}
+.linkcard:hover{transform:translateY(-6px)}
+.linkcard i{font-size:1.8rem;color:#0b3d91;display:block;margin-bottom:.5rem}
+.linkcard h3{color:#0b3d91;margin-bottom:.3rem}
+.linkcard p{font-size:.95rem;color:#555}
+.footer-links{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin-bottom:1rem;font-size:.9rem}
+.footer-links a{color:rgba(255,255,255,.7)}
+.footer-links a:hover{color:#ffcc00}
+
+/* ---- address suggestions + maps ---- */
+.addr-ac-item{display:flex;align-items:center;gap:10px}
+.addr-ac-item .ac-ico{font-size:1.2rem;flex-shrink:0}
+.addr-ac-item .ac-txt{flex:1;min-width:0;display:flex;flex-direction:column}
+.addr-ac-item .ac-t{font-weight:700;color:#0b3d91;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.addr-ac-item .ac-s{font-size:.8rem;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.addr-ac-item .ac-k{font-size:.7rem;color:#888;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em}
+.trip-map-wrap{margin:1rem 0}
+.trip-map{height:300px;border-radius:12px;border:1px solid #ccc;overflow:hidden;z-index:0}
+.leaflet-container{font-family:inherit}
+
+/* ---- tracking page ---- */
+.trk-card{background:#fff;border-radius:12px;padding:1.2rem 1.4rem;box-shadow:0 4px 15px rgba(0,0,0,.08)}
+.trk-status{font-size:1.5rem;font-weight:800;color:#0b3d91}
+.trk-eta{font-size:1.1rem;margin-top:.3rem;font-weight:700;color:#ea580c}
+.trk-detail{font-size:.9rem;color:#555;margin-top:.3rem}
+.trk-place{display:flex;gap:10px;align-items:flex-start;padding:.5rem 0;border-bottom:1px solid #eee}
+.trk-place:last-child{border-bottom:none}
+.trk-place .ico{font-size:1.4rem}
+.trk-place .lbl{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:#888}

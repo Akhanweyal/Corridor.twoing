@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e ' *)",
+      "Bash(timeout 200 node \"C:/Users/18042/AppData/Local/Temp/claude/c--Users-18042-towing-Corridor-twoing/2842542a-7409-430b-a433-ec07bb88822a/scratchpad/cdp2.mjs\")",
+      "Read(//c/Users/18042/AppData/Local/Temp/**)"
+    ]
+  }
+}

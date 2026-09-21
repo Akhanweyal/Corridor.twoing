@@ -127,14 +127,17 @@
   if(d.dn){document.getElementById('r-driver').textContent=d.dn;}else{document.getElementById('r-driver-row').style.display='none';}
 
   var em=Number(d.em)||0, tm=isTow?(Number(d.tm)||0):0, amt=Number(d.amt)||0;
-  var enrouteCost=em*2, towCost=tm*5;
+  // Rates are stored on the receipt itself (er/tr) so a later price change never rewrites what an
+  // old receipt says. Receipts created before that field existed used $2/mi and $5/mi.
+  var enrouteRate=Number(d.er)||2, towRate=Number(d.tr)||5;
+  var enrouteCost=em*enrouteRate, towCost=tm*towRate;
   var base=amt-enrouteCost-towCost;
   if(base<0)base=amt; // fall back gracefully if numbers don't reconcile
 
   var lines='';
   lines+='<div class="line"><span class="lbl">Base service fee</span><span>$'+base.toFixed(2)+'</span></div>';
-  if(em>0)lines+='<div class="line"><span class="lbl">Enroute — '+em+' mi @ $2/mi</span><span>$'+enrouteCost.toFixed(2)+'</span></div>';
-  if(isTow&&tm>0)lines+='<div class="line"><span class="lbl">Tow (loaded) — '+tm+' mi @ $5/mi</span><span>$'+towCost.toFixed(2)+'</span></div>';
+  if(em>0)lines+='<div class="line"><span class="lbl">Enroute — '+em+' mi @ $'+enrouteRate+'/mi</span><span>$'+enrouteCost.toFixed(2)+'</span></div>';
+  if(isTow&&tm>0)lines+='<div class="line"><span class="lbl">Tow (loaded) — '+tm+' mi @ $'+towRate+'/mi</span><span>$'+towCost.toFixed(2)+'</span></div>';
   document.getElementById('r-lines').innerHTML=lines;
   document.getElementById('r-total').textContent='$'+amt.toFixed(2);
 

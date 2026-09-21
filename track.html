@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track Your Driver | Corridor Towing</title>
+<meta name="description" content="Live driver tracking for your Corridor Towing request.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="geo.region" content="US-VA">
+<meta name="geo.placename" content="Henrico, Virginia">
+<link rel="canonical" href="https://corridortowing.org/track.html">
+<meta property="og:title" content="Track Your Driver | Corridor Towing">
+<meta property="og:description" content="Live driver tracking for your Corridor Towing request.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://corridortowing.org/track.html">
+<link rel="icon" href="/images/logo.jpeg" type="image/png">
+<link rel="shortcut icon" href="/images/logo.jpeg" type="image/png">
+<link rel="apple-touch-icon" href="/images/logo.jpeg">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<header id="main-header">
+  <div class="container header-inner">
+    <a class="logo-container" href="/">
+      <div class="logo"><img src="/images/logo.jpeg" alt="Corridor Towing Logo"></div>
+      <div class="company-name">Corridor Towing</div>
+    </a>
+    <div class="header-actions">
+      <a class="manager-portal-btn" href="/app/?mode=mgr"><i class="fas fa-user-shield"></i><span>Manager</span></a>
+      <a class="driver-portal-btn" href="/app/?mode=driver"><i class="fas fa-id-badge"></i><span class="btn-text">Driver Portal</span></a>
+      <div class="menu-toggle" onclick="toggleMenu()">☰ Menu</div>
+    </div>
+    <nav><ul id="nav-menu">
+      <li class="nav-mgr-item"><a href="/app/?mode=mgr"><i class="fas fa-user-shield"></i> Manager Portal</a></li>
+      <li class="nav-driver-item"><a href="/app/?mode=driver"><i class="fas fa-id-badge"></i> Driver Portal</a></li>
+      <li><a href="/">Home</a></li>
+      <li><a href="/request.html">Request Service</a></li>
+      <li><a href="/services.html">Services &amp; Pricing</a></li>
+      <li><a href="/pay.html">Pay Now</a></li>
+      <li><a href="/contact.html">Contact</a></li>
+    </ul></nav>
+  </div>
+</header>
+
+<section class="page-title"><div class="container"><h1>Track Your Driver</h1><p>Live status and map for your request.</p></div></section>
+<section style="padding-top:1.5rem"><div class="container" style="max-width:820px">
+  <div id="trk-error" class="trk-card" style="display:none"><strong>We couldn’t find that tracking link.</strong><p style="margin-top:.4rem">Check that you opened the full link, or call us at <a href="tel:8042928414" style="color:#0b3d91;font-weight:700">(804) 292-8414</a>.</p></div>
+  <div id="trk-main" style="display:none">
+    <div class="trk-card">
+      <div id="trk-status" class="trk-status">Loading…</div>
+      <div id="trk-eta" class="trk-eta"></div>
+      <div id="trk-detail" class="trk-detail"></div>
+    </div>
+    <div id="trk-map" class="trip-map" style="height:420px;margin:1rem 0 .5rem"></div>
+    <div id="trk-legend"></div>
+    <div id="trk-places" class="trk-card" style="margin-top:1rem"></div>
+    <p class="help-text" style="text-align:center;margin-top:1rem">Updates automatically every 15 seconds. Need help? <a href="tel:8042928414" style="color:#0b3d91;font-weight:700">Call (804) 292-8414</a></p>
+  </div>
+</div></section>
+
+<footer>
+<div class="container">
+  <div class="footer-links">
+    <a href="/">Home</a>
+    <a href="/request.html">Request Service</a>
+    <a href="/services.html">Services &amp; Pricing</a>
+    <a href="/pay.html">Pay Now</a>
+    <a href="/contact.html">Contact</a>
+    <a href="tel:8042928414" style="color:#ffcc00;font-weight:700">(804) 292-8414</a>
+  </div>
+  <p>&copy; 2026 Corridor Towing and Transportation Services. All rights reserved.</p>
+  <p>Licensed &amp; Insured | 24/7 Emergency Service | Henrico, VA | <a href="mailto:corridor.towing.services@gmail.com" style="color:rgba(255,255,255,.6)">corridor.towing.services@gmail.com</a></p>
+</div>
+</footer>
+
+<script src="/js/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="/js/tripmap.js"></script>
+<script src="/js/track.js"></script>
+</body>
+</html>

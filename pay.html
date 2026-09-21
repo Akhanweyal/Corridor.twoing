@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pay Online | Corridor Towing</title>
+<meta name="description" content="Pay for your Corridor Towing service with Venmo, Cash App, PayPal or card.">
+<meta name="robots" content="noindex, follow">
+<meta name="geo.region" content="US-VA">
+<meta name="geo.placename" content="Henrico, Virginia">
+<link rel="canonical" href="https://corridortowing.org/pay.html">
+<meta property="og:title" content="Pay Online | Corridor Towing">
+<meta property="og:description" content="Pay for your Corridor Towing service with Venmo, Cash App, PayPal or card.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://corridortowing.org/pay.html">
+<link rel="icon" href="/images/logo.jpeg" type="image/png">
+<link rel="shortcut icon" href="/images/logo.jpeg" type="image/png">
+<link rel="apple-touch-icon" href="/images/logo.jpeg">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<header id="main-header">
+  <div class="container header-inner">
+    <a class="logo-container" href="/">
+      <div class="logo"><img src="/images/logo.jpeg" alt="Corridor Towing Logo"></div>
+      <div class="company-name">Corridor Towing</div>
+    </a>
+    <div class="header-actions">
+      <a class="manager-portal-btn" href="/app/?mode=mgr"><i class="fas fa-user-shield"></i><span>Manager</span></a>
+      <a class="driver-portal-btn" href="/app/?mode=driver"><i class="fas fa-id-badge"></i><span class="btn-text">Driver Portal</span></a>
+      <div class="menu-toggle" onclick="toggleMenu()">☰ Menu</div>
+    </div>
+    <nav><ul id="nav-menu">
+      <li class="nav-mgr-item"><a href="/app/?mode=mgr"><i class="fas fa-user-shield"></i> Manager Portal</a></li>
+      <li class="nav-driver-item"><a href="/app/?mode=driver"><i class="fas fa-id-badge"></i> Driver Portal</a></li>
+      <li><a href="/">Home</a></li>
+      <li><a href="/request.html">Request Service</a></li>
+      <li><a href="/services.html">Services &amp; Pricing</a></li>
+      <li><a href="/pay.html" class="active">Pay Now</a></li>
+      <li><a href="/contact.html">Contact</a></li>
+    </ul></nav>
+  </div>
+</header>
+
+<section class="page-title"><div class="container"><h1>Pay for Your Service</h1><p>Choose a payment method below.</p></div></section>
+<section id="payment" class="payment"><div class="container"><h2 class="section-title">Pay for Your Service</h2><p style="text-align:center;margin-bottom:1.5rem">Total due: <strong id="paymentAmountDisplay">$0.00</strong></p>
+<div class="payment-options">
+<a href="https://venmo.com/corridortowing" class="payment-btn" target="_blank"><i class="fab fa-venmo"></i>Venmo</a>
+<a href="https://cash.app/$corridortowing" class="payment-btn" target="_blank"><i class="fas fa-dollar-sign"></i>Cash App</a>
+<a href="https://swipesimple.com/links/lnk_46a079fb198dda9d4ffc6fb41322f656" class="payment-btn" target="_blank"><i class="fas fa-credit-card"></i>Pay with Card</a>
+<a href="https://paypal.me/CorridorTowing" class="payment-btn" target="_blank"><i class="fab fa-paypal"></i>PayPal</a>
+<div class="payment-btn"><i class="fas fa-money-bill-wave"></i>Cash on Arrival</div>
+</div></div>
+<p style="text-align:center;margin-top:1.5rem;font-size:.95rem">After payment, your service request will be confirmed.</p></section>
+
+<footer>
+<div class="container">
+  <div class="footer-links">
+    <a href="/">Home</a>
+    <a href="/request.html">Request Service</a>
+    <a href="/services.html">Services &amp; Pricing</a>
+    <a href="/pay.html">Pay Now</a>
+    <a href="/contact.html">Contact</a>
+    <a href="tel:8042928414" style="color:#ffcc00;font-weight:700">(804) 292-8414</a>
+  </div>
+  <p>&copy; 2026 Corridor Towing and Transportation Services. All rights reserved.</p>
+  <p>Licensed &amp; Insured | 24/7 Emergency Service | Henrico, VA | <a href="mailto:corridor.towing.services@gmail.com" style="color:rgba(255,255,255,.6)">corridor.towing.services@gmail.com</a></p>
+</div>
+</footer>
+
+<script src="/js/site.js"></script>
+<script>
+// /pay.html?amt=123.45 (set by the request form when the customer chose "pay now")
+(function(){
+  var amt=Number(new URLSearchParams(location.search).get('amt'));
+  document.getElementById('paymentAmountDisplay').textContent=(isFinite(amt)&&amt>0)?'$'+amt.toFixed(2):'see your quote';
+})();
+</script>
+</body>
+</html>
