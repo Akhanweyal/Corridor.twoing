@@ -1,4 +1,16 @@
-/** Send notification via Formspree (same form as website requests). Uses _cc so driver/customer get a copy when enabled on your Formspree plan. */
+/** Send notification via Formspree (same form as website requests). Uses _cc so driver/customer get a copy when enabled on your Formspree plan.
+ *
+ * The outer "New form submission on Corridor Towing... Here's what they had to say...
+ * Mark as spam... Formspree logo" wrapper around every field below is Formspree's own
+ * notification template for this form/plan — it's applied on their end to EVERY payload
+ * sent here, not something any field in the payload can turn off. Every caller already
+ * sends the fewest fields it can (just _subject/_replyto/_cc/message) to keep the "here's
+ * what they had to say" section as short as possible, but the wrapper itself stays.
+ * To get a cleaner, unbranded email for customer-facing messages (status updates, this is
+ * the one customers actually see), check formspree.io → this form (xdkyonjb) → Settings →
+ * Notifications for a "plain text" / custom template option, or switch customer-facing
+ * sends to a dedicated transactional email service instead of piggybacking on this
+ * contact-form notification. */
 function formspreeNotify(payload){
   return fetch(FORMSPREE_URL,{
     method:'POST',
@@ -28,24 +40,16 @@ function notifyDriverChannels(job,driver,action){
     'https://corridortowing.org/app/?mode=driver\n\n'+
     buildCustomerStatusHint(job);
 
-  // Automatic email via Formspree (company inbox + CC driver when supported)
+  // Automatic email via Formspree (company inbox + CC driver when supported). Only _subject/
+  // message/_replyto/_cc are sent — everything else about the job is already IN `msg` (via
+  // buildJobDetailText above); the old version also sent each of those as its own separate
+  // field (driver_name, pickup, amount...), which Formspree's default notification template
+  // lists out individually under "Here's what they had to say", making the email much
+  // longer than the one clean message actually needed.
   var fsBody={
     _subject:subj,
     message:msg,
-    notification_type:action==='unassigned'?'driver_unassigned':'driver_assigned',
-    driver_name:driver.name||'',
-    driver_phone:driver.phone||'',
-    driver_email:driver.email||'',
-    customer_name:job.customerName||'',
-    customer_phone:job.customerPhone||'',
-    customer_email:job.customerEmail||'',
-    pickup:job.pickupAddress||'',
-    destination:job.destinationAddress||'',
-    service:job.service||'',
-    vehicle:job.vehicle||'',
-    amount:job.amount!=null?String(job.amount):'',
-    email:driver.email||'corridor.towing.services@gmail.com',
-    _replyto:driver.email||'corridor.towing.services@gmail.com'
+    _replyto:driver.email||'corridor.towing.services@gmail.com' // reply from the company inbox goes straight to the driver, when we have their email
   };
   if(driver.email)fsBody._cc=driver.email;
   formspreeNotify(fsBody);
@@ -111,10 +115,16 @@ async function notifyCustomerStatusEmail(job,status,extra){
   }
   body+='\nCall us: (804) 292-8414\n— Corridor Towing';
 
-  // Minimal fields only → cleaner email in Formspree
+  // Only _subject/_replyto/_cc/message are sent. `email` was dropped: Formspree's default
+  // notification template lists every plain field as its own row under "Here's what they had
+  // to say" (that's the "New form submission... Mark as spam... Formspree logo" wrapper the
+  // customer sees), and `email` added one more visible row on top of `message` for no benefit
+  // — `_cc` alone is what actually gets this to the customer's inbox.
+  // NOTE: that outer wrapper itself is Formspree's own branding for this form/plan, not
+  // something this payload controls — see the code comment above formspreeNotify() for where
+  // to change it if a cleaner customer-facing template is wanted.
   return formspreeNotify({
     _subject:'Corridor Towing: '+label,
-    email:custEmail,
     _replyto:'corridor.towing.services@gmail.com',
     _cc:custEmail,
     message:body

@@ -20,18 +20,25 @@ function enterApp(mode){
     }
   });
 }
+// Logging out (or cancelling sign-in) sends people back to the one real front door
+// (/login.html) instead of this old two-button "Driver Portal / Manager Portal" chooser —
+// that chooser used to be the only way in, but now /login.html decides where someone
+// belongs from their actual account, so showing it again after logout would undercut the
+// whole point of having a single login page.
 function closeDP(){
-  document.getElementById('driver-app').style.display='none';
-  document.getElementById('app-landing').style.display='flex';
   initTT_done=false;mgrAuth=false;
-  document.getElementById('mgr-badge').style.display='none';
-  document.getElementById('tt-nav').style.display='none';
   if(ttCS){ttCS.getTracks().forEach(function(t){t.stop()});ttCS=null;}
-  if(window.fbAuth&&fbAuth.currentUser)fbAuth.signOut().catch(function(){});
+  var goLogin=function(){window.location.href='/login.html';};
+  if(window.fbAuth&&fbAuth.currentUser)fbAuth.signOut().then(goLogin).catch(goLogin);
+  else goLogin();
 }
 // Deep-link support: /app/?mode=mgr or /app/?mode=driver jumps straight past the chooser
+// (this is how /login.html itself arrives here after resolving someone's real role). A bare
+// visit to /app/ with no mode — an old bookmark, or landing here with nothing else to do —
+// goes to /login.html instead of showing the retired chooser (see closeDP above).
 (function(){
   var mode=new URLSearchParams(location.search).get('mode');
   if(mode==='mgr')enterApp('mgr');
   else if(mode==='driver')enterApp();
+  else window.location.href='/login.html';
 })();
