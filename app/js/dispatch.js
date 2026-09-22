@@ -152,6 +152,7 @@ async function cancelMgrJob(jobId){
     var res=await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'cancelled',updatedAt:Date.now()})});
     if(!res.ok)throw new Error('HTTP '+res.status);
     if(job)syncTracking(job,{status:'cancelled',driver:null});
+    logAction('job_cancelled',{jobId:jobId});
     await loadMgrJobs();
     tT('Job cancelled','success');
   }catch(e){alert('Could not cancel job: '+(e&&e.message||e));}
@@ -163,6 +164,11 @@ async function deleteMgrJob(jobId){
     var res=await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'DELETE'});
     if(!res.ok)throw new Error('HTTP '+res.status);
     if(job&&job.trackToken&&isSafeId(job.trackToken))fbFetch(FIREBASE_URL+'/tracking/'+job.trackToken+'.json',{method:'DELETE'}).catch(function(){});
+    // The job itself is gone — clean up the index pointers too, or a driver's/customer's
+    // account would keep listing an id that no longer resolves to anything.
+    if(job&&job.assignedDriverUid)setDriverJobPointer(job.assignedDriverUid,jobId,false);
+    if(job&&job.customerUid&&isSafeId(job.customerUid))fbFetch(FIREBASE_URL+'/customerJobs/'+job.customerUid+'/'+jobId+'.json',{method:'DELETE'}).catch(function(){});
+    logAction('job_deleted',{jobId:jobId});
     await loadMgrJobs();
     tT('Job deleted','success');
   }catch(e){alert('Could not delete job: '+(e&&e.message||e));}
@@ -177,12 +183,33 @@ function renderMgrDrivers(){
     html+='<div><p style="font-weight:700;font-size:14px">'+esc(d.name||'')+'</p>';
     html+='<p style="font-size:12px;color:#6b6b6b">'+esc(d.phone||'')+(d.email?' · '+esc(d.email):'')+'</p></div>';
     html+='<div style="display:flex;align-items:center;gap:10px;flex-shrink:0">';
-    html+='<span style="font-size:10px;font-weight:700;color:'+(d.active!==false?'#10b981':'#6b6b6b')+'">'+(d.active!==false?'Active':'Inactive')+'</span>';
+    // Toggling this instantly flips employees/{uid}.active, which is what database.rules.json
+    // itself checks on every request — this is a real, immediate access cutoff, not a display
+    // filter (unlike Delete below, it's reversible: click again to re-enable).
+    html+='<button onclick="toggleDriverActive(\''+d.id+'\')" title="Click to '+(d.active!==false?'disable':'enable')+' this account" style="font-size:10px;font-weight:700;color:'+(d.active!==false?'#10b981':'#6b6b6b')+';background:none;border:1px solid '+(d.active!==false?'rgba(16,185,129,.35)':'#333')+';border-radius:20px;padding:4px 10px;cursor:pointer;font-family:\'Outfit\',sans-serif">'+(d.active!==false?'Active':'Disabled')+'</button>';
     html+='<button onclick="deleteMgrDriver(\''+d.id+'\')" title="Delete driver" style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.1);color:#fca5a5;cursor:pointer;flex-shrink:0"><i class="fas fa-trash" style="font-size:12px"></i></button>';
     html+='</div>';
     html+='</div>';
   });
   list.innerHTML=html;
+}
+
+async function toggleDriverActive(driverId){
+  var d=mgrDrivers.find(function(x){return x.id===driverId;});
+  if(!d)return;
+  var makeActive=d.active===false; // currently inactive -> re-enable; currently active -> disable
+  if(!makeActive&&!confirm('Disable '+(d.name||'this driver')+'? Their sign-in stops working immediately — click again anytime to re-enable.'))return;
+  try{
+    var res=await fbFetch(FIREBASE_URL+'/drivers/'+driverId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({active:makeActive})});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    if(d.uid){
+      var empRes=await fbFetch(FIREBASE_URL+'/employees/'+d.uid+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({active:makeActive})});
+      if(!empRes.ok)throw new Error('Roster updated, but HTTP '+empRes.status+' updating their login access.');
+    }
+    logAction(makeActive?'driver_enabled':'driver_disabled',{driverId:driverId,driverName:d.name||''});
+    await loadMgrDrivers();
+    tT(d.name+' '+(makeActive?'enabled':'disabled'),'success');
+  }catch(e){alert('Could not update driver: '+(e&&e.message||e));}
 }
 
 async function deleteMgrDriver(driverId){
@@ -198,8 +225,47 @@ async function deleteMgrDriver(driverId){
       var empRes=await fbFetch(FIREBASE_URL+'/employees/'+d.uid+'.json',{method:'DELETE'});
       if(!empRes.ok)throw new Error('Removed from roster, but revoking their login failed (HTTP '+empRes.status+') — they may still have access.');
     }
+    logAction('driver_deleted',{driverId:driverId,driverName:d.name||''});
     await loadMgrDrivers();
   }catch(e){alert('Could not remove driver: '+(e&&e.message||e));}
+}
+
+/* ========== ACTIVITY LOG ========== */
+var mgrLogLoaded=false;
+var LOG_ACTION_LABEL={admin_signin:'Signed in (admin)',driver_signin:'Signed in (driver)',job_assigned:'Assigned a job',job_unassigned:'Unassigned a job',job_cancelled:'Cancelled a job',job_deleted:'Deleted a job',driver_added:'Added a driver',driver_deleted:'Removed a driver',driver_enabled:'Enabled a driver',driver_disabled:'Disabled a driver',admin_added:'Added an admin'};
+function toggleActivityLog(){
+  var body=document.getElementById('mgr-log-body'),chev=document.getElementById('mgr-log-chevron');
+  var show=body.style.display==='none';
+  body.style.display=show?'block':'none';
+  chev.style.transform=show?'rotate(180deg)':'none';
+  if(show&&!mgrLogLoaded){mgrLogLoaded=true;loadActivityLog();}
+}
+async function loadActivityLog(){
+  var box=document.getElementById('mgr-log-list');
+  box.innerHTML='<div style="text-align:center;color:#6b6b6b;font-size:12px;padding:10px 0"><i class="fas fa-spinner fa-spin"></i> Loading…</div>';
+  try{
+    var res=await fbFetch(FIREBASE_URL+'/auditLog.json');
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    var data=await res.json();
+    var entries=[];
+    if(data)for(var id in data){if(data[id])entries.push(data[id]);}
+    entries.sort(function(a,b){return(b.at||0)-(a.at||0);});
+    entries=entries.slice(0,150);
+    if(!entries.length){box.innerHTML='<div style="text-align:center;color:#6b6b6b;font-size:12px;padding:10px 0">No activity recorded yet.</div>';return;}
+    var html='';
+    entries.forEach(function(e){
+      var when=e.at?new Date(e.at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'';
+      var label=LOG_ACTION_LABEL[e.action]||e.action||'Action';
+      var extra=[e.driverName,e.jobId,e.email].filter(Boolean).join(' · ');
+      html+='<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid #1e1e1e;font-size:12px">'+
+        '<div><span style="color:#f0f0f0;font-weight:600">'+esc(label)+'</span>'+(extra?' <span style="color:#6b6b6b">— '+esc(extra)+'</span>':'')+
+        '<br><span style="color:#6b6b6b;font-size:11px">'+esc(e.actorEmail||'')+'</span></div>'+
+        '<span style="color:#6b6b6b;font-size:11px;white-space:nowrap">'+esc(when)+'</span></div>';
+    });
+    box.innerHTML=html;
+  }catch(e){
+    box.innerHTML='<div style="text-align:center;color:#ef4444;font-size:12px;padding:10px 0">Could not load activity log.</div>';
+  }
 }
 
 function showNewDriverModal(name,email,pass){

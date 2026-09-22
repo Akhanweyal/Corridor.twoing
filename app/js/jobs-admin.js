@@ -121,14 +121,63 @@ async function notifyCustomerStatusEmail(job,status,extra){
   });
 }
 
+// Keeps /driverJobs/{uid}/{jobId} in sync with a job's assignment — this index (not the
+// job's own assignedDriverId field) is what database.rules.json actually checks before
+// letting a driver's account read that job at all, so every assign/reassign/unassign
+// below has to write it, not just the human-readable fields on the job.
+function setDriverJobPointer(uid,jobId,present){
+  if(!uid||!isSafeId(uid)||!isSafeId(jobId))return Promise.resolve(false);
+  return fbFetch(FIREBASE_URL+'/driverJobs/'+uid+'/'+jobId+'.json',present?{method:'PUT',headers:{'Content-Type':'application/json'},body:'true'}:{method:'DELETE'})
+    .then(function(r){return r.ok;}).catch(function(){return false;});
+}
+
+// One-time (but safe to re-run anytime — it only ever ADDS pointers, never removes one) catch-up
+// for jobs that were assigned to a driver BEFORE the driverJobs index existed. Without this, a
+// driver whose job was assigned by the old code would have that job's data itself untouched, but
+// no /driverJobs pointer to it — and since database.rules.json now requires that pointer to read
+// the job at all, the job would silently vanish from their app instead of just failing loudly.
+// Every driver added or (re)assigned through this session's own code already gets the pointer
+// written at the time — this is only for whatever existed before this session's changes.
+async function backfillJobIndexes(){
+  if(!confirm('Scan every job and rebuild any missing driver/customer index pointers? Safe to run any time — this only adds pointers that should already be there, never removes or changes anything else.'))return;
+  var btn=document.getElementById('mgr-btn-backfill');
+  if(btn){btn.disabled=true;btn.textContent='Scanning…';}
+  try{
+    var res=await fbFetch(FIREBASE_URL+'/jobs.json');
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    var data=await res.json();
+    var uidByDriverId={};
+    mgrDrivers.forEach(function(d){if(d.uid)uidByDriverId[d.id]=d.uid;});
+    var writes=[],driverCount=0,customerCount=0;
+    if(data){
+      for(var id in data){
+        var j=data[id];
+        if(!j||!isSafeId(id))continue;
+        var duid=j.assignedDriverUid||uidByDriverId[j.assignedDriverId];
+        if(duid&&isSafeId(duid)){driverCount++;writes.push(setDriverJobPointer(duid,id,true));}
+        if(j.customerUid&&isSafeId(j.customerUid)){
+          customerCount++;
+          writes.push(fbFetch(FIREBASE_URL+'/customerJobs/'+j.customerUid+'/'+id+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:'true'}).catch(function(){}));
+        }
+      }
+    }
+    await Promise.all(writes);
+    logAction('index_backfilled',{driverPointers:driverCount,customerPointers:customerCount});
+    tT('Index rebuilt — checked '+driverCount+' driver-assigned and '+customerCount+' customer-linked job(s)','success');
+  }catch(e){alert('Backfill failed: '+(e&&e.message||e));}
+  finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-rotate"></i> Backfill Job Index';}}
+}
+
 async function assignJobToDriver(jobId,driverId){
   var driver=mgrDrivers.find(function(d){return d.id===driverId;});
   if(!driver)return;
   var job=mgrJobs.find(function(j){return j.id===jobId;})||{};
+  var prevDriverUid=job.assignedDriverUid||null;
   try{
     var res=await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       status:'assigned',
       assignedDriverId:driverId,
+      assignedDriverUid:driver.uid||null,
       assignedDriverName:driver.name,
       assignedDriverEmail:driver.email||null,
       assignedDriverPhone:driver.phone||null,
@@ -136,10 +185,13 @@ async function assignJobToDriver(jobId,driverId){
       updatedAt:Date.now()
     })});
     if(!res.ok)throw new Error('HTTP '+res.status);
+    if(driver.uid)await setDriverJobPointer(driver.uid,jobId,true);
+    if(prevDriverUid&&prevDriverUid!==driver.uid)setDriverJobPointer(prevDriverUid,jobId,false); // reassigned away from someone
     document.getElementById('mgr-assign-modal').classList.remove('active');
     job.assignedDriverName=driver.name;
     syncTracking(job,{status:'assigned',driver:{name:firstName(driver.name)}});
     notifyDriverChannels(job,driver,'assigned');
+    logAction('job_assigned',{jobId:jobId,driverName:driver.name});
     await loadMgrJobs();
   }catch(e){alert('Assign failed: '+e.message);}
 }
@@ -154,6 +206,7 @@ async function unassignJob(jobId){
     var res=await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       status:'pending',
       assignedDriverId:null,
+      assignedDriverUid:null,
       assignedDriverName:null,
       assignedDriverEmail:null,
       assignedDriverPhone:null,
@@ -161,8 +214,10 @@ async function unassignJob(jobId){
       updatedAt:Date.now()
     })});
     if(!res.ok)throw new Error('HTTP '+res.status);
+    if(job.assignedDriverUid)setDriverJobPointer(job.assignedDriverUid,jobId,false);
     syncTracking(job,{status:'pending',driver:null});
     if(driver&&(driver.email||driver.phone))notifyDriverChannels(job,driver,'unassigned');
+    logAction('job_unassigned',{jobId:jobId});
     await loadMgrJobs();
   }catch(e){alert('Unassign failed: '+e.message);}
 }
@@ -193,7 +248,7 @@ async function addMgrDriver(){
     var uid=cred.user.uid;
     await sAuth.signOut();
     var empRes=await fbFetch(FIREBASE_URL+'/employees/'+uid+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      email:email,role:'driver',mustChangePassword:true,createdAt:Date.now()
+      email:email,role:'driver',active:true,mustChangePassword:true,createdAt:Date.now()
     })});
     if(!empRes.ok)throw new Error('Approval record rejected (HTTP '+empRes.status+') — has the current database.rules.json been published to Firebase? The login was created but is not yet approved.');
     var id=name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')+'_'+Date.now().toString(36);
@@ -204,12 +259,39 @@ async function addMgrDriver(){
     document.getElementById('mgr-drv-name').value='';
     document.getElementById('mgr-drv-phone').value='';
     document.getElementById('mgr-drv-email').value='';
+    logAction('driver_added',{driverName:name,email:email});
     await loadMgrDrivers();
     showNewDriverModal(name,email,tempPassword);
   }catch(e){
     alert('Could not create driver account: '+(e&&e.message||e));
   }finally{
     btn.disabled=false;btn.textContent='Save Driver';
+  }
+}
+
+// A second (or third...) admin — invite-only, same as a driver: only an already-signed-in
+// admin can reach this button, and only an admin can write role:'admin' into /employees
+// (database.rules.json), so there is no path to self-promote from anywhere else on the site.
+async function addMgrAdmin(){
+  var name=(prompt('Full name of the new admin:')||'').trim();
+  if(!name)return;
+  var email=(prompt('Their email address (used to sign in):')||'').trim();
+  if(!email)return;
+  if(!confirm('Make '+name+' ('+email+') a full admin? They will be able to see and manage everything you can, including other staff.'))return;
+  var tempPassword=genTempPassword();
+  try{
+    var sAuth=secondaryAuth();
+    var cred=await sAuth.createUserWithEmailAndPassword(email,tempPassword);
+    var uid=cred.user.uid;
+    await sAuth.signOut();
+    var empRes=await fbFetch(FIREBASE_URL+'/employees/'+uid+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      email:email,role:'admin',active:true,mustChangePassword:true,createdAt:Date.now()
+    })});
+    if(!empRes.ok)throw new Error('Approval record rejected (HTTP '+empRes.status+') — has the current database.rules.json been published to Firebase?');
+    logAction('admin_added',{email:email});
+    showNewDriverModal(name+' (Admin)',email,tempPassword);
+  }catch(e){
+    alert('Could not create admin account: '+(e&&e.message||e));
   }
 }
 

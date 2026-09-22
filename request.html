@@ -28,13 +28,10 @@
       <div class="company-name">Corridor Towing</div>
     </a>
     <div class="header-actions">
-      <a class="manager-portal-btn" href="/app/?mode=mgr"><i class="fas fa-user-shield"></i><span>Manager</span></a>
-      <a class="driver-portal-btn" href="/app/?mode=driver"><i class="fas fa-id-badge"></i><span class="btn-text">Driver Portal</span></a>
+      <a class="signin-btn" id="hdr-signin" href="/login.html"><i class="fas fa-right-to-bracket"></i><span class="btn-text">Sign In</span></a>
       <div class="menu-toggle" onclick="toggleMenu()">☰ Menu</div>
     </div>
     <nav><ul id="nav-menu">
-      <li class="nav-mgr-item"><a href="/app/?mode=mgr"><i class="fas fa-user-shield"></i> Manager Portal</a></li>
-      <li class="nav-driver-item"><a href="/app/?mode=driver"><i class="fas fa-id-badge"></i> Driver Portal</a></li>
       <li><a href="/">Home</a></li>
       <li><a href="/request.html" class="active">Request Service</a></li>
       <li><a href="/services.html">Services &amp; Pricing</a></li>
@@ -47,6 +44,7 @@
 <section class="page-title"><div class="container"><h1>Request Service</h1><p>Tell us where you are and what you need — we’ll call to confirm. In a hurry? Call <a href="tel:8042928414" style="color:#ffcc00;font-weight:700">(804) 292-8414</a>.</p></div></section>
 <section id="forms" class="request"><div class="container"><h2 class="section-title">Request Towing Service</h2>
 <div class="form-dropdown"><div class="dropdown-content">
+<div id="acct-banner" style="display:none;background:#e6f3ff;color:#0b3d91;border-radius:8px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.9rem"></div>
 <form id="requestForm" onsubmit="handleRequestSubmit(event)">
 <div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden" aria-hidden="true"><label for="req_website">Leave this field blank</label><input type="text" id="req_website" name="website" tabindex="-1" autocomplete="off"></div>
 <div class="form-group"><label>Full Name *</label><input type="text" id="req_name" required></div>
@@ -120,6 +118,10 @@
 </footer>
 
 <script src="/js/site.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="/js/firebase-shared.js"></script>
+<script src="/js/account-badge.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script src="/js/address.js"></script>
 <script src="/js/tripmap.js"></script>

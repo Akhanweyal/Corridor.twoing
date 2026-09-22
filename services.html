@@ -27,13 +27,10 @@
       <div class="company-name">Corridor Towing</div>
     </a>
     <div class="header-actions">
-      <a class="manager-portal-btn" href="/app/?mode=mgr"><i class="fas fa-user-shield"></i><span>Manager</span></a>
-      <a class="driver-portal-btn" href="/app/?mode=driver"><i class="fas fa-id-badge"></i><span class="btn-text">Driver Portal</span></a>
+      <a class="signin-btn" id="hdr-signin" href="/login.html"><i class="fas fa-right-to-bracket"></i><span class="btn-text">Sign In</span></a>
       <div class="menu-toggle" onclick="toggleMenu()">☰ Menu</div>
     </div>
     <nav><ul id="nav-menu">
-      <li class="nav-mgr-item"><a href="/app/?mode=mgr"><i class="fas fa-user-shield"></i> Manager Portal</a></li>
-      <li class="nav-driver-item"><a href="/app/?mode=driver"><i class="fas fa-id-badge"></i> Driver Portal</a></li>
       <li><a href="/">Home</a></li>
       <li><a href="/request.html">Request Service</a></li>
       <li><a href="/services.html" class="active">Services &amp; Pricing</a></li>
@@ -77,5 +74,9 @@
 </footer>
 
 <script src="/js/site.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="/js/firebase-shared.js"></script>
+<script src="/js/account-badge.js"></script>
 </body>
 </html>

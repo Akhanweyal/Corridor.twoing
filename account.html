@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Account | Corridor Towing</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/images/logo.jpeg" type="image/png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="/css/site.css">
+<style>
+  .acct-wrap{max-width:760px;margin:0 auto;padding:2rem 1rem}
+  .acct-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem}
+  .acct-head h1{color:#0b3d91;font-size:1.6rem}
+  .acct-head p{color:#666;font-size:.9rem}
+  .signout-btn{background:#fff;border:2px solid #0b3d91;color:#0b3d91;padding:.5rem 1.1rem;border-radius:50px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit}
+  .acct-card{background:#fff;border-radius:14px;box-shadow:0 4px 15px rgba(0,0,0,.08);padding:1.4rem 1.6rem;margin-bottom:1.2rem}
+  .req-row{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;padding:1rem 0;border-bottom:1px solid #eee}
+  .req-row:last-child{border-bottom:none}
+  .req-badge{font-size:.7rem;font-weight:800;padding:.2rem .6rem;border-radius:20px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+  .req-links{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.5rem}
+  .req-links a{font-size:.8rem;font-weight:700;color:#0b3d91;text-decoration:underline;cursor:pointer}
+  .empty-state{text-align:center;color:#888;padding:2rem 0}
+</style>
+</head>
+<body>
+<header id="main-header">
+  <div class="container header-inner">
+    <a class="logo-container" href="/">
+      <div class="logo"><img src="/images/logo.jpeg" alt="Corridor Towing Logo"></div>
+      <div class="company-name">Corridor Towing</div>
+    </a>
+    <div class="header-actions">
+      <div class="menu-toggle" onclick="toggleMenu()">&#9776; Menu</div>
+    </div>
+    <nav><ul id="nav-menu">
+      <li><a href="/">Home</a></li>
+      <li><a href="/request.html">Request Service</a></li>
+      <li><a href="/services.html">Services &amp; Pricing</a></li>
+      <li><a href="/pay.html">Pay Now</a></li>
+      <li><a href="/contact.html">Contact</a></li>
+    </ul></nav>
+  </div>
+</header>
+
+<div class="acct-wrap">
+  <div id="acct-loading" style="text-align:center;padding:3rem 0"><i class="fas fa-spinner fa-spin" style="font-size:1.4rem;color:#0b3d91"></i></div>
+  <div id="acct-body" style="display:none">
+    <div class="acct-head">
+      <div><h1>Hi, <span id="acct-name">there</span></h1><p id="acct-email"></p></div>
+      <button class="signout-btn" onclick="acctSignOut()"><i class="fas fa-right-from-bracket"></i> Sign Out</button>
+    </div>
+    <div class="acct-card">
+      <h2 style="color:#0b3d91;font-size:1.1rem;margin-bottom:.8rem">Your Requests</h2>
+      <div id="acct-jobs"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Loading…</div></div>
+    </div>
+    <p style="font-size:.8rem;color:#888;text-align:center">Only requests made while signed in show up here. Booked as a guest? Use the tracking or receipt link we texted/emailed you instead.</p>
+  </div>
+</div>
+
+<footer>
+<div class="container">
+  <div class="footer-links">
+    <a href="/">Home</a>
+    <a href="/request.html">Request Service</a>
+    <a href="/services.html">Services &amp; Pricing</a>
+    <a href="/pay.html">Pay Now</a>
+    <a href="/contact.html">Contact</a>
+    <a href="tel:8042928414" style="color:#ffcc00;font-weight:700">(804) 292-8414</a>
+  </div>
+  <p>&copy; 2026 Corridor Towing and Transportation Services. All rights reserved.</p>
+  <p>Licensed &amp; Insured | 24/7 Emergency Service | Henrico, VA | <a href="mailto:corridor.towing.services@gmail.com" style="color:rgba(255,255,255,.6)">corridor.towing.services@gmail.com</a></p>
+</div>
+</footer>
+
+<script src="/js/site.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="/js/firebase-shared.js"></script>
+<script src="/js/account.js"></script>
+</body>
+</html>

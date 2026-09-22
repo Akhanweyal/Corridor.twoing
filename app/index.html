@@ -306,6 +306,24 @@
       </div>
     </div>
     <div id="mgr-drivers-list" style="display:flex;flex-direction:column;gap:8px"></div>
+
+    <div style="text-align:center;margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+      <button onclick="addMgrAdmin()" style="padding:9px 16px;border:1px solid #262626;border-radius:20px;font-weight:600;font-size:12px;cursor:pointer;background:#141414;color:#aaa;font-family:'Outfit',sans-serif"><i class="fas fa-user-shield"></i> + Add Admin</button>
+      <button id="mgr-btn-backfill" onclick="backfillJobIndexes()" title="Run once after publishing new database rules, to restore access to jobs that were assigned before this update" style="padding:9px 16px;border:1px solid #262626;border-radius:20px;font-weight:600;font-size:12px;cursor:pointer;background:#141414;color:#aaa;font-family:'Outfit',sans-serif"><i class="fas fa-rotate"></i> Backfill Job Index</button>
+    </div>
+    <p style="text-align:center;font-size:10px;color:#6b6b6b;margin-top:6px">Run "Backfill Job Index" once right after publishing an updated database.rules.json — it restores driver/customer access to jobs that were assigned before this update, and is safe to run again anytime.</p>
+
+    <!-- ========== ACTIVITY LOG (admin-only; see database.rules.json "auditLog") ========== -->
+    <div class="tt-card" style="margin-top:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="toggleActivityLog()">
+        <p style="font-size:12px;font-weight:700;color:#f59e0b"><i class="fas fa-list-check" style="margin-right:6px"></i>Activity Log</p>
+        <i class="fas fa-chevron-down" id="mgr-log-chevron" style="color:#6b6b6b;font-size:11px"></i>
+      </div>
+      <div id="mgr-log-body" style="display:none;margin-top:10px">
+        <p style="font-size:11px;color:#6b6b6b;margin-bottom:8px">Sign-ins and staff/job actions by every admin and driver account, most recent first.</p>
+        <div id="mgr-log-list" style="display:flex;flex-direction:column;gap:6px;max-height:360px;overflow-y:auto"></div>
+      </div>
+    </div>
   </div>
 
   <!-- ========== TIME LOGS PANEL (original) ========== -->

@@ -176,19 +176,42 @@ function initTT(){
     },function(err){console.warn('Driver location watch error',err);},{enableHighAccuracy:true,maximumAge:20000,timeout:20000});
   }
 
+  // The ONLY jobs a driver's account can read at all are the ones listed in their own
+  // /driverJobs/{their uid} index (see database.rules.json) — an admin writes that index
+  // at assign/unassign time, so this is a database-enforced floor, not just a client-side
+  // filter of a blanket job list the account could otherwise dump on its own.
+  async function myJobIds(){
+    var uid=fbAuth.currentUser&&fbAuth.currentUser.uid;
+    if(!uid)return [];
+    try{
+      var res=await fbFetch(FIREBASE_URL+'/driverJobs/'+uid+'.json');
+      if(!res.ok)throw new Error('HTTP '+res.status);
+      var idx=await res.json();
+      return idx?Object.keys(idx).filter(isSafeId):[];
+    }catch(e){return null;} // null = the fetch itself failed (vs [] = genuinely no jobs)
+  }
+  async function fetchJobsByIds(ids){
+    var jobs=await Promise.all(ids.map(async function(id){
+      try{
+        var r=await fbFetch(FIREBASE_URL+'/jobs/'+id+'.json');
+        if(!r.ok)return null;
+        var j=await r.json();
+        if(j)j.id=id;
+        return j;
+      }catch(e){return null;}
+    }));
+    return jobs.filter(Boolean);
+  }
+
   async function loadDashJobsPreview(){
     var box=document.getElementById('tt-dash-jobs-list');
     var badge=document.getElementById('tt-jobs-badge');
     if(!box)return;
     try{
-      var res=await fbFetch(FIREBASE_URL+'/jobs.json');
-      if(!res.ok)throw new Error('HTTP '+res.status);
-      var data=await res.json();
-      var mine=[];
-      var myName=(ttD.driverName||'').trim().toLowerCase();
-      if(data){for(var id in data){var j=data[id];if(!j||!isSafeId(id))continue;j.id=id;
-        if(jobBelongsToMe(j)&&!isJobComplete(j.status))mine.push(j);
-      }}
+      var ids=await myJobIds();
+      if(ids===null)throw new Error('driverJobs fetch failed');
+      var all=await fetchJobsByIds(ids);
+      var mine=all.filter(function(j){return!isJobComplete(j.status);});
       mine.sort(function(a,b){return(b.assignedAt||b.createdAt||0)-(a.assignedAt||a.createdAt||0);});
       ensureDriverLocationTracking(mine);
       if(badge){if(mine.length){badge.style.display='inline-block';badge.textContent=String(mine.length);}else{badge.style.display='none';}}
@@ -362,26 +385,13 @@ function initTT(){
       list.innerHTML=html;
   }
 
-  function jobBelongsToMe(j){
-    var myName=(ttD.driverName||'').trim().toLowerCase();
-    if(!myName)return false;
-    var assigned=(j.assignedDriverName||'').trim().toLowerCase();
-    // Must be explicitly assigned to this driver (never show unassigned or other drivers' jobs)
-    if(!assigned)return false;
-    return assigned===myName;
-  }
-
   async function loadDriverJobs(){
     var list=document.getElementById('drv-jobs-list');if(!list)return;
     list.innerHTML='<div style="text-align:center;color:#6b6b6b;padding:24px 0;font-size:13px"><i class="fas fa-spinner fa-spin"></i> Loading…</div>';
     try{
-      var res=await fbFetch(FIREBASE_URL+'/jobs.json');
-      if(!res.ok)throw new Error('HTTP '+res.status);
-      var data=await res.json();
-      var mine=[];
-      if(data){for(var id in data){var j=data[id];if(!j||!isSafeId(id))continue;j.id=id;
-        if(jobBelongsToMe(j))mine.push(j);
-      }}
+      var ids=await myJobIds();
+      if(ids===null)throw new Error('driverJobs fetch failed');
+      var mine=await fetchJobsByIds(ids);
       mine.sort(function(a,b){return(b.assignedAt||b.updatedAt||b.createdAt||0)-(a.assignedAt||a.updatedAt||a.createdAt||0);});
       drvJobsCache=mine;
       ensureDriverLocationTracking(mine.filter(function(j){return!isJobComplete(j.status);}));

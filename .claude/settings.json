@@ -3,7 +3,22 @@
     "allow": [
       "Bash(node -e ' *)",
       "Bash(timeout 200 node \"C:/Users/18042/AppData/Local/Temp/claude/c--Users-18042-towing-Corridor-twoing/2842542a-7409-430b-a433-ec07bb88822a/scratchpad/cdp2.mjs\")",
-      "Read(//c/Users/18042/AppData/Local/Temp/**)"
+      "Read(//c/Users/18042/AppData/Local/Temp/**)",
+      "Bash(python \"C:/Users/18042/AppData/Local/Temp/claude/c--Users-18042-towing-Corridor-twoing/2842542a-7409-430b-a433-ec07bb88822a/scratchpad/nav.py\")",
+      "Bash(node --check js/login.js)",
+      "Bash(node --check js/account.js)",
+      "Bash(node --check js/account-badge.js)",
+      "Bash(node --check js/firebase-shared.js)",
+      "Bash(node --check app/js/auth.js)",
+      "Bash(node --check driver.js)",
+      "Bash(node --check jobs-admin.js)",
+      "Bash(node --check auth.js)",
+      "Bash(timeout 200 node \"C:/Users/18042/AppData/Local/Temp/claude/c--Users-18042-towing-Corridor-twoing/2842542a-7409-430b-a433-ec07bb88822a/scratchpad/cdp3.mjs\")",
+      "Bash(timeout 200 node C:/Users/18042/AppData/Local/Temp/claude/c--Users-18042-towing-Corridor-twoing/2842542a-7409-430b-a433-ec07bb88822a/scratchpad/cdp3.mjs)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(tasklist //FI \"IMAGENAME eq msedge.exe\" //FO CSV)",
+      "Bash(tasklist //FI \"IMAGENAME eq node.exe\" //FO CSV)",
+      "Bash(taskkill //F //IM msedge.exe //T)"
     ]
   }
 }

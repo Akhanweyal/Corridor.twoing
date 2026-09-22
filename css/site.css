@@ -135,3 +135,8 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
 .trk-place:last-child{border-bottom:none}
 .trk-place .ico{font-size:1.4rem}
 .trk-place .lbl{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:#888}
+
+/* ---- header sign-in link (replaces the old manager/driver portal buttons) ---- */
+.signin-btn{display:flex;align-items:center;gap:6px;background:rgba(255,204,0,.15);border:1.5px solid #ffcc00;color:#ffcc00;padding:8px 16px;border-radius:50px;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .3s;white-space:nowrap;font-family:inherit;text-decoration:none}
+.signin-btn:hover{background:#ffcc00;color:#0b3d91}
+@media(max-width:768px){.signin-btn span.btn-text{display:none}.signin-btn{padding:8px 10px}}

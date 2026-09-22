@@ -163,7 +163,10 @@ var pendingPortalMode=null;
 function showLoginGate(mode){
   pendingPortalMode=mode||null;
   document.getElementById('tt-logout-btn').innerHTML='Exit';
-  document.getElementById('tt-login-title').textContent=mode==='mgr'?'Manager Sign In':'Driver Sign In';
+  // Title is deliberately role-neutral now: which screen you land on is decided by your
+  // account's actual role after sign-in (see resolveRole()/enterPortal below), not by
+  // which button got you here — so this never mislabels a driver's login as "Manager".
+  document.getElementById('tt-login-title').textContent='Staff Sign In';
   document.getElementById('tt-login-email').value='';
   document.getElementById('tt-login-pass').value='';
   document.getElementById('tt-login-error').style.display='none';
@@ -229,15 +232,54 @@ async function submitForcePasswordChange(){
     btn.disabled=false;btn.textContent='Set Password & Continue';
   }
 }
-function enterPortal(mode){
+// Looks up what this signed-in account actually is: 'admin' (bootstrap email, or an
+// /employees record with role:'admin'), 'driver' (any other active /employees record —
+// including one with no role field at all, i.e. every driver created before roles
+// existed), 'disabled' (an /employees record with active:false), or 'customer' (no
+// /employees record — this account has no staff access of any kind). This is the ONLY
+// thing enterPortal() below trusts to decide which screen to show — never the `mode`
+// query param, which is just a UI hint for someone who isn't signed in yet and can't
+// grant anyone access database.rules.json wouldn't already grant them independently.
+async function resolveRole(user){
+  user=user||fbAuth.currentUser;
+  if(!user)return null;
+  if(isManagerEmail(user.email))return 'admin';
+  try{
+    var res=await fbFetch(FIREBASE_URL+'/employees/'+user.uid+'.json');
+    if(!res.ok)return 'customer';
+    var rec=await res.json();
+    if(!rec)return 'customer';
+    if(rec.active===false)return 'disabled';
+    return rec.role==='admin'?'admin':'driver';
+  }catch(e){return 'customer';}
+}
+// Append-only accountability trail (see database.rules.json's "auditLog" section) — best
+// effort, never blocks the action it's describing if the write fails.
+async function logAction(action,extra){
+  try{
+    var user=fbAuth.currentUser;if(!user)return;
+    var entryId=Date.now().toString(36)+secureToken(6);
+    var body=Object.assign({at:Date.now(),action:String(action).slice(0,60),actorUid:user.uid,actorEmail:user.email||''},extra||{});
+    await fbFetch(FIREBASE_URL+'/auditLog/'+entryId+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  }catch(e){console.warn('Audit log write failed:',e);}
+}
+async function enterPortal(mode){
   document.getElementById('tt-logout-btn').innerHTML='<i class="fas fa-right-from-bracket"></i> Log Out';
-  if(mode==='mgr'){
-    var email=fbAuth.currentUser&&fbAuth.currentUser.email;
-    if(!isManagerEmail(email)){
-      alert('This account is signed in but is not authorized for Manager access.');
-      closeDP();
-      return;
-    }
+  var role=await resolveRole();
+  if(role==='disabled'){
+    alert('This account has been disabled. Contact an administrator.');
+    await fbAuth.signOut().catch(function(){});
+    closeDP();
+    return;
+  }
+  if(role==='customer'){
+    // A signed-in customer has nothing to do in the staff app (this can only happen via a
+    // stale /app/?mode=... bookmark, since the public site no longer links here for them).
+    window.location.href='/account.html';
+    return;
+  }
+  logAction(role==='admin'?'admin_signin':'driver_signin',{});
+  if(role==='admin'){
     mgrAuth=true;
     document.getElementById('mgr-badge').style.display='inline-flex';
     document.getElementById('tt-nav').style.display='none';

@@ -4,7 +4,7 @@ var RATES={enroute:2,tow:6};
 // Private ntfy.sh topic for instant new-request push alerts. Install the ntfy app
 // (ntfy.sh) and subscribe to this exact topic name to get notified on your phone.
 var NTFY_TOPIC='corridor-towing-b2e5e69500315953';
-var FIREBASE_DB='https://corridortowing-default-rtdb.firebaseio.com';
+// FIREBASE_URL/fbAuth/fbFetch/fbWhoAmI come from /js/firebase-shared.js, loaded before this file.
 
 var pickupInput=document.getElementById('vehicleLocation');
 var destInput=document.getElementById('towDestination');
@@ -171,6 +171,31 @@ function placeRecord(pl,fallbackText){
   return pl?{lat:pl.lat,lng:pl.lng,name:pl.name||'',kind:pl.kind||'place',address:pl.text||fallbackText||''}:null;
 }
 
+// Optional account: nothing about booking requires signing in (the form still works exactly
+// as before for a guest). If someone HAS signed in — as a customer account, never staff —
+// this request gets linked to it (customerUid on the job, then a /customerJobs pointer once
+// the job save succeeds) so it shows up on /account.html. See database.rules.json's "jobs"
+// and "customerJobs" sections for how that link is verified server-side, not just assumed.
+var signedInCustomer=null;
+fbWhoAmI().then(async function(user){
+  if(!user)return;
+  var role=await fbLookupRole(user);
+  if(role!=='customer')return; // staff booking on someone's behalf stays a guest request
+  signedInCustomer=user;
+  var banner=document.getElementById('acct-banner');
+  banner.style.display='block';
+  banner.innerHTML='Signed in as <strong>'+(user.email||'')+'</strong> — this request will be saved to <a href="/account.html" style="color:#0b3d91;text-decoration:underline">your account</a>. <a href="#" id="acct-banner-out" style="color:#0b3d91;text-decoration:underline">Not you?</a>';
+  document.getElementById('acct-banner-out').addEventListener('click',function(e){e.preventDefault();fbAuth.signOut().then(function(){location.reload();});});
+  // Convenience only — every field below stays freely editable.
+  try{
+    var res=await fbFetch(FIREBASE_URL+'/customers/'+user.uid+'.json');
+    var prof=res.ok?await res.json():null;
+    if(!document.getElementById('req_name').value)document.getElementById('req_name').value=(prof&&prof.name)||user.displayName||'';
+    if(!document.getElementById('req_email').value)document.getElementById('req_email').value=(prof&&prof.email)||user.email||'';
+    if(!document.getElementById('req_phone').value&&prof&&prof.phone)document.getElementById('req_phone').value=prof.phone;
+  }catch(e){}
+});
+
 var formRenderedAt=Date.now();
 async function handleRequestSubmit(e){e.preventDefault();
 // Spam guard: a real visitor never fills the hidden "website" field, and never
@@ -203,12 +228,20 @@ var pickupRec=placeRecord(pickupPlace,fd.location),destRec=jobType==='tow'?place
 // Public live-tracking record (separate from the job, which anonymous visitors can never read): the
 // unguessable token in the link is the only way to open it, and it holds no name/phone/email.
 var trackToken=pickupRec?secureToken(20):null;
+var customerUid=signedInCustomer?signedInCustomer.uid:null;
 var jobPayload={status:'pending',jobType:jobType,serviceCode:fd.serviceCode,createdAt:now,updatedAt:now,customerName:fd.name,customerPhone:fd.phone,customerEmail:fd.email,service:fd.service,vehicle:fd.vehicle,starts:fd.starts,neutral:fd.neutral,attended:fd.attended,towMethod:jobType==='tow'?fd.towmethod:null,pickupAddress:fd.location,destinationAddress:fd.destination,enrouteMiles:Number(fd.enroute)||0,towMiles:Number(fd.tow)||0,amount:Number(fd.amount)||0,paymentPref:fd.payment,payMethod:fd.payment==='pay-now'?(fd.payMethod||null):null,source:'website',assignedDriverId:null,assignedDriverName:null,assignedDriverPhone:null,assignedAt:null,pickedUpAt:null,droppedOffAt:null,dropoffLat:null,dropoffLng:null,feedbackToken:feedbackToken,feedbackSubmitted:false,feedbackRating:null,feedbackComment:null,
   pickupLat:pickupRec?pickupRec.lat:null,pickupLng:pickupRec?pickupRec.lng:null,pickupName:pickupRec?pickupRec.name:null,pickupKind:pickupRec?pickupRec.kind:null,
   destLat:destRec?destRec.lat:null,destLng:destRec?destRec.lng:null,destName:destRec?destRec.name:null,destKind:destRec?destRec.kind:null,
   trackToken:trackToken};
-var jobPromise=fetch(FIREBASE_DB+'/jobs/'+jobId+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(jobPayload)}).then(function(res){if(!res.ok)throw new Error('HTTP '+res.status);return true;}).catch(function(err){console.warn('Job save failed (check Firebase rules):',err);return false;});
-var trackPromise=trackToken?fetch(FIREBASE_DB+'/tracking/'+trackToken+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({createdAt:now,updatedAt:now,status:'pending',jobType:jobType,pickup:pickupRec,dest:destRec})}).then(function(res){return res.ok;}).catch(function(){return false;}):Promise.resolve(false);
+if(customerUid)jobPayload.customerUid=customerUid; // omitted entirely for a guest — the write rule requires it be absent or equal to auth.uid
+var jobPromise=fetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(jobPayload)}).then(function(res){if(!res.ok)throw new Error('HTTP '+res.status);return true;}).catch(function(err){console.warn('Job save failed (check Firebase rules):',err);return false;});
+// Links this job into the signed-in customer's /account.html list. Only possible once the
+// job itself exists with customerUid set (the rules check that), so this always runs after.
+var customerLinkPromise=jobPromise.then(function(jobOk){
+  if(!jobOk||!customerUid)return false;
+  return fbFetch(FIREBASE_URL+'/customerJobs/'+customerUid+'/'+jobId+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:'true'}).then(function(r){return r.ok;}).catch(function(){return false;});
+});
+var trackPromise=trackToken?fetch(FIREBASE_URL+'/tracking/'+trackToken+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({createdAt:now,updatedAt:now,status:'pending',jobType:jobType,pickup:pickupRec,dest:destRec})}).then(function(res){return res.ok;}).catch(function(){return false;}):Promise.resolve(false);
 /* 3) Instant push notification to owner's phone via ntfy.sh (free, no account) — fire-and-forget so a failure here never blocks the customer's confirmation */
 fetch('https://ntfy.sh/'+NTFY_TOPIC,{method:'POST',headers:{'Title':'New '+(jobType==='tow'?'Tow':'Roadside')+' Request','Priority':'urgent','Tags':'rotating_light'},body:fd.name+' — '+fd.phone+'\n'+fd.service+'\n'+fd.location+(jobType==='tow'?' → '+fd.destination:'')+'\n$'+fd.amount}).catch(function(err){console.warn('Push notify failed:',err);});
 // Formspree (the owner's email copy) and the Firebase job save are independent
@@ -218,7 +251,7 @@ fetch('https://ntfy.sh/'+NTFY_TOPIC,{method:'POST',headers:{'Title':'New '+(jobT
 // below resolve to true/false instead of rejecting, so only a TOTAL failure
 // (neither system captured the request) falls through to the "call us" alert.
 var formspreeStatus=formspreePromise.then(function(){return true;}).catch(function(err){console.warn('Formspree email failed (owner will not get an email copy of this request — check formspree.io dashboard/plan limits):',err);return false;});
-Promise.all([formspreeStatus,jobPromise,trackPromise]).then(function(results){
+Promise.all([formspreeStatus,jobPromise,trackPromise,customerLinkPromise]).then(function(results){
   var emailOk=results[0],jobOk=results[1],trackOk=results[2];
   if(!emailOk&&!jobOk){
     btn.disabled=false;btn.textContent='Send Request';
