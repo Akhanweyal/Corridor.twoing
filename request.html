@@ -78,7 +78,7 @@
 <div class="form-group"><label id="locLabel">Service / Pickup Location *</label><input type="text" id="vehicleLocation" required placeholder="Start typing an address or business name"  autocomplete="off"><div class="help-text" id="locHelp">Where should we meet you?</div><button type="button" class="location-btn" onclick="getCurrentLocation()">Use My Current Location</button></div>
 
 <div class="form-group" id="destGroup"><label>Drop-off Destination *</label><input type="text" id="towDestination" placeholder="Start typing an address or business name" autocomplete="off"><div class="help-text">Required for towing jobs. Pick a suggestion — businesses (e.g. McDonald’s on W Broad St) are shown by name with their street number; homes by address.</div></div>
-<p class="mileage-note">📍 Both mileage figures below — enroute and tow — are calculated automatically from the addresses above. You don't need to measure or look anything up yourself; just confirm the numbers look right.</p>
+<p class="mileage-note">📍 Both enroute and tow mileages — are calculated automatically from the addresses.</p>
 <div id="tripMapWrap" class="trip-map-wrap" style="display:none"><div id="tripMap" class="trip-map"></div><div id="tripMapNote" class="help-text"></div><div class="help-text">🚗 pickup &nbsp;🏠 home drop-off &nbsp;🏢 business drop-off (shown by name)</div></div>
 
 <div class="form-group"><label>Enroute Miles ($2/mile)</label><input type="number" id="req_enroute" step="0.1" min="0" value="0" onchange="calculateTotal()"><div class="help-text">Distance from our shop to your pickup location — filled in automatically.</div></div>
