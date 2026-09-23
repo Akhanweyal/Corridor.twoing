@@ -401,7 +401,26 @@ function initTT(){
     }
   }
 
+  // Marking a job Done first asks for a drop-off photo (rear camera) — the actual status
+  // update happens afterward, in finalizeStatusUpdate, once a photo comes back (or the
+  // driver taps "Skip photo", or the camera itself fails) via finishDropoffPhoto below.
+  // Every other status updates immediately, same as before.
+  var _ttPendingDropoff=null;
   window.driverUpdateStatus=async function(jobId,status){
+    if(status==='done'||status==='dropped_off'){
+      _ttPendingDropoff={jobId:jobId,status:status};
+      openCam('dropoff');
+      return;
+    }
+    await finalizeStatusUpdate(jobId,status,null);
+  };
+  window.finishDropoffPhoto=async function(photoDataUrl){
+    var pending=_ttPendingDropoff;_ttPendingDropoff=null;
+    if(!pending)return;
+    await finalizeStatusUpdate(pending.jobId,pending.status,photoDataUrl);
+  };
+
+  async function finalizeStatusUpdate(jobId,status,dropoffPhoto){
     var payload={status:status,updatedAt:Date.now()};
     var geoExtra=null;
     if(status==='picked_up')payload.pickedUpAt=Date.now();
@@ -418,6 +437,7 @@ function initTT(){
         payload.dropoffAccuracy=pos.coords.accuracy;
         geoExtra={lat:pos.coords.latitude,lng:pos.coords.longitude};
       }catch(geoErr){console.warn('GPS unavailable',geoErr);}
+      if(dropoffPhoto)payload.dropoffPhoto=dropoffPhoto;
     }
     try{
       var patchRes=await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
@@ -427,31 +447,22 @@ function initTT(){
       var job=await jr.json();
       if(job){
         job.id=jobId;
-        syncTracking(job,(status==='done'||status==='dropped_off')?{status:'done',driver:null}:{status:trackStatus(status)});
-        var custEmail=(job.customerEmail||'').trim();
-        if(typeof notifyCustomerStatusEmail==='function'){
-          await notifyCustomerStatusEmail(job,status,geoExtra);
-          if(custEmail)tT('Email sent to customer: '+custEmail,'success');
-          else tT('Status saved — customer has no email on this job','warning');
+        var isDone=(status==='done'||status==='dropped_off');
+        if(isDone){
+          // The customer's tracking link (already sent earlier, and public/unauthenticated)
+          // is what actually shows the drop-off photo — so the photo, time, exact location,
+          // and the receipt/feedback links all get mirrored there, not just the job record.
+          var trackPatch={status:'done',driver:null,dropoffAt:payload.droppedOffAt};
+          if(geoExtra){trackPatch.dropoffLat=geoExtra.lat;trackPatch.dropoffLng=geoExtra.lng;}
+          if(dropoffPhoto)trackPatch.dropoffPhoto=dropoffPhoto;
+          trackPatch.receiptUrl=await buildReceiptUrl(job);
+          if(job.feedbackToken)trackPatch.feedbackUrl='https://corridortowing.org/feedback.html?job='+encodeURIComponent(job.id)+'&t='+encodeURIComponent(job.feedbackToken);
+          syncTracking(job,trackPatch);
+        }else{
+          syncTracking(job,{status:trackStatus(status)});
         }
         if(job.customerPhone){
-          var dName=job.assignedDriverName||'your driver';
-          var dPhone=job.assignedDriverPhone||'(804) 292-8414';
-          var isTowJob=(job.jobType==='tow')||/tow/i.test(job.service||'');
-          var text='';
-          if(status==='enroute')text='Corridor Towing: '+dName+' is en route. Call '+dPhone+' if needed.';
-          if(status==='on_location')text='Corridor Towing: '+dName+' is on location and starting service.';
-          if(status==='picked_up')text='Corridor Towing: Your vehicle has been picked up by '+dName+'.';
-          var fbUrl='https://corridortowing.org/feedback.html?job='+encodeURIComponent(job.id||'')+'&t='+encodeURIComponent(job.feedbackToken||'');
-          var trkUrl=trackUrl(job);
-          if(trkUrl&&(status==='enroute'||status==='on_location'||status==='picked_up'))text+='\nTrack live: '+trkUrl;
-          // "dropped_off" only still appears here for any older job the app itself
-          // no longer creates that status for — "done" is the only completion
-          // status driver actions send now, for both tow and roadside jobs.
-          if(status==='done'||status==='dropped_off'){
-            var rcUrl=await buildReceiptUrl(job); // only needed once the job is finished
-            text=(isTowJob?'Corridor Towing: Your vehicle has been delivered. Thank you!':'Corridor Towing: Your service is complete. Thank you!')+'\nReceipt: '+rcUrl+'\nFeedback: '+fbUrl;
-          }
+          var text=await buildStatusSmsText(job,status,geoExtra);
           if(text){
             setTimeout(function(){
               window.location.href='sms:'+String(job.customerPhone).replace(/\s/g,'')+'?&body='+encodeURIComponent(text);
@@ -463,7 +474,59 @@ function initTT(){
       loadDriverJobs();
       if(typeof loadDashJobsPreview==='function')loadDashJobsPreview();
     }catch(e){console.error(e);tT('Update failed','error');}
-  };
+  }
+
+  // A short, well-shaped text the driver reviews (in their own SMS app) before sending —
+  // never sent silently in the background. Every status this covers gets: company name,
+  // driver name, the status itself, and whichever single timestamp actually matters for
+  // that status (an ETA while en route, an arrival time on location, or the exact drop-off
+  // time once done) — plus one link for more detail (live map while active, or the
+  // drop-off photo/receipt/feedback page once finished).
+  async function buildStatusSmsText(job,status,geoExtra){
+    var dName=job.assignedDriverName||'Your driver';
+    var isTowJob=(job.jobType==='tow')||/tow/i.test(job.service||'');
+    var nowClock=function(){return new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});};
+    var trkUrl=trackUrl(job);
+    var lines=['Corridor Towing'];
+    if(status==='enroute'){
+      lines.push(dName+' — En Route');
+      var eta=await computeEtaClock(job);
+      if(eta)lines.push('ETA: '+eta);
+    }else if(status==='on_location'){
+      lines.push(dName+' — On Location');
+      lines.push('Arrived: '+nowClock());
+    }else if(status==='picked_up'){
+      lines.push(dName+' — Vehicle Picked Up');
+      lines.push('Time: '+nowClock());
+    }else if(status==='done'||status==='dropped_off'){
+      lines.push(dName+' — '+(isTowJob?'Delivered':'Service Complete'));
+      lines.push('Time: '+nowClock());
+      if(geoExtra)lines.push('Location: https://www.google.com/maps?q='+geoExtra.lat+','+geoExtra.lng);
+    }else{
+      return '';
+    }
+    if(trkUrl)lines.push((status==='done'||status==='dropped_off')?('Photo & receipt: '+trkUrl):('Track: '+trkUrl));
+    return lines.join('\n');
+  }
+
+  // A real driving-time estimate from the driver's current position to the pickup address,
+  // plus a flat 5-minute buffer for ordinary traffic — reuses the same OSRM routing already
+  // used for the on-screen map (js/tripmap.js), so this is a real ETA, not a guess. Returns
+  // '' (and the ETA line is simply left out of the text) if GPS or routing isn't available,
+  // rather than ever blocking the driver from sending a status update.
+  async function computeEtaClock(job){
+    try{
+      var pickup=jobPickupPlace(job);
+      if(!pickup)return '';
+      var pos=await new Promise(function(resolve,reject){
+        if(!navigator.geolocation)return reject(new Error('no geo'));
+        navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:8000,maximumAge:20000});
+      });
+      var r=await CTMap.route([{lat:pos.coords.latitude,lng:pos.coords.longitude},pickup]);
+      if(!r||r.seconds==null)return '';
+      return new Date(Date.now()+(r.seconds+300)*1000).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    }catch(e){return '';}
+  }
 
   // Dashboard
   function rD(){
@@ -575,31 +638,47 @@ function initTT(){
   }
 
   // ---- Camera ----
+  // 'checkin'/'checkout' want a front-camera selfie (mirrored, like a mirror) proving the
+  // driver themself is present. 'dropoff' wants the REAR camera pointed at the vehicle, not
+  // mirrored — mirroring a photo of an external object would flip any visible text/plates.
   function openCam(mode){
     ttCM = mode;
+    var isDropoff = mode==='dropoff';
     var te = document.getElementById('tt-cam-type');
-    te.textContent = mode==='checkin' ? 'CHECK IN' : 'CHECK OUT';
-    te.style.color  = mode==='checkin' ? '#10b981' : '#f59e0b';
+    te.textContent = mode==='checkin' ? 'CHECK IN' : (mode==='checkout' ? 'CHECK OUT' : 'DROP-OFF PHOTO');
+    te.style.color  = mode==='checkin' ? '#10b981' : (mode==='checkout' ? '#f59e0b' : '#10b981');
     document.getElementById('tt-cam-dt').textContent = new Date().toLocaleString();
+    var hint=document.getElementById('tt-cam-hint');
+    if(hint)hint.textContent = isDropoff ? 'Take a clear photo of the delivered vehicle' : 'Make sure your face is clearly visible';
+    var vid=document.getElementById('tt-cam-vid');
+    vid.style.transform = isDropoff ? 'none' : 'scaleX(-1)';
+    var skipBtn=document.getElementById('tt-btn-skip-photo');
+    if(skipBtn)skipBtn.style.display = isDropoff ? 'block' : 'none';
     document.getElementById('tt-camov').classList.add('active');
-    navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false})
-      .then(function(s){ ttCS=s; document.getElementById('tt-cam-vid').srcObject=s; })
+    navigator.mediaDevices.getUserMedia({video:{facingMode:isDropoff?{ideal:'environment'}:'user'},audio:false})
+      .then(function(s){ ttCS=s; vid.srcObject=s; })
       .catch(function(e){
         closeCam();
         var m = 'Camera error.';
         if(e.name==='NotAllowedError') m='Camera permission denied. Please allow camera access in your browser settings.';
         else if(e.name==='NotFoundError') m='No camera found on this device.';
         tT(m,'error');
+        // Never let a camera problem block finishing the job — save without a photo instead.
+        if(isDropoff)finishDropoffPhoto(null);
       });
   }
 
   function closeCam(){
     if(ttCS){ ttCS.getTracks().forEach(function(t){t.stop();}); ttCS=null; }
     var vid = document.getElementById('tt-cam-vid');
-    if(vid) vid.srcObject = null;
+    if(vid){ vid.srcObject = null; vid.style.transform='scaleX(-1)'; }
+    var skipBtn=document.getElementById('tt-btn-skip-photo');
+    if(skipBtn)skipBtn.style.display='none';
     document.getElementById('tt-camov').classList.remove('active');
     ttCM = null;
   }
+  // Driver chose not to take a drop-off photo — the job still completes normally.
+  window.skipDropoffPhoto=function(){ closeCam(); finishDropoffPhoto(null); };
 
   function doScreenFlash(){
     // Briefly flash the whole screen white — simulates front flash
@@ -616,21 +695,27 @@ function initTT(){
   function capPhoto(){
     var mode = ttCM;
     if(!mode){ return; }
+    var isDropoff = mode==='dropoff';
     var vid = document.getElementById('tt-cam-vid');
     var cv  = document.getElementById('tt-cam-cv');
     var ctx = cv.getContext('2d');
     var W=480, H=360;
     cv.width=W; cv.height=H;
-    // Mirror selfie horizontally
-    ctx.save();
-    ctx.translate(W,0);
-    ctx.scale(-1,1);
-    ctx.drawImage(vid,0,0,W,H);
-    ctx.restore();
+    if(isDropoff){
+      // Rear-camera shot of the vehicle — drawn as-is, never mirrored.
+      ctx.drawImage(vid,0,0,W,H);
+    }else{
+      // Mirror selfie horizontally
+      ctx.save();
+      ctx.translate(W,0);
+      ctx.scale(-1,1);
+      ctx.drawImage(vid,0,0,W,H);
+      ctx.restore();
+    }
     // Timestamp bar
     var now   = new Date();
-    var label = mode==='checkin' ? '✓ CHECK IN' : '✓ CHECK OUT';
-    var color = mode==='checkin' ? '#10b981' : '#f59e0b';
+    var label = mode==='checkin' ? '✓ CHECK IN' : (mode==='checkout' ? '✓ CHECK OUT' : '✓ DELIVERED');
+    var color = isDropoff ? '#10b981' : (mode==='checkin' ? '#10b981' : '#f59e0b');
     ctx.fillStyle = 'rgba(0,0,0,0.6)';
     ctx.fillRect(0,H-44,W,44);
     ctx.font='bold 13px Arial';
@@ -650,8 +735,12 @@ function initTT(){
     closeCam();
     if(mode==='checkin'){
       openChecklist(pd);
-    }else{
+    }else if(mode==='checkout'){
       finishCheckOut(pd);
+    }else{
+      // A drop-off photo is sent once to the customer via a link (not stored on every device
+      // like check-in/out shift photos), so it's compressed a bit larger/clearer than those.
+      finishDropoffPhoto(compressCanvas(cv,480,360,0.5));
     }
   }
 

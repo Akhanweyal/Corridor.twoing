@@ -145,3 +145,13 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
 .signin-btn{display:flex;align-items:center;gap:6px;background:rgba(255,204,0,.15);border:1.5px solid #ffcc00;color:#ffcc00;padding:8px 16px;border-radius:50px;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .3s;white-space:nowrap;font-family:inherit;text-decoration:none}
 .signin-btn:hover{background:#ffcc00;color:#0b3d91}
 @media(max-width:768px){.signin-btn span.btn-text{display:none}.signin-btn{padding:8px 10px}}
+
+/* ---- tracking page: delivered confirmation card ---- */
+.trk-delivered-photo{width:100%;border-radius:10px;margin:.8rem 0;display:block}
+.trk-delivered-links{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.8rem}
+.trk-delivered-links a{flex:1;min-width:140px;text-align:center;padding:.7rem 1rem;border-radius:10px;font-weight:700;font-size:.85rem;text-decoration:none}
+.trk-delivered-links a.primary{background:#0b3d91;color:#fff}
+.trk-delivered-links a.secondary{background:#fff;border:2px solid #0b3d91;color:#0b3d91}
+
+/* ---- request form: mileage auto-calc clarity note ---- */
+.mileage-note{font-weight:700;color:#0b3d91;background:#e6f3ff;border-radius:8px;padding:.7rem .9rem;margin:.8rem 0;font-size:.9rem;line-height:1.45}

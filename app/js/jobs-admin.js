@@ -65,71 +65,9 @@ function notifyDriverChannels(job,driver,action){
   }
 }
 
-async function notifyCustomerStatusEmail(job,status,extra){
-  var custEmail=(job.customerEmail||job.email||'').trim();
-  if(!custEmail){console.warn('No customer email on job');return Promise.resolve(null);}
-
-  var driverName=job.assignedDriverName||'Your driver';
-  var driverPhone=job.assignedDriverPhone||'(804) 292-8414';
-  var isTow=(job.jobType==='tow')||/tow/i.test(job.service||'');
-  // "dropped_off" is kept as a synonym for "done" here (not something the app
-  // still creates) purely so any older job record that already has that raw
-  // status value still gets a correct, tow-aware label instead of a blank one.
-  var labels=isTow?{
-    enroute:'Driver is en route',
-    picked_up:'Vehicle picked up',
-    dropped_off:'Vehicle delivered',
-    done:'Vehicle delivered'
-  }:{
-    enroute:'Driver is en route',
-    on_location:'Driver is on location',
-    dropped_off:'Service complete',
-    done:'Service complete'
-  };
-  var label=labels[status]||status;
-
-  // Short, clean customer message (only this is emailed — avoids crowded Formspree field dump)
-  var body='Corridor Towing update\n\n'+
-    'Hi '+(job.customerName||'there')+',\n\n'+
-    label+'.\n\n'+
-    'Driver: '+driverName+'\n'+
-    'Driver phone: '+driverPhone+'\n'+
-    'Service: '+(job.service||'')+'\n';
-  if(isTow){
-    if(status==='enroute')body+='\nWe are on the way to pick up your vehicle.\n';
-    else if(status==='picked_up')body+='\nYour vehicle is on the truck and heading to the destination.\n';
-    else if(status==='done'||status==='dropped_off')body+='\nYour vehicle has been delivered. Thank you!\n';
-  }else{
-    if(status==='enroute')body+='\nWe are on the way to your location.\n';
-    else if(status==='on_location')body+='\nOur driver has arrived and is working on your vehicle.\n';
-    else if(status==='done'||status==='dropped_off')body+='\nYour service is complete. Thank you!\n';
-  }
-  if((status==='enroute'||status==='on_location'||status==='picked_up')&&trackUrl(job)){
-    body+='\nTrack your driver live on the map:\n'+trackUrl(job)+'\n';
-  }
-  if((status==='dropped_off'||status==='done')&&job.id){
-    body+='\nYour receipt:\n'+(await buildReceiptUrl(job))+'\n';
-    if(job.feedbackToken){
-      body+='\nRate your experience:\nhttps://corridortowing.org/feedback.html?job='+encodeURIComponent(job.id)+'&t='+encodeURIComponent(job.feedbackToken)+'\n';
-    }
-  }
-  body+='\nCall us: (804) 292-8414\n— Corridor Towing';
-
-  // Only _subject/_replyto/_cc/message are sent. `email` was dropped: Formspree's default
-  // notification template lists every plain field as its own row under "Here's what they had
-  // to say" (that's the "New form submission... Mark as spam... Formspree logo" wrapper the
-  // customer sees), and `email` added one more visible row on top of `message` for no benefit
-  // — `_cc` alone is what actually gets this to the customer's inbox.
-  // NOTE: that outer wrapper itself is Formspree's own branding for this form/plan, not
-  // something this payload controls — see the code comment above formspreeNotify() for where
-  // to change it if a cleaner customer-facing template is wanted.
-  return formspreeNotify({
-    _subject:'Corridor Towing: '+label,
-    _replyto:'corridor.towing.services@gmail.com',
-    _cc:custEmail,
-    message:body
-  });
-}
+// Customer-facing email notifications were tried (Formspree, then EmailJS) and dropped —
+// see driver.js's driverUpdateStatus for the SMS-based replacement, which the driver
+// reviews and sends themselves instead of an email going out automatically.
 
 // Keeps /driverJobs/{uid}/{jobId} in sync with a job's assignment — this index (not the
 // job's own assignedDriverId field) is what database.rules.json actually checks before

@@ -69,6 +69,23 @@
       placeRow(isTow?'🚗':'📍',isTow?'Vehicle pickup':'Service location',rec.pickup)+
       (isTow?placeRow(rec.dest&&rec.dest.kind==='biz'?'🏢':(rec.dest&&rec.dest.kind==='house'?'🏠':'🏁'),'Drop-off'+(rec.dest&&rec.dest.kind==='house'?' (home)':''),rec.dest):'');
 
+    var deliveredEl=document.getElementById('trk-delivered');
+    if((status==='done'||status==='dropped_off')&&rec.dropoffAt){
+      var when=new Date(rec.dropoffAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+      var mapsLink=(rec.dropoffLat!=null&&rec.dropoffLng!=null)?('https://www.google.com/maps?q='+rec.dropoffLat+','+rec.dropoffLng):'';
+      var html='<h2 style="color:#0b3d91;font-size:1.1rem;margin-bottom:.4rem">✓ '+(isTow?'Delivered':'Service Complete')+'</h2>';
+      html+='<p style="font-size:.9rem;color:#555">'+esc(when)+(mapsLink?' · <a href="'+mapsLink+'" target="_blank" rel="noopener" style="color:#0b3d91;font-weight:700">Exact location</a>':'')+'</p>';
+      if(rec.dropoffPhoto)html+='<img class="trk-delivered-photo" src="'+rec.dropoffPhoto+'" alt="Photo at drop-off">';
+      html+='<div class="trk-delivered-links">';
+      if(rec.receiptUrl)html+='<a class="primary" href="'+rec.receiptUrl+'">View Receipt</a>';
+      if(rec.feedbackUrl)html+='<a class="secondary" href="'+rec.feedbackUrl+'">Rate Your Experience</a>';
+      html+='</div>';
+      deliveredEl.innerHTML=html;
+      deliveredEl.style.display='block';
+    }else{
+      deliveredEl.style.display='none';
+    }
+
     if(finished){clearInterval(timer);timer=null;}
   }
   load();

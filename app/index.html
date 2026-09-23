@@ -11,8 +11,7 @@
 <meta name="theme-color" content="#0a0a0a">
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
 <link rel="stylesheet" href="/app/css/app.css">
@@ -498,9 +497,10 @@
     
   </div>
   <div style="display:flex;flex-direction:column;align-items:center;padding-bottom:max(24px,env(safe-area-inset-bottom));padding-top:16px">
-    <p style="font-size:11px;color:#6b6b6b;margin-bottom:12px">Make sure your face is clearly visible</p>
+    <p id="tt-cam-hint" style="font-size:11px;color:#6b6b6b;margin-bottom:12px">Make sure your face is clearly visible</p>
     <button id="tt-btn-cap" onclick="capPhoto()" style="width:80px;height:80px;border-radius:50%;border:5px solid #f59e0b;background:#f59e0b;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .1s;box-shadow:0 0 0 8px rgba(245,158,11,.2);outline:none;" ontouchstart="this.style.transform='scale(0.9)'" ontouchend="this.style.transform='scale(1)'">
     </button>
+    <button id="tt-btn-skip-photo" onclick="skipDropoffPhoto()" style="display:none;margin-top:14px;background:none;border:none;color:#6b6b6b;font-size:12px;text-decoration:underline;cursor:pointer;font-family:'Outfit',sans-serif">Skip photo &amp; finish job</button>
   </div>
 </div>
 
