@@ -62,10 +62,31 @@ var CTMap=(function(){
   function create(el){
     if(typeof el==='string')el=document.getElementById(el);
     injectCss();
+    // iOS Safari treats touch gestures on a map differently from Android Chrome unless the
+    // container explicitly opts out of the page's own scroll/zoom gestures — without this,
+    // a one-finger drag on the map can get captured by Safari's page-scroll/rubber-band
+    // instead of Leaflet's own pan handler, which is the most common cause of a Leaflet map
+    // "working on Android but not really responding right on iPhone." Setting this directly
+    // here (rather than in each page's CSS) covers every map on the site from one place.
+    el.style.touchAction='none';
     var map=L.map(el,{scrollWheelZoom:false}).setView([SHOP.lat,SHOP.lng],11);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
     var layer=L.layerGroup().addTo(map);
     var seq=0,fitted=false;
+
+    // iOS Safari settles layout (address bar collapsing, dynamic viewport height, a card
+    // that just went from display:none to visible) noticeably slower/differently than
+    // Android Chrome — a single fixed-delay invalidateSize() after creation, which is all
+    // this had before, can fire before the container's real size is final on iOS, leaving
+    // the map showing blank/misaligned tiles until the user manually resizes something.
+    // Watching the container's actual size (not just guessing a delay) fixes that on both
+    // platforms and costs nothing once the size stops changing.
+    if(window.ResizeObserver){
+      var ro=new ResizeObserver(function(){map.invalidateSize();});
+      ro.observe(el);
+    }
+    var onOrientationChange=function(){setTimeout(function(){map.invalidateSize();},250);};
+    window.addEventListener('orientationchange',onOrientationChange);
 
     async function setTrip(t,opts){
       opts=opts||{};
@@ -138,7 +159,12 @@ var CTMap=(function(){
       map:map,
       setTrip:setTrip,
       invalidate:function(){map.invalidateSize();},
-      destroy:function(){seq++;map.remove();}
+      destroy:function(){
+        seq++;
+        if(ro)ro.disconnect();
+        window.removeEventListener('orientationchange',onOrientationChange);
+        map.remove();
+      }
     };
   }
 

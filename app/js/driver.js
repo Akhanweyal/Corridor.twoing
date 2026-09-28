@@ -1,5 +1,24 @@
 var initTT_done=false,ttD={driverName:'',records:[]},ttCS=null,ttCM=null,ttDB=null;
 var COMPANY_EMAIL='corridor.towing.services@gmail.com'; // same inbox used everywhere else on the site
+var PAY_METHOD_LABEL={venmo:'Venmo',cashapp:'Cash App',paypal:'PayPal',card:'Card'};
+function drvTag(label,color){return '<span style="display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:'+color+'22;color:'+color+';border:1px solid '+color+'55">'+label+'</span>';}
+// A single high-accuracy GPS attempt is noticeably more likely to time out or fail on iOS
+// Safari than on Android Chrome (iOS is stricter/slower to produce a precise fix, especially
+// indoors or with a weak signal) — retrying once with relaxed accuracy before giving up is
+// what keeps a drop-off/ETA fix working reliably on both platforms instead of just Android.
+function getPositionWithFallback(opts){
+  opts=opts||{};
+  return new Promise(function(resolve,reject){
+    if(!navigator.geolocation)return reject(new Error('no geo'));
+    navigator.geolocation.getCurrentPosition(resolve,function(err){
+      if(opts.enableHighAccuracy){
+        navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:false,timeout:opts.timeout||10000,maximumAge:opts.maximumAge||30000});
+      }else{
+        reject(err);
+      }
+    },opts);
+  });
+}
 
 
 // ---- Firebase ----
@@ -338,8 +357,25 @@ function initTT(){
         html+='<p style="color:#aaa;margin:0"><i class="fas fa-phone" style="width:16px;color:#60a5fa"></i> <a href="tel:'+esc(j.customerPhone||'')+'" style="color:#60a5fa;font-weight:600">'+esc(j.customerPhone||'—')+'</a></p>';
         if(j.customerEmail)html+='<p style="color:#aaa;margin:0"><i class="fas fa-envelope" style="width:16px;color:#6b6b6b"></i> '+esc(j.customerEmail)+'</p>';
         html+='<p style="color:#aaa;margin:0"><i class="fas fa-truck" style="width:16px;color:#f59e0b"></i> '+esc(j.service||'—')+'</p>';
-        html+='<p style="color:#aaa;margin:0"><i class="fas fa-car" style="width:16px;color:#6b6b6b"></i> '+esc(j.vehicle||'—')+'</p>';
-        html+='<p style="color:#aaa;margin:0"><i class="fas fa-dollar-sign" style="width:16px;color:#10b981"></i> $'+(j.amount!=null?Number(j.amount).toFixed(2):'0.00')+'</p>';
+        html+='</div>';
+
+        // Vehicle + payment used to be a single low-contrast line easy to skim past, and
+        // didn't show starts/neutral/attended (whether a driver even needs a flatbed) or
+        // whether the customer chose pay-now vs pay-on-arrival at all — a driver had no way
+        // to know either without opening the manager dashboard. Both now get their own
+        // high-contrast block, same visual weight as the pickup/drop-off address boxes below.
+        html+='<div style="background:#1a1a1a;border-radius:10px;padding:10px 12px;margin-bottom:8px">';
+        html+='<p style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin-bottom:6px">Vehicle</p>';
+        html+='<p style="font-size:16px;color:#f0f0f0;font-weight:800;margin:0 0 8px"><i class="fas fa-car" style="color:#6b6b6b;margin-right:6px"></i>'+esc(j.vehicle||'Not provided')+'</p>';
+        html+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">';
+        html+=drvTag(j.starts==='yes'?'Starts ✓':(j.starts==='no'?'Won\'t Start':'Starts: Not sure'),j.starts==='yes'?'#10b981':(j.starts==='no'?'#ef4444':'#6b6b6b'));
+        if(isTow)html+=drvTag(j.neutral==='yes'?'Neutral OK':(j.neutral==='no'?'Stuck in Park':'Neutral: Not sure'),j.neutral==='yes'?'#10b981':(j.neutral==='no'?'#ef4444':'#6b6b6b'));
+        html+=drvTag(j.attended==='no'?'Unattended':'Attended',j.attended==='no'?'#f59e0b':'#60a5fa');
+        html+='</div>';
+        html+=(j.paymentPref==='pay-now')
+          ?'<span style="display:inline-block;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.4)">PAY NOW SELECTED'+(PAY_METHOD_LABEL[j.payMethod]?' · '+PAY_METHOD_LABEL[j.payMethod]:'')+'</span>'
+          :'<span style="display:inline-block;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(96,165,250,.15);color:#60a5fa;border:1px solid rgba(96,165,250,.4)">PAY ON ARRIVAL</span>';
+        html+='<span style="display:inline-block;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(16,185,129,.1);color:#10b981;margin-left:6px">$'+(j.amount!=null?Number(j.amount).toFixed(2):'0.00')+'</span>';
         html+='</div>';
 
         html+='<div style="background:#1a1a1a;border-radius:10px;padding:10px 12px;margin-bottom:8px">';
@@ -428,10 +464,7 @@ function initTT(){
     if(status==='dropped_off'||status==='done'){
       payload.droppedOffAt=Date.now();
       try{
-        var pos=await new Promise(function(resolve,reject){
-          if(!navigator.geolocation)return reject(new Error('no geo'));
-          navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:12000});
-        });
+        var pos=await getPositionWithFallback({enableHighAccuracy:true,timeout:12000});
         payload.dropoffLat=pos.coords.latitude;
         payload.dropoffLng=pos.coords.longitude;
         payload.dropoffAccuracy=pos.coords.accuracy;
@@ -518,10 +551,7 @@ function initTT(){
     try{
       var pickup=jobPickupPlace(job);
       if(!pickup)return '';
-      var pos=await new Promise(function(resolve,reject){
-        if(!navigator.geolocation)return reject(new Error('no geo'));
-        navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:8000,maximumAge:20000});
-      });
+      var pos=await getPositionWithFallback({enableHighAccuracy:true,timeout:8000,maximumAge:20000});
       var r=await CTMap.route([{lat:pos.coords.latitude,lng:pos.coords.longitude},pickup]);
       if(!r||r.seconds==null)return '';
       return new Date(Date.now()+(r.seconds+300)*1000).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});

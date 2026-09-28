@@ -149,9 +149,26 @@ CTAddr.attach(pickupInput,onLocationsChanged);
 CTAddr.attach(destInput,onLocationsChanged);
 onServiceChange();
 
+// A single high-accuracy GPS attempt is noticeably more likely to time out or fail on iOS
+// Safari than on Android Chrome (iOS is stricter/slower to produce a precise fix) — retrying
+// once with relaxed accuracy before giving up keeps "Use My Current Location" working
+// reliably on both platforms instead of just Android.
+function getPositionWithFallback(opts){
+  opts=opts||{};
+  return new Promise(function(resolve,reject){
+    if(!navigator.geolocation)return reject(new Error('no geo'));
+    navigator.geolocation.getCurrentPosition(resolve,function(err){
+      if(opts.enableHighAccuracy){
+        navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:false,timeout:opts.timeout||10000,maximumAge:opts.maximumAge||30000});
+      }else{
+        reject(err);
+      }
+    },opts);
+  });
+}
 function getCurrentLocation(){
   if(!navigator.geolocation){alert('Not supported.');return;}
-  navigator.geolocation.getCurrentPosition(async function(p){
+  getPositionWithFallback({timeout:10000,enableHighAccuracy:true}).then(async function(p){
     var lat=p.coords.latitude,lng=p.coords.longitude;
     var pl=await CTAddr.reverse(lat,lng);
     if(!pl)pl={lat:lat,lng:lng,kind:'place',name:'',address:'',text:'Lat: '+lat.toFixed(6)+', Lon: '+lng.toFixed(6),title:'My location',sub:''};
@@ -161,7 +178,7 @@ function getCurrentLocation(){
     var m='Location error: ';
     if(e.code===1)m+='Permission denied.';else if(e.code===2)m+='Unavailable.';else m+='Unknown.';
     alert(m);
-  },{timeout:10000,enableHighAccuracy:true});
+  });
 }
 
 // Unguessable token from the browser's CSPRNG (the feedback / tracking links' proof of ownership; Math.random is predictable).
