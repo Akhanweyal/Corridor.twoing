@@ -97,17 +97,44 @@ function renderMgrJobs(){
   filtered.forEach(function(j){
     var color=jobStatusColor(j.status);
     var canManage=j.status==='pending'||isJobActiveStatus(j.status);
-    html+='<div style="background:#141414;border:1px solid #262626;border-left:3px solid '+color+';border-radius:12px;padding:12px 14px">';
-    html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px">';
-    html+='<div style="min-width:0;flex:1"><p style="font-weight:700;font-size:14px;color:#f0f0f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(j.customerName||'Customer')+'</p>';
-    html+='<p style="font-size:11px;color:#6b6b6b;margin-top:2px"><a href="tel:'+esc(j.customerPhone||'')+'" style="color:#60a5fa">'+esc(j.customerPhone||'')+'</a> · '+esc(j.service||'')+'</p></div>';
-    html+='<span style="flex-shrink:0;font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;color:'+color+';border:1px solid '+color+'">'+jobStatusLabel(j.status)+'</span>';
+    var isTow=(j.jobType==='tow')||/tow/i.test(j.service||'');
+    html+='<div style="background:#141414;border:1px solid #262626;border-left:3px solid '+color+';border-radius:12px;padding:14px">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px">';
+    html+='<div style="min-width:0;flex:1"><p style="font-weight:800;font-size:17px;color:#f0f0f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(j.customerName||'Customer')+'</p>';
+    html+='<p style="font-size:12px;color:#aaa;margin-top:2px"><a href="tel:'+esc(j.customerPhone||'')+'" style="color:#60a5fa;font-weight:600">'+esc(j.customerPhone||'')+'</a> · '+esc(j.service||'')+'</p></div>';
+    html+='<span style="flex-shrink:0;font-size:10px;font-weight:800;padding:4px 10px;border-radius:20px;color:'+color+';border:1px solid '+color+'">'+jobStatusLabel(j.status)+'</span>';
     html+='</div>';
-    html+='<p style="font-size:11px;color:#aaa;margin-bottom:2px;line-height:1.35"><i class="fas fa-map-marker-alt" style="color:#f59e0b;width:12px"></i> '+esc(j.pickupAddress||'—')+'</p>';
-    if(j.destinationAddress&&j.destinationAddress!=='N/A')html+='<p style="font-size:11px;color:#aaa;margin-bottom:2px;line-height:1.35"><i class="fas fa-flag-checkered" style="color:#10b981;width:12px"></i> '+esc(j.destinationAddress)+'</p>';
-    html+='<p style="font-size:11px;color:#6b6b6b;margin:4px 0 8px">'+esc(j.vehicle||'—')+' · $'+(j.amount!=null?Number(j.amount).toFixed(2):'0.00');
-    if(j.assignedDriverName)html+=' · <span style="color:#60a5fa">'+esc(j.assignedDriverName)+'</span>';
-    html+='</p>';
+
+    // Vehicle + payment — previously a single small gray line with no payment status at
+    // all (a manager had to open the receipt just to see pay-now vs pay-on-arrival) — now
+    // its own clearly separated, high-contrast box, matching the driver app's job card so
+    // both views show the same information the same way.
+    html+='<div style="background:#1a1a1a;border-radius:10px;padding:10px 12px;margin-bottom:8px">';
+    html+='<p style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin-bottom:6px">Vehicle</p>';
+    html+='<p style="font-size:16px;color:#f0f0f0;font-weight:800;margin:0 0 8px"><i class="fas fa-car" style="color:#6b6b6b;margin-right:6px"></i>'+esc(j.vehicle||'Not provided')+'</p>';
+    html+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">';
+    html+=drvTag(j.starts==='yes'?'Starts ✓':(j.starts==='no'?'Won\'t Start':'Starts: Not sure'),j.starts==='yes'?'#10b981':(j.starts==='no'?'#ef4444':'#6b6b6b'));
+    if(isTow)html+=drvTag(j.neutral==='yes'?'Neutral OK':(j.neutral==='no'?'Stuck in Park':'Neutral: Not sure'),j.neutral==='yes'?'#10b981':(j.neutral==='no'?'#ef4444':'#6b6b6b'));
+    html+=drvTag(j.attended==='no'?'Unattended':'Attended',j.attended==='no'?'#f59e0b':'#60a5fa');
+    html+='</div>';
+    html+=(j.paymentPref==='pay-now')
+      ?'<span style="display:inline-block;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.4)">PAY NOW SELECTED'+(PAY_METHOD_LABEL[j.payMethod]?' · '+PAY_METHOD_LABEL[j.payMethod]:'')+'</span>'
+      :'<span style="display:inline-block;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(96,165,250,.15);color:#60a5fa;border:1px solid rgba(96,165,250,.4)">PAY ON ARRIVAL</span>';
+    html+='<span style="display:inline-block;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(16,185,129,.1);color:#10b981;margin-left:6px">$'+(j.amount!=null?Number(j.amount).toFixed(2):'0.00')+'</span>';
+    if(j.assignedDriverName)html+='<span style="display:inline-block;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(96,165,250,.1);color:#60a5fa;margin-left:6px"><i class="fas fa-id-badge"></i> '+esc(j.assignedDriverName)+'</span>';
+    html+='</div>';
+
+    // Pickup / drop-off — same separated-box treatment instead of two thin lines, so
+    // addresses read at a glance rather than blending into the rest of the card.
+    html+='<div style="background:#1a1a1a;border-radius:10px;padding:10px 12px;margin-bottom:8px">';
+    html+='<p style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin-bottom:3px">'+(isTow?'Pickup':'Service Location')+'</p>';
+    html+='<p style="font-size:13px;color:#f0f0f0;line-height:1.35;margin-bottom:'+((j.destinationAddress&&j.destinationAddress!=='N/A')?'8px':'0')+'"><i class="fas fa-map-marker-alt" style="color:#f59e0b;width:14px"></i> '+esc(j.pickupAddress||'—')+'</p>';
+    if(j.destinationAddress&&j.destinationAddress!=='N/A'){
+      html+='<p style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin-bottom:3px">Drop-off'+(j.destKind==='house'?' · Home':(j.destKind==='biz'?' · Business':''))+'</p>';
+      html+='<p style="font-size:13px;color:#f0f0f0;line-height:1.35"><i class="fas fa-flag-checkered" style="color:#10b981;width:14px"></i> '+esc(j.destinationAddress)+'</p>';
+    }
+    html+='</div>';
+
     if(canManage){
       html+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
       if(j.status==='pending'){
