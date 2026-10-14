@@ -45,6 +45,7 @@ function openPayStub(name){
   document.getElementById('ps-paydate').value=mgr_dK(Date.now());
   document.getElementById('ps-ein').value=ps_store('ein')||'';
   document.getElementById('ps-legal').value=ps_store('legal')||'';
+  document.getElementById('ps-signer').value=ps_store('signer')||'';
   ps_loadDriver();
   document.getElementById('mgr-paystub-modal').classList.add('active');
 }
@@ -120,6 +121,7 @@ function generatePayStub(){
   ps_store('drv_'+name,{rate:rate,addr:info.addr,emptype:info.emptype,method:info.method});
   ps_store('ein',ein);
   var legal=document.getElementById('ps-legal').value.trim();ps_store('legal',legal);
+  var signer=document.getElementById('ps-signer').value.trim();ps_store('signer',signer);
   var checkNo=document.getElementById('ps-checkno').value.trim();
   var pd=document.getElementById('ps-paydate').value.split('-');
   var payDate=pd.length===3?mgr_fD(new Date(+pd[0],+pd[1]-1,+pd[2]).getTime()):'';
@@ -135,6 +137,8 @@ function generatePayStub(){
   }).join('');
 
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pay Stub - '+esc(name)+' - '+esc(p.label)+'</title>'+
+  '<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet">'+
+  '<scr'+'ipt src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></scr'+'ipt>'+
   '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;color:#111;background:#eee;padding:20px;font-size:12px}'+
   '.page{background:#fff;max-width:8.5in;margin:0 auto;padding:.5in;box-shadow:0 2px 10px rgba(0,0,0,.15)}'+
   '.hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #d97706;padding-bottom:14px;margin-bottom:16px;gap:16px}'+
@@ -145,10 +149,16 @@ function generatePayStub(){
   'table{width:100%;border-collapse:collapse;margin-bottom:16px}th{background:#f3f3f3;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em;padding:6px 8px;border-bottom:1px solid #ccc}'+
   'td{padding:6px 8px;border-bottom:1px solid #eee}.r{text-align:right}.muted{color:#888}tfoot td{font-weight:bold;border-top:1px solid #999}'+
   '.net{display:flex;justify-content:space-between;align-items:center;background:#fff7ed;border:2px solid #d97706;border-radius:6px;padding:12px 16px;margin-bottom:16px}.net b{font-size:22px}'+
-  '.foot{font-size:10px;color:#666;border-top:1px solid #ddd;padding-top:10px;line-height:1.5}.sig{display:flex;gap:40px;margin-top:28px}.sig div{flex:1;border-top:1px solid #333;padding-top:4px;font-size:10px;color:#555}'+
+  '.foot{font-size:10px;color:#666;border-top:1px solid #ddd;padding-top:10px;line-height:1.5}.sig{display:flex;gap:40px;margin-top:22px;align-items:flex-start}.sf{flex:1}.sf.dt{flex:.55}'+
+  '.sigbox{height:56px;display:flex;align-items:flex-end;position:relative}.ln{border-top:1px solid #333;padding-top:4px;font-size:10px;color:#555}'+
+  '.sigin,.din{width:100%;border:none;border-bottom:1px dashed #d97706;background:#fffbeb;outline:none;padding:2px 4px;color:#111}'+
+  '.sigin{font-family:"Dancing Script",cursive;font-size:30px;height:52px}.din{font-size:14px;height:30px}'+
+  '#sig-pad{display:none;width:100%;height:56px;background:#fffbeb;border-bottom:1px dashed #d97706;touch-action:none;cursor:crosshair}'+
+  '.tools{display:flex;gap:6px;margin-top:6px}.tools button{padding:4px 10px;border:1px solid #ccc;border-radius:5px;background:#fff;cursor:pointer;font-size:11px}.tools button.on{background:#d97706;color:#fff;border-color:#d97706}'+
   '.bar{max-width:8.5in;margin:0 auto 12px;display:flex;gap:8px}.bar button{padding:10px 18px;border:none;border-radius:6px;background:#d97706;color:#fff;font-weight:bold;cursor:pointer;font-size:14px}'+
-  '@media print{body{background:#fff;padding:0}.page{box-shadow:none;padding:.4in}.bar{display:none}}</style></head><body>'+
-  '<div class="bar"><button onclick="window.print()">Print / Save as PDF</button></div>'+
+  '@media print{body{background:#fff;padding:0}.page{box-shadow:none;padding:.4in}.bar,.tools{display:none}.sigin,.din,#sig-pad{background:none;border-bottom:none}.sigin::placeholder,.din::placeholder{color:transparent}}'+
+  '.pdf .tools{display:none}.pdf .sigin,.pdf .din,.pdf #sig-pad{background:none;border-bottom:none}.pdf .page{box-shadow:none}</style></head><body>'+
+  '<div class="bar"><button id="dl-btn">Download PDF</button><button id="print-btn" style="background:#555">Print</button><span style="align-self:center;color:#555">Sign below first: type your name or draw it.</span></div>'+
   '<div class="page">'+
   '<div class="hdr"><div class="co"><img src="'+logo+'" onerror="this.style.display=\'none\'"><div><h1>'+esc(C.name)+'</h1><p>'+esc(C.address)+'<br>'+esc(C.city)+'<br>'+esc(C.phone)+' · '+esc(C.email)+(legal?'<br>Legal name: '+esc(legal):'')+(ein?'<br>EIN: '+esc(ein):'')+'</p></div></div>'+
   '<div class="ttl"><h2>'+(contractor?'CONTRACTOR PAYMENT STATEMENT':'EARNINGS STATEMENT')+'</h2><p>Stub #: '+esc(stubNo)+'<br>Pay Date: <b>'+esc(payDate)+'</b><br>Pay Period: '+esc(p.label)+'</p></div></div>'+
@@ -163,13 +173,54 @@ function generatePayStub(){
   '</tbody><tfoot><tr><td>Total Deductions</td><td class="r">'+ps_money(totalDed)+'</td><td class="r">'+ps_money(ytdDed)+'</td></tr></tfoot></table>')+
   '<div class="net"><span style="font-size:14px;font-weight:bold">NET PAY</span><b>'+ps_money(net)+'</b><span class="muted">YTD Net: '+ps_money(ytdGross-ytdDed)+'</span></div>'+
   (shiftRows?'<p class="sec">Hours Worked This Period</p><table><thead><tr><th>Date</th><th>Clock In</th><th>Clock Out</th><th class="r">Hours</th></tr></thead><tbody>'+shiftRows+'</tbody><tfoot><tr><td colspan="3">Total</td><td class="r">'+ps_hours(shifts).toFixed(2)+'</td></tr></tfoot></table>':'')+
-  '<div class="sig"><div>Authorized Signature — '+esc(C.name)+'</div><div>Date</div></div>'+
+  '<div class="sig"><div class="sf"><div class="sigbox"><input id="sig-typed" class="sigin" placeholder="Type your name to sign" value="'+esc(signer)+'"><canvas id="sig-pad"></canvas></div>'+
+  '<div class="ln">Authorized Signature — '+esc(C.name)+'</div>'+
+  '<div class="tools"><button class="on" data-m="type">Type</button><button data-m="draw">Draw</button><button id="sig-clear">Clear</button></div></div>'+
+  '<div class="sf dt"><div class="sigbox"><input id="sig-date" class="din" placeholder="Date" value="'+esc(payDate)+'"></div><div class="ln">Date</div></div></div>'+
   '<p class="foot" style="margin-top:16px">This statement reflects '+(contractor?'payments made':'wages paid')+' by '+esc(C.name)+' for the period shown. For employment or income verification, contact '+esc(C.phone)+' or '+esc(C.email)+'. Generated '+esc(new Date().toLocaleDateString('en-US'))+'.</p>'+
-  '</div></body></html>';
+  '</div><scr'+'ipt>var PDF_NAME='+JSON.stringify(('PayStub_'+name+'_'+p.key).replace(/[^A-Za-z0-9_-]+/g,'_')+'.pdf')+';('+ps_sigScript.toString()+')();</scr'+'ipt></body></html>';
 
   var w=window.open('','_blank');
   if(!w){alert('Pop-up blocked — allow pop-ups for this site to open the pay stub.');return;}
   w.document.open();w.document.write(html);w.document.close();
+}
+
+// Runs inside the opened stub page (embedded via toString): type-or-draw signature + editable
+// date, so the stub can be signed before Print → Save as PDF.
+function ps_sigScript(){
+  var typed=document.getElementById('sig-typed'),pad=document.getElementById('sig-pad'),ctx=pad.getContext('2d');
+  var mode='type',drawn=false,down=false;
+  function sizePad(){var r=pad.getBoundingClientRect(),d=window.devicePixelRatio||1;pad.width=r.width*d;pad.height=r.height*d;ctx.scale(d,d);ctx.lineWidth=2.2;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#111';drawn=false;}
+  function pt(e){var r=pad.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}
+  pad.addEventListener('pointerdown',function(e){down=true;pad.setPointerCapture(e.pointerId);var p=pt(e);ctx.beginPath();ctx.moveTo(p.x,p.y);});
+  pad.addEventListener('pointermove',function(e){if(!down)return;var p=pt(e);ctx.lineTo(p.x,p.y);ctx.stroke();drawn=true;});
+  pad.addEventListener('pointerup',function(){down=false;});
+  document.querySelectorAll('.tools [data-m]').forEach(function(b){b.addEventListener('click',function(){
+    mode=b.getAttribute('data-m');
+    document.querySelectorAll('.tools [data-m]').forEach(function(x){x.classList.toggle('on',x===b);});
+    typed.style.display=mode==='type'?'':'none';pad.style.display=mode==='draw'?'block':'none';
+    if(mode==='draw')sizePad();else typed.focus();
+  });});
+  document.getElementById('sig-clear').addEventListener('click',function(){if(mode==='draw')sizePad();else{typed.value='';typed.focus();}});
+  function okToExport(){var signed=mode==='draw'?drawn:typed.value.trim()!=='';return signed||confirm('This stub is not signed yet. Continue anyway?');}
+  document.getElementById('print-btn').addEventListener('click',function(){if(okToExport())window.print();});
+  // Saves a PDF file directly (html2pdf). Inputs are swapped for plain text while capturing so
+  // the typed signature/date come out exactly as shown, then restored so they stay editable.
+  document.getElementById('dl-btn').addEventListener('click',function(){
+    if(!okToExport())return;
+    if(typeof html2pdf==='undefined'){alert('PDF tool is still loading. Try again in a moment, or use Print.');return;}
+    var btn=this,swaps=[];btn.disabled=true;btn.textContent='Creating PDF...';
+    document.body.classList.add('pdf');
+    [typed,document.getElementById('sig-date')].forEach(function(inp){
+      if(inp.style.display==='none')return;
+      var sp=document.createElement('div');sp.className=inp.className;sp.textContent=inp.value;
+      sp.style.cssText='display:flex;align-items:flex-end;white-space:nowrap';
+      inp.parentNode.insertBefore(sp,inp);inp.style.display='none';swaps.push([inp,sp]);
+    });
+    function done(){swaps.forEach(function(s){s[1].remove();s[0].style.display='';});document.body.classList.remove('pdf');btn.disabled=false;btn.textContent='Download PDF';}
+    html2pdf().set({margin:0,filename:PDF_NAME,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'in',format:'letter',orientation:'portrait'}})
+      .from(document.querySelector('.page')).save().then(done,function(e){done();alert('Could not create the PDF ('+e+'). Use Print instead.');});
+  });
 }
 
 ['ps-rate','ps-hours','ps-other'].forEach(function(id){document.getElementById(id).addEventListener('input',ps_recalc);});
