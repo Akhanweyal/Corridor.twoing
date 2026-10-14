@@ -44,6 +44,7 @@ function openPayStub(name){
   pSel.value=periods[1].key;
   document.getElementById('ps-paydate').value=mgr_dK(Date.now());
   document.getElementById('ps-ein').value=ps_store('ein')||'';
+  document.getElementById('ps-legal').value=ps_store('legal')||'';
   ps_loadDriver();
   document.getElementById('mgr-paystub-modal').classList.add('active');
 }
@@ -54,7 +55,7 @@ function ps_loadDriver(){
   var saved=ps_store('drv_'+name)||{};
   document.getElementById('ps-rate').value=saved.rate||'';
   document.getElementById('ps-addr').value=saved.addr||'';
-  document.getElementById('ps-emptype').value=saved.emptype||'Part-Time';
+  document.getElementById('ps-emptype').value=saved.emptype||'1099 Contractor';
   document.getElementById('ps-method').value=saved.method||'Check';
   ps_loadHours();
 }
@@ -62,20 +63,26 @@ function ps_period(){
   var key=document.getElementById('ps-period').value;
   return ps_periods().filter(function(p){return p.key===key;})[0];
 }
+// Drivers don't always clock in, so the hours box is editable. YTD hours = logged hours from
+// Jan 1 up to this period + whatever is in the hours box, until the manager types their own YTD.
+var ps_priorHrs=0,ps_ytdTouched=false;
+function ps_isContractor(){return document.getElementById('ps-emptype').value==='1099 Contractor';}
 function ps_loadHours(){
   var name=document.getElementById('ps-driver').value,p=ps_period();
-  var hrs=ps_hours(ps_shifts(name,p.s,p.e));
+  var shifts=ps_shifts(name,p.s,p.e),hrs=ps_hours(shifts);
+  ps_priorHrs=ps_hours(ps_shifts(name,new Date(p.s.getFullYear(),0,1),new Date(p.s.getTime()-1)));
+  ps_ytdTouched=false;
   document.getElementById('ps-hours').value=hrs;
-  document.getElementById('ps-hours-note').textContent='From time logs: '+hrs+' hrs over '+ps_shifts(name,p.s,p.e).length+' shift(s)';
-  // YTD gross = all logged hours Jan 1 → period end × current rate (editable)
-  var ytdHrs=ps_hours(ps_shifts(name,new Date(p.e.getFullYear(),0,1),p.e));
-  document.getElementById('ps-ytd-hours').value=ytdHrs;
+  document.getElementById('ps-hours-note').textContent='From time logs: '+hrs+' hrs over '+shifts.length+' shift(s). Change it if they did not clock in.';
   ps_recalc();
 }
 function ps_recalc(){
   var rate=ps_num('ps-rate'),gross=ps_round(ps_num('ps-hours')*rate+ps_num('ps-other'));
-  document.getElementById('ps-ss').value=(gross*SS_RATE).toFixed(2);
-  document.getElementById('ps-medicare').value=(gross*MEDICARE_RATE).toFixed(2);
+  var c=ps_isContractor();
+  document.getElementById('ps-ss').value=c?'0.00':(gross*SS_RATE).toFixed(2);
+  document.getElementById('ps-medicare').value=c?'0.00':(gross*MEDICARE_RATE).toFixed(2);
+  document.getElementById('ps-ded-wrap').style.display=c?'none':'flex';
+  if(!ps_ytdTouched)document.getElementById('ps-ytd-hours').value=ps_round(ps_priorHrs+ps_num('ps-hours'));
   document.getElementById('ps-gross-preview').textContent=ps_money(gross);
 }
 
@@ -83,6 +90,9 @@ function generatePayStub(){
   var name=document.getElementById('ps-driver').value,p=ps_period();
   var rate=ps_num('ps-rate');
   if(!rate){alert('Enter the hourly rate.');return;}
+  var ein=document.getElementById('ps-ein').value.trim();
+  if(ein&&!/^\d{2}-?\d{7}$/.test(ein)){alert('EIN should be 9 digits like 12-3456789. Put the business legal name in the "Legal business name" box instead.');return;}
+  var contractor=ps_isContractor();
   var hours=ps_num('ps-hours'),other=ps_num('ps-other');
   var gross=ps_round(hours*rate+other);
   var ded=[
@@ -94,17 +104,22 @@ function generatePayStub(){
   ];
   var totalDed=ps_round(ded.reduce(function(a,d){return a+d.v;},0));
   var net=ps_round(gross-totalDed);
-  var ytdHours=ps_num('ps-ytd-hours'),ytdOther=ps_num('ps-ytd-other');
+  if(contractor)ded=[];
+  var ytdHours=Math.max(ps_num('ps-ytd-hours'),hours),ytdOther=ps_num('ps-ytd-other');
   var ytdGross=ps_round(ytdHours*rate+Math.max(ytdOther,other));
   // SS/Medicare are flat rates so their YTD is exact; other YTD fields default to this period's amount
-  ded[2].ytd=ytdGross*SS_RATE;ded[3].ytd=ytdGross*MEDICARE_RATE;
+  if(!contractor){ded[2].ytd=ded[2].v?ytdGross*SS_RATE:0;ded[3].ytd=ded[3].v?ytdGross*MEDICARE_RATE:0;}
   ded.forEach(function(d){if(!d.ytd||d.ytd<d.v)d.ytd=d.v;});
   var ytdDed=ps_round(ded.reduce(function(a,d){return a+d.ytd;},0));
   var shifts=ps_shifts(name,p.s,p.e);
+  // Only list shifts when they back up the hours paid; a short list next to manually entered
+  // hours would just raise questions for whoever is verifying income
+  if(Math.abs(hours-ps_hours(shifts))>0.01)shifts=[];
 
   var info={addr:document.getElementById('ps-addr').value.trim(),emptype:document.getElementById('ps-emptype').value,method:document.getElementById('ps-method').value};
   ps_store('drv_'+name,{rate:rate,addr:info.addr,emptype:info.emptype,method:info.method});
-  var ein=document.getElementById('ps-ein').value.trim();ps_store('ein',ein);
+  ps_store('ein',ein);
+  var legal=document.getElementById('ps-legal').value.trim();ps_store('legal',legal);
   var checkNo=document.getElementById('ps-checkno').value.trim();
   var pd=document.getElementById('ps-paydate').value.split('-');
   var payDate=pd.length===3?mgr_fD(new Date(+pd[0],+pd[1]-1,+pd[2]).getTime()):'';
@@ -135,20 +150,21 @@ function generatePayStub(){
   '@media print{body{background:#fff;padding:0}.page{box-shadow:none;padding:.4in}.bar{display:none}}</style></head><body>'+
   '<div class="bar"><button onclick="window.print()">Print / Save as PDF</button></div>'+
   '<div class="page">'+
-  '<div class="hdr"><div class="co"><img src="'+logo+'" onerror="this.style.display=\'none\'"><div><h1>'+esc(C.name)+'</h1><p>'+esc(C.address)+'<br>'+esc(C.city)+'<br>'+esc(C.phone)+' · '+esc(C.email)+(ein?'<br>EIN: '+esc(ein):'')+'</p></div></div>'+
-  '<div class="ttl"><h2>EARNINGS STATEMENT</h2><p>Stub #: '+esc(stubNo)+'<br>Pay Date: <b>'+esc(payDate)+'</b><br>Pay Period: '+esc(p.label)+'</p></div></div>'+
-  '<div class="grid"><div class="box"><h3>Employee</h3><p style="font-size:14px;font-weight:bold;margin-bottom:4px">'+esc(name)+'</p><p style="white-space:pre-line;color:#333">'+esc(info.addr)+'</p></div>'+
-  '<div class="box"><h3>Pay Details</h3><div class="kv"><span>Employment Type</span><span>'+esc(info.emptype)+'</span></div><div class="kv"><span>Position</span><span>Tow Truck Driver</span></div><div class="kv"><span>Pay Frequency</span><span>Semi-Monthly</span></div><div class="kv"><span>Payment Method</span><span>'+esc(info.method)+(checkNo?' #'+esc(checkNo):'')+'</span></div></div></div>'+
+  '<div class="hdr"><div class="co"><img src="'+logo+'" onerror="this.style.display=\'none\'"><div><h1>'+esc(C.name)+'</h1><p>'+esc(C.address)+'<br>'+esc(C.city)+'<br>'+esc(C.phone)+' · '+esc(C.email)+(legal?'<br>Legal name: '+esc(legal):'')+(ein?'<br>EIN: '+esc(ein):'')+'</p></div></div>'+
+  '<div class="ttl"><h2>'+(contractor?'CONTRACTOR PAYMENT STATEMENT':'EARNINGS STATEMENT')+'</h2><p>Stub #: '+esc(stubNo)+'<br>Pay Date: <b>'+esc(payDate)+'</b><br>Pay Period: '+esc(p.label)+'</p></div></div>'+
+  '<div class="grid"><div class="box"><h3>'+(contractor?'Contractor':'Employee')+'</h3><p style="font-size:14px;font-weight:bold;margin-bottom:4px">'+esc(name)+'</p><p style="white-space:pre-line;color:#333">'+esc(info.addr)+'</p></div>'+
+  '<div class="box"><h3>Pay Details</h3><div class="kv"><span>'+(contractor?'Worker Type':'Employment Type')+'</span><span>'+(contractor?'Independent Contractor (1099)':esc(info.emptype))+'</span></div><div class="kv"><span>Position</span><span>Tow Truck Driver</span></div><div class="kv"><span>Pay Frequency</span><span>Semi-Monthly</span></div><div class="kv"><span>Payment Method</span><span>'+esc(info.method)+(checkNo?' #'+esc(checkNo):'')+'</span></div></div></div>'+
   '<p class="sec">Earnings</p><table><thead><tr><th>Description</th><th class="r">Rate</th><th class="r">Hours</th><th class="r">Current</th><th class="r">Year to Date</th></tr></thead><tbody>'+
   '<tr><td>Regular Pay</td><td class="r">'+ps_money(rate)+'</td><td class="r">'+hours.toFixed(2)+'</td><td class="r">'+ps_money(hours*rate)+'</td><td class="r">'+ps_money(ytdHours*rate)+'</td></tr>'+
   (other||ytdOther?'<tr><td>Other Earnings</td><td></td><td></td><td class="r">'+ps_money(other)+'</td><td class="r">'+ps_money(Math.max(ytdOther,other))+'</td></tr>':'')+
   '</tbody><tfoot><tr><td>Gross Pay</td><td></td><td class="r">'+hours.toFixed(2)+'</td><td class="r">'+ps_money(gross)+'</td><td class="r">'+ps_money(ytdGross)+'</td></tr></tfoot></table>'+
+  (contractor?'<p class="box" style="margin-bottom:16px">No taxes withheld. Paid as an independent contractor; earnings are reported on Form 1099-NEC.</p>':
   '<p class="sec">Deductions</p><table><thead><tr><th>Description</th><th class="r">Current</th><th class="r">Year to Date</th></tr></thead><tbody>'+dedRows+
-  '</tbody><tfoot><tr><td>Total Deductions</td><td class="r">'+ps_money(totalDed)+'</td><td class="r">'+ps_money(ytdDed)+'</td></tr></tfoot></table>'+
+  '</tbody><tfoot><tr><td>Total Deductions</td><td class="r">'+ps_money(totalDed)+'</td><td class="r">'+ps_money(ytdDed)+'</td></tr></tfoot></table>')+
   '<div class="net"><span style="font-size:14px;font-weight:bold">NET PAY</span><b>'+ps_money(net)+'</b><span class="muted">YTD Net: '+ps_money(ytdGross-ytdDed)+'</span></div>'+
   (shiftRows?'<p class="sec">Hours Worked This Period</p><table><thead><tr><th>Date</th><th>Clock In</th><th>Clock Out</th><th class="r">Hours</th></tr></thead><tbody>'+shiftRows+'</tbody><tfoot><tr><td colspan="3">Total</td><td class="r">'+ps_hours(shifts).toFixed(2)+'</td></tr></tfoot></table>':'')+
   '<div class="sig"><div>Authorized Signature — '+esc(C.name)+'</div><div>Date</div></div>'+
-  '<p class="foot" style="margin-top:16px">This statement reflects wages paid by '+esc(C.name)+' for the period shown. For employment or income verification, contact '+esc(C.phone)+' or '+esc(C.email)+'. Generated '+esc(new Date().toLocaleDateString('en-US'))+'.</p>'+
+  '<p class="foot" style="margin-top:16px">This statement reflects '+(contractor?'payments made':'wages paid')+' by '+esc(C.name)+' for the period shown. For employment or income verification, contact '+esc(C.phone)+' or '+esc(C.email)+'. Generated '+esc(new Date().toLocaleDateString('en-US'))+'.</p>'+
   '</div></body></html>';
 
   var w=window.open('','_blank');
@@ -157,6 +173,8 @@ function generatePayStub(){
 }
 
 ['ps-rate','ps-hours','ps-other'].forEach(function(id){document.getElementById(id).addEventListener('input',ps_recalc);});
+document.getElementById('ps-emptype').addEventListener('change',ps_recalc);
+document.getElementById('ps-ytd-hours').addEventListener('input',function(){ps_ytdTouched=true;});
 document.getElementById('ps-driver').addEventListener('change',ps_loadDriver);
 document.getElementById('ps-period').addEventListener('change',ps_loadHours);
 document.getElementById('ps-btn-generate').addEventListener('click',generatePayStub);

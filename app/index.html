@@ -633,22 +633,25 @@
       <p id="ps-hours-note" style="font-size:11px;color:#6b6b6b;margin-top:-4px"></p>
       <p style="font-size:13px">Gross pay: <strong id="ps-gross-preview" style="color:#f59e0b;font-family:'JetBrains Mono',monospace">$0.00</strong></p>
 
+      <select id="ps-emptype" class="tt-inp"><option>1099 Contractor</option><option>Part-Time</option><option>Full-Time</option></select>
+      <div id="ps-ded-wrap" style="display:flex;flex-direction:column;gap:10px">
       <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6b6b6b;margin-top:4px">Deductions (this period)</p>
       <div style="display:flex;gap:8px"><label style="flex:1;font-size:11px;color:#6b6b6b">Federal tax<input id="ps-fed" class="tt-inp" type="number" step="0.01" min="0" placeholder="0.00"></label><label style="flex:1;font-size:11px;color:#6b6b6b">VA state tax<input id="ps-state" class="tt-inp" type="number" step="0.01" min="0" placeholder="0.00"></label></div>
       <div style="display:flex;gap:8px"><label style="flex:1;font-size:11px;color:#6b6b6b">Social Security 6.2%<input id="ps-ss" class="tt-inp" type="number" step="0.01" min="0"></label><label style="flex:1;font-size:11px;color:#6b6b6b">Medicare 1.45%<input id="ps-medicare" class="tt-inp" type="number" step="0.01" min="0"></label></div>
       <div style="display:flex;gap:8px"><input id="ps-other-ded-lbl" class="tt-inp" placeholder="Other deduction name" style="flex:1"><input id="ps-other-ded" class="tt-inp" type="number" step="0.01" min="0" placeholder="0.00" style="flex:1"></div>
 
-      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6b6b6b;margin-top:4px">Year to date (leave blank to use this period)</p>
-      <div style="display:flex;gap:8px"><label style="flex:1;font-size:11px;color:#6b6b6b">YTD hours<input id="ps-ytd-hours" class="tt-inp" type="number" step="0.01" min="0"></label><label style="flex:1;font-size:11px;color:#6b6b6b">YTD bonus/other<input id="ps-ytd-other" class="tt-inp" type="number" step="0.01" min="0"></label></div>
       <div style="display:flex;gap:8px"><label style="flex:1;font-size:11px;color:#6b6b6b">YTD federal<input id="ps-ytd-fed" class="tt-inp" type="number" step="0.01" min="0"></label><label style="flex:1;font-size:11px;color:#6b6b6b">YTD state<input id="ps-ytd-state" class="tt-inp" type="number" step="0.01" min="0"></label><label style="flex:1;font-size:11px;color:#6b6b6b">YTD other<input id="ps-ytd-other-ded" class="tt-inp" type="number" step="0.01" min="0"></label></div>
+      </div>
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6b6b6b;margin-top:4px">Year to date (all of this year, including this period)</p>
+      <div style="display:flex;gap:8px"><label style="flex:1;font-size:11px;color:#6b6b6b">YTD hours<input id="ps-ytd-hours" class="tt-inp" type="number" step="0.01" min="0"></label><label style="flex:1;font-size:11px;color:#6b6b6b">YTD bonus/other<input id="ps-ytd-other" class="tt-inp" type="number" step="0.01" min="0"></label></div>
 
       <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6b6b6b;margin-top:4px">Details</p>
       <textarea id="ps-addr" class="tt-inp" rows="2" placeholder="Driver mailing address (optional)"></textarea>
       <div style="display:flex;gap:8px">
-        <select id="ps-emptype" class="tt-inp" style="flex:1"><option>Part-Time</option><option>Full-Time</option></select>
         <select id="ps-method" class="tt-inp" style="flex:1"><option>Check</option><option>Direct Deposit</option><option>Cash</option><option>Zelle</option></select>
       </div>
-      <div style="display:flex;gap:8px"><input id="ps-checkno" class="tt-inp" placeholder="Check # (optional)" style="flex:1"><input id="ps-ein" class="tt-inp" placeholder="Company EIN (optional)" style="flex:1"></div>
+      <div style="display:flex;gap:8px"><input id="ps-checkno" class="tt-inp" placeholder="Check # (optional)" style="flex:1"><input id="ps-ein" class="tt-inp" placeholder="EIN e.g. 12-3456789" style="flex:1"></div>
+      <input id="ps-legal" class="tt-inp" placeholder="Legal business name (optional)">
       <button id="ps-btn-generate" style="padding:13px;border:none;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#ea580c);color:#000;font-family:'Outfit',sans-serif"><i class="fas fa-file-invoice-dollar"></i> Generate Pay Stub</button>
       <button onclick="document.getElementById('mgr-paystub-modal').classList.remove('active')" style="width:100%;padding:11px;border-radius:10px;font-weight:600;font-size:13px;background:transparent;border:1px solid #262626;color:#6b6b6b;cursor:pointer;font-family:'Outfit',sans-serif">Close</button>
     </div>
