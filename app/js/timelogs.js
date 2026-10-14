@@ -94,6 +94,7 @@ function renderMgrDash(){
       cardHtml+='<p style="font-size:10px;color:#6b6b6b;margin-top:2px">'+mm.h2Days+' shift'+(mm.h2Days!==1?'s':'')+'</p>';
       cardHtml+='</div>';
       cardHtml+='</div>';
+      cardHtml+='<button data-paystub="'+esc(name)+'" style="margin-top:8px;width:100%;padding:8px;border:1px solid rgba(245,158,11,.3);border-radius:8px;background:rgba(245,158,11,.1);color:#f59e0b;font-weight:600;font-size:12px;cursor:pointer;font-family:inherit"><i class="fas fa-file-invoice-dollar"></i> Pay Stub</button>';
       cardHtml+='</div>';
     });
   }
