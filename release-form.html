@@ -25,6 +25,7 @@
   .row:last-of-type{border-bottom:none}
   .row .k{color:#6b6b6b}
   .row .v{text-align:right;font-weight:600}
+  .print-only{display:none}
   .blank{display:inline-block;min-width:150px;height:1.1em;border-bottom:1.5px solid #555;vertical-align:bottom}
   .line{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;font-family:'JetBrains Mono',monospace}
   .line .lbl{font-family:'Outfit',sans-serif;color:#aaa}
@@ -66,6 +67,7 @@
     .wrap{max-width:100%;width:100%}
     .card{background:#fff;border:none;border-radius:0;padding:0;margin-bottom:0}
     .no-print{display:none}
+    .print-only{display:block}
     .row,.line{border-color:#ddd}
     .blank{border-color:#000}
     .section-title{color:#555}
@@ -190,13 +192,13 @@
       var res=await fetch('https://corridortowing-default-rtdb.firebaseio.com/releaseForms/'+encodeURIComponent(shortId)+'.json');
       if(res.ok){
         var data=await res.json();
-        if(data&&data.veh)d=data;
+        if(data&&(data.veh||data.simple))d=data;
       }
     }catch(e){/* fall through to error state below */}
   }else if(raw){
     try{d=JSON.parse(b64urlDecode(raw));}catch(e){d=null;}
   }
-  if(!d||!d.veh){
+  if(!d||!(d.veh||d.simple)){ // Other Company forms may be printed blank (no vehicle yet)
     document.getElementById('err').style.display='block';
     return;
   }
@@ -328,7 +330,10 @@
   }
 
   function renderSignaturePad(){
+    // On paper the unsigned pad prints as a plain line to sign by hand
     sigBlock.innerHTML=
+      '<div class="print-only"><div class="sig-line"></div><p class="sig-label">Signature of person receiving vehicle · Date</p></div>'+
+      '<div class="no-print">'+
       '<p class="sig-err" id="sig-err"></p>'+
       '<div class="sigpad-tabs">'+
         '<button type="button" class="sigpad-tab on" id="sig-tab-draw">Draw</button>'+
@@ -345,7 +350,8 @@
         '<button type="button" class="sigpad-btn clear" id="sig-clear-btn">Clear</button>'+
         '<button type="button" class="sigpad-btn confirm" id="sig-confirm-btn">Confirm &amp; Sign</button>'+
       '</div>'+
-      '<p class="sig-label" style="margin-top:8px">Signature of person receiving vehicle</p>';
+      '<p class="sig-label" style="margin-top:8px">Signature of person receiving vehicle</p>'+
+      '</div>';
 
     var mode='draw';
     var canvas=document.getElementById('sig-canvas');
