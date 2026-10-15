@@ -143,8 +143,8 @@ document.getElementById('nj-pickup').addEventListener('blur',function(){njAutoCa
 document.getElementById('nj-dest').addEventListener('blur',njAutoCalcTowMiles);
 CTAddr.attach(document.getElementById('nj-pickup'),function(){njAutoCalcEnroute();njAutoCalcTowMiles();});
 CTAddr.attach(document.getElementById('nj-dest'),function(){njAutoCalcTowMiles();});
-document.getElementById('tt-btn-release-form').addEventListener('click',function(){openReleaseModal(false);});
-document.getElementById('tt-btn-release-form-co').addEventListener('click',function(){openReleaseModal(true);});
+document.getElementById('tt-btn-release-form').addEventListener('click',openReleaseModal);
+document.getElementById('tt-btn-release-form-co').addEventListener('click',openReleaseCoModal);
 document.getElementById('rf-in-date').addEventListener('change',rfRecalcNights);
 document.getElementById('rf-out-date').addEventListener('change',rfRecalcNights);
 document.getElementById('rf-nights').addEventListener('input',rfRecalcStorageFee);

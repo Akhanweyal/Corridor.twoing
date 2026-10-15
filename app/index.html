@@ -721,7 +721,7 @@
      standalone and never requires picking an existing job). -->
 <div id="mgr-release-modal" class="tt-cfbg">
   <div class="tt-card" style="width:100%;max-width:420px;max-height:88vh;overflow-y:auto">
-    <h3 id="rf-modal-title" style="font-size:17px;font-weight:700;margin-bottom:4px"><i class="fas fa-key" style="color:#10b981"></i> Vehicle Release Form</h3>
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:4px"><i class="fas fa-key" style="color:#10b981"></i> Vehicle Release Form</h3>
     <p style="font-size:12px;color:#6b6b6b;margin-bottom:14px">For a vehicle picked up from storage at the yard. Works the same whether it came from our own dispatch, Agero, AAA, Honk, or a walk-in.</p>
     <div style="display:flex;flex-direction:column;gap:10px">
       <select id="rf-source" class="tt-inp">
@@ -731,8 +731,6 @@
         <option value="honk">Honk</option>
         <option value="other">Other</option>
       </select>
-      <div id="rf-company-wrap" style="display:none"><label style="display:block;font-size:10px;color:#c084fc;margin-bottom:4px">Company name on the form *</label>
-      <input id="rf-company" class="tt-inp" list="rf-company-list" placeholder="Type the company name" autocomplete="off"><datalist id="rf-company-list"></datalist></div>
       <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin:2px 0 -4px">Vehicle</p>
       <input id="rf-vehicle" class="tt-inp" placeholder="Vehicle — year, make, model *">
       <div style="display:flex;gap:8px">
@@ -793,6 +791,51 @@
     <div style="display:flex;gap:10px;margin-top:16px">
       <button onclick="closeReleaseModal()" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#1e1e1e;border:1px solid #262626;color:#f0f0f0;cursor:pointer;font-family:'Outfit',sans-serif">Cancel</button>
       <button id="rf-submit" onclick="generateReleaseForm()" style="flex:1;padding:12px;border-radius:12px;font-weight:700;font-size:14px;background:linear-gradient(135deg,#10b981,#059669);border:none;color:#fff;cursor:pointer;font-family:'Outfit',sans-serif">Generate Form</button>
+    </div>
+  </div>
+</div>
+
+<!-- OTHER COMPANY RELEASE FORM — deliberately simple: nothing is prefilled, every value is
+     typed in (except Apex Towing's phone when Apex is picked). Same yard address. -->
+<div id="mgr-release-co-modal" class="tt-cfbg">
+  <div class="tt-card" style="width:100%;max-width:420px;max-height:88vh;overflow-y:auto">
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:14px"><i class="fas fa-building" style="color:#c084fc"></i> Other Company Release Form</h3>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Company *</label>
+        <select id="rfc-company" class="tt-inp"><option value="">Select company</option><option value="apex">Apex Towing</option><option value="typed">Type a company name…</option></select></div>
+      <div id="rfc-typed-wrap" style="display:none;flex-direction:column;gap:10px">
+        <input id="rfc-company-name" class="tt-inp" placeholder="Company name *">
+        <input id="rfc-company-phone" class="tt-inp" type="tel" placeholder="Company phone (optional)">
+      </div>
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin:6px 0 -4px">Vehicle</p>
+      <input id="rfc-vehicle" class="tt-inp" placeholder="Vehicle — year, make, model *">
+      <div style="display:flex;gap:8px">
+        <input id="rfc-plate" class="tt-inp" placeholder="Plate (optional)" style="flex:1">
+        <input id="rfc-vin" class="tt-inp" placeholder="VIN (optional)" style="flex:1">
+      </div>
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin:6px 0 -4px">Dates</p>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Towed in</label><input id="rfc-in-date" type="date" class="tt-inp"></div>
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Released / out</label><input id="rfc-out-date" type="date" class="tt-inp"></div>
+      </div>
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin:6px 0 -4px">Fees</p>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Towed-in fee (optional)</label><input id="rfc-towin-fee" type="number" min="0" step="0.01" class="tt-inp"></div>
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Towed-out fee (optional)</label><input id="rfc-towout-fee" type="number" min="0" step="0.01" class="tt-inp"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Admin fee</label><input id="rfc-admin-fee" type="number" min="0" step="0.01" class="tt-inp"></div>
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#10b981;margin-bottom:4px">Total</label><input id="rfc-total" type="number" min="0" step="0.01" class="tt-inp" style="color:#10b981;font-weight:700"></div>
+      </div>
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin:6px 0 -4px">Released To</p>
+      <input id="rfc-name" class="tt-inp" placeholder="Name of person picking up vehicle *">
+      <input id="rfc-phone" class="tt-inp" type="tel" placeholder="Phone (optional)">
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin:6px 0 -4px">Released By (signature)</p>
+      <input id="rfc-releasedby" class="tt-inp" placeholder="Your name (optional)">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button onclick="closeReleaseCoModal()" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#1e1e1e;border:1px solid #262626;color:#f0f0f0;cursor:pointer;font-family:'Outfit',sans-serif">Cancel</button>
+      <button id="rfc-submit" onclick="generateReleaseCoForm()" style="flex:1;padding:12px;border-radius:12px;font-weight:700;font-size:14px;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:#fff;cursor:pointer;font-family:'Outfit',sans-serif">Generate Form</button>
     </div>
   </div>
 </div>

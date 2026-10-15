@@ -101,7 +101,7 @@
     <div class="card">
       <div class="brand">
         <img src="/images/logo.jpeg" onerror="this.style.display='none'">
-        <div><h1 id="r-co-name">Corridor Towing</h1><p>8607 Oakview Avenue, Henrico, VA 23228 · (804) 292-8414</p></div>
+        <div><h1 id="r-co-name">Corridor Towing</h1><p>8607 Oakview Avenue, Henrico, VA 23228<span id="r-co-phone"> · (804) 292-8414</span></p></div>
       </div>
       <h2>Vehicle Release Form</h2>
       <p class="sub" id="r-meta"></p>
@@ -169,7 +169,7 @@
       <button class="btn" onclick="window.print()"><i>🖨️</i> Print / Save for Signature</button>
     </div>
 
-    <p class="foot">Questions? Call <a href="tel:8042928414">(804) 292-8414</a> or email <a href="mailto:corridor.towing.services@gmail.com">corridor.towing.services@gmail.com</a>.</p>
+    <p class="foot" id="r-foot">Questions? Call <a href="tel:8042928414">(804) 292-8414</a> or email <a href="mailto:corridor.towing.services@gmail.com">corridor.towing.services@gmail.com</a>.</p>
   </div>
 </div>
 <script>
@@ -208,6 +208,10 @@
     document.getElementById('r-co-release').textContent=coName;
     document.title='Vehicle Release Form | '+coName;
     document.querySelectorAll('.r-co-short').forEach(function(el){el.textContent=coName;});
+    var coPhone=typeof d.companyPhone==='string'?d.companyPhone.trim():'';
+    document.getElementById('r-co-phone').textContent=coPhone?' · '+coPhone:'';
+    var foot=document.getElementById('r-foot');
+    if(coPhone){foot.textContent='Questions? Call '+coPhone+'.';}else{foot.style.display='none';}
   }
   var SOURCE_LABELS={website:'Corridor Towing Dispatch',agero:'Agero',aaa:'AAA',honk:'Honk',other:'Other'};
   var RELATION_LABELS={owner:'Vehicle Owner',agent:'Authorized Agent',lienholder:'Lienholder',other:'Other'};
@@ -216,6 +220,15 @@
   var created=d.createdAt?new Date(d.createdAt):new Date();
   document.getElementById('r-meta').textContent='Generated '+created.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' '+created.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   document.getElementById('r-source').textContent=SOURCE_LABELS[d.src]||d.src||'—';
+  // "Other Company" forms are a simpler layout: no source, nights, storage line or payment badge
+  if(d.simple){
+    document.getElementById('r-source').style.display='none';
+    document.getElementById('r-nights').parentNode.style.display='none';
+    document.getElementById('r-relation').parentNode.style.display='none';
+    document.getElementById('r-in-date').previousElementSibling.textContent='Towed in';
+    document.getElementById('r-out-date').previousElementSibling.textContent='Released';
+    document.querySelector('#sec-storage .section-title').textContent='Dates';
+  }
 
   document.getElementById('r-vehicle').textContent=d.veh||'—';
   if(d.color){document.getElementById('r-color').textContent=d.color;}else{document.getElementById('r-color-row').style.display='none';}
@@ -234,18 +247,21 @@
   var total=Number(d.total)||(storageFee+processingFee+towInFee+towOutFee), paid=Number(d.paid)||0;
   var lines='';
   var nightRate=(d.nights>0&&storageFee>0)?Math.round(storageFee/d.nights*100)/100:100;
-  lines+='<div class="line"><span class="lbl">Storage — '+(d.nights||0)+' night(s) @ $'+nightRate+'/night</span><span>$'+storageFee.toFixed(2)+'</span></div>';
+  if(!d.simple)lines+='<div class="line"><span class="lbl">Storage — '+(d.nights||0)+' night(s) @ $'+nightRate+'/night</span><span>$'+storageFee.toFixed(2)+'</span></div>';
   // Tow legs are optional — a release with no additional tow billed just won't
   // have either line, rather than showing a $0.00 row that reads as a mistake.
   if(towInFee>0||towInMiles>0)lines+='<div class="line"><span class="lbl">Tow-in'+(towInMiles?' — '+towInMiles+' mi':'')+'</span><span>$'+towInFee.toFixed(2)+'</span></div>';
   if(towOutFee>0||towOutMiles>0)lines+='<div class="line"><span class="lbl">Tow-out'+(towOutMiles?' — '+towOutMiles+' mi':'')+'</span><span>$'+towOutFee.toFixed(2)+'</span></div>';
-  lines+='<div class="line"><span class="lbl">Storage processing fee</span><span>$'+processingFee.toFixed(2)+'</span></div>';
+  if(!d.simple)lines+='<div class="line"><span class="lbl">Storage processing fee</span><span>$'+processingFee.toFixed(2)+'</span></div>';
+  else if(processingFee>0)lines+='<div class="line"><span class="lbl">Admin fee</span><span>$'+processingFee.toFixed(2)+'</span></div>';
   document.getElementById('r-lines').innerHTML=lines;
   document.getElementById('r-total').textContent='$'+total.toFixed(2);
 
   var paidDiv=document.getElementById('r-paid-status');
   var payMethodLabel=PAY_LABELS[d.payMethod]||'';
-  if(paid>=total&&total>0){
+  if(d.simple){
+    paidDiv.style.display='none';
+  }else if(paid>=total&&total>0){
     paidDiv.innerHTML='<span class="paidbadge full">PAID IN FULL'+(payMethodLabel?' · '+payMethodLabel:'')+'</span>';
   }else if(paid>0){
     paidDiv.innerHTML='<span class="paidbadge balance">PAID $'+paid.toFixed(2)+' OF $'+total.toFixed(2)+' — BALANCE $'+(total-paid).toFixed(2)+'</span>';
