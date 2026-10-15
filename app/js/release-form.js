@@ -9,7 +9,13 @@ function rfDateInputValue(d){ // yyyy-mm-dd for a <input type=date>, local time
   var pad=function(n){return String(n).padStart(2,'0');};
   return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 }
-function openReleaseModal(){
+// withCompany=true is the "Other Company Release" button: same form and same yard address,
+// but the company name at the top is typed in. The regular button is always Corridor Towing.
+var rfCompanyMode=false;
+function openReleaseModal(withCompany){
+  rfCompanyMode=withCompany===true;
+  document.getElementById('rf-company-wrap').style.display=rfCompanyMode?'':'none';
+  document.getElementById('rf-modal-title').innerHTML=rfCompanyMode?'<i class="fas fa-building" style="color:#c084fc"></i> Other Company Release Form':'<i class="fas fa-key" style="color:#10b981"></i> Vehicle Release Form';
   rfPaidManuallyEdited=false;
   document.getElementById('rf-source').value='website';
   ['rf-vehicle','rf-color','rf-plate','rf-vin','rf-dl','rf-notes'].forEach(function(id){document.getElementById(id).value='';});
@@ -29,9 +35,14 @@ function openReleaseModal(){
   document.getElementById('rf-name').value='';
   document.getElementById('rf-phone').value='';
   document.getElementById('rf-relation').value='owner';
+  try{document.getElementById('rf-releasedby').value=localStorage.getItem('rf_releasedBy')||'';}catch(e){}
+  // Optional other company name on the form (same yard/address). Blank = Corridor Towing.
+  document.getElementById('rf-company').value='';
+  document.getElementById('rf-company-list').innerHTML=rfRecentCompanies().map(function(c){return '<option value="'+esc(c)+'">';}).join('');
   rfRecalcNights();
   document.getElementById('mgr-release-modal').classList.add('active');
 }
+function rfRecentCompanies(){try{return JSON.parse(localStorage.getItem('rf_companies')||'[]');}catch(e){return [];}}
 function closeReleaseModal(){document.getElementById('mgr-release-modal').classList.remove('active');}
 function rfRecalcNights(){
   var inD=new Date(document.getElementById('rf-in-date').value+'T00:00:00');
@@ -75,6 +86,10 @@ async function generateReleaseForm(){
   var name=(document.getElementById('rf-name').value||'').trim();
   if(!vehicle){alert('Enter the vehicle (year, make, model).');return;}
   if(!name){alert('Enter the name of the person picking up the vehicle.');return;}
+  if(rfCompanyMode&&!(document.getElementById('rf-company').value||'').trim()){alert('Enter the company name for this form.');return;}
+  try{localStorage.setItem('rf_releasedBy',(document.getElementById('rf-releasedby').value||'').trim());}catch(e){}
+  var co=rfCompanyMode?(document.getElementById('rf-company').value||'').trim():'';
+  if(co){var list=rfRecentCompanies().filter(function(c){return c!==co;});list.unshift(co);try{localStorage.setItem('rf_companies',JSON.stringify(list.slice(0,10)));}catch(e){}}
   var btn=document.getElementById('rf-submit');
   btn.disabled=true;btn.textContent='Generating…';
   var d={
@@ -101,6 +116,8 @@ async function generateReleaseForm(){
     relation:document.getElementById('rf-relation').value,
     dl:document.getElementById('rf-dl').value||'',
     notes:document.getElementById('rf-notes').value||'',
+    releasedBy:(document.getElementById('rf-releasedby').value||'').trim(),
+    company:rfCompanyMode?(document.getElementById('rf-company').value||'').trim().slice(0,100):'',
     createdAt:Date.now(),
     sigToken:Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)
   };

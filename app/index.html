@@ -249,6 +249,7 @@
     <div style="display:flex;gap:8px;flex-shrink:0">
       <button id="tt-btn-new-job" style="background:linear-gradient(135deg,#f59e0b,#ea580c);border:none;color:#000;padding:7px 12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px;font-family:'Outfit',sans-serif"><i class="fas fa-plus"></i> New Job</button>
       <button id="tt-btn-release-form" style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.35);color:#10b981;padding:7px 12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px;font-family:'Outfit',sans-serif"><i class="fas fa-key"></i> Release Form</button>
+      <button id="tt-btn-release-form-co" style="background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.35);color:#c084fc;padding:7px 12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px;font-family:'Outfit',sans-serif"><i class="fas fa-building"></i> Other Company Release</button>
       <button id="tt-btn-mgr-refresh" style="background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:#60a5fa;padding:7px 12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;font-family:'Outfit',sans-serif"><i class="fas fa-rotate"></i> Refresh</button>
     </div>
   </div>
@@ -720,7 +721,7 @@
      standalone and never requires picking an existing job). -->
 <div id="mgr-release-modal" class="tt-cfbg">
   <div class="tt-card" style="width:100%;max-width:420px;max-height:88vh;overflow-y:auto">
-    <h3 style="font-size:17px;font-weight:700;margin-bottom:4px"><i class="fas fa-key" style="color:#10b981"></i> Vehicle Release Form</h3>
+    <h3 id="rf-modal-title" style="font-size:17px;font-weight:700;margin-bottom:4px"><i class="fas fa-key" style="color:#10b981"></i> Vehicle Release Form</h3>
     <p style="font-size:12px;color:#6b6b6b;margin-bottom:14px">For a vehicle picked up from storage at the yard. Works the same whether it came from our own dispatch, Agero, AAA, Honk, or a walk-in.</p>
     <div style="display:flex;flex-direction:column;gap:10px">
       <select id="rf-source" class="tt-inp">
@@ -730,6 +731,8 @@
         <option value="honk">Honk</option>
         <option value="other">Other</option>
       </select>
+      <div id="rf-company-wrap" style="display:none"><label style="display:block;font-size:10px;color:#c084fc;margin-bottom:4px">Company name on the form *</label>
+      <input id="rf-company" class="tt-inp" list="rf-company-list" placeholder="Type the company name" autocomplete="off"><datalist id="rf-company-list"></datalist></div>
       <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin:2px 0 -4px">Vehicle</p>
       <input id="rf-vehicle" class="tt-inp" placeholder="Vehicle — year, make, model *">
       <div style="display:flex;gap:8px">
@@ -784,6 +787,8 @@
       </div>
       <input id="rf-dl" class="tt-inp" placeholder="Driver's license # (optional)">
       <input id="rf-notes" class="tt-inp" placeholder="Notes (optional) — e.g. existing damage">
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin:6px 0 -4px">Released By (signature)</p>
+      <input id="rf-releasedby" class="tt-inp" placeholder="Your name — typed as the company signature">
     </div>
     <div style="display:flex;gap:10px;margin-top:16px">
       <button onclick="closeReleaseModal()" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#1e1e1e;border:1px solid #262626;color:#f0f0f0;cursor:pointer;font-family:'Outfit',sans-serif">Cancel</button>

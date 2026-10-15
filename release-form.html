@@ -101,7 +101,7 @@
     <div class="card">
       <div class="brand">
         <img src="/images/logo.jpeg" onerror="this.style.display='none'">
-        <div><h1>Corridor Towing</h1><p>8607 Oakview Avenue, Henrico, VA 23228 · (804) 292-8414</p></div>
+        <div><h1 id="r-co-name">Corridor Towing</h1><p>8607 Oakview Avenue, Henrico, VA 23228 · (804) 292-8414</p></div>
       </div>
       <h2>Vehicle Release Form</h2>
       <p class="sub" id="r-meta"></p>
@@ -147,7 +147,7 @@
         </div>
       </div>
 
-      <p class="release-text">By signing below, the undersigned acknowledges receipt of the above vehicle in its current condition, confirms payment of the release fee shown above, and releases Corridor Towing &amp; Transportation Services from further responsibility for the vehicle and its storage.</p>
+      <p class="release-text">By signing below, the undersigned acknowledges receipt of the above vehicle in its current condition, confirms payment of the release fee shown above, and releases <span id="r-co-release">Corridor Towing &amp; Transportation Services</span> from further responsibility for the vehicle and its storage.</p>
 
       <div class="print-cols sig-cols">
         <div class="print-col">
@@ -157,9 +157,9 @@
           </div>
         </div>
         <div class="print-col">
-          <div class="sig-block">
+          <div class="sig-block" id="r-releaser-sig-block">
             <div class="sig-line"></div>
-            <p class="sig-label">Released by (Corridor Towing) · Date</p>
+            <p class="sig-label">Released by (<span class="r-co-short">Corridor Towing</span>) · Date</p>
           </div>
         </div>
       </div>
@@ -200,6 +200,15 @@
   }
   document.getElementById('content').style.display='block';
 
+  // Optional company name typed in the dashboard (same yard/address); default stays Corridor Towing
+  var coName=(typeof d.company==='string'&&d.company.trim())?d.company.trim():'Corridor Towing';
+  if(d.company&&d.company.trim()){
+    document.getElementById('r-co-name').textContent=coName;
+    var coLogo=document.querySelector('.brand img');if(coLogo)coLogo.style.display='none';
+    document.getElementById('r-co-release').textContent=coName;
+    document.title='Vehicle Release Form | '+coName;
+    document.querySelectorAll('.r-co-short').forEach(function(el){el.textContent=coName;});
+  }
   var SOURCE_LABELS={website:'Corridor Towing Dispatch',agero:'Agero',aaa:'AAA',honk:'Honk',other:'Other'};
   var RELATION_LABELS={owner:'Vehicle Owner',agent:'Authorized Agent',lienholder:'Lienholder',other:'Other'};
   var PAY_LABELS={cash:'Cash',card:'Card',venmo:'Venmo',cashapp:'Cash App',paypal:'PayPal',other:'Other'};
@@ -256,6 +265,11 @@
   // long-form fallback link (?d=) has nowhere to persist a signature, so it
   // keeps the plain blank print-and-sign line instead of the interactive pad.
   var sigBlock=document.getElementById('r-releasee-sig-block');
+  // Company side: the staff member's name typed in the dashboard when the form was created
+  if(d.releasedBy){
+    var relDate=outD?outD.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+    document.getElementById('r-releaser-sig-block').innerHTML='<div class="sig-signed-display"><span class="sig-signed-typed">'+String(d.releasedBy).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</span></div><p class="sig-label">Released by ('+coName.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+') · '+relDate+'</p>';
+  }
   if(d.signedAt){
     renderSignedDisplay();
   }else if(shortId){

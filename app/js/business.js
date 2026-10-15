@@ -54,7 +54,9 @@ function mgrBizAggregate(completed,releaseForms){
     // actually collected for tax purposes.
     var amt=Number(r.paid)||0,mi=(Number(r.towInMiles)||0)+(Number(r.towOutMiles)||0);
     revenue+=amt;miles+=mi;
-    var code='storage-release',label='Vehicle Storage Release';
+    // Releases issued under another company name get their own line so they're easy to separate
+    var co=(r.company||'').trim();
+    var code=co?'storage-release:'+co.toLowerCase():'storage-release',label='Vehicle Storage Release'+(co?' — '+co:'');
     if(!byService[code])byService[code]={label:label,count:0,revenue:0,miles:0};
     byService[code].count++;byService[code].revenue+=amt;byService[code].miles+=mi;
   });
@@ -108,13 +110,13 @@ function downloadBizExcel(){
   XLSX.utils.book_append_sheet(wb,ws2,'Itemized Jobs');
 
   var SOURCE_LABELS={website:'Corridor Towing',agero:'Agero',aaa:'AAA',honk:'Honk',other:'Other'};
-  var relData=[['Date','Source','Vehicle','Plate','Nights','Tow-in Mi','Tow-out Mi','Total ($)','Paid ($)']];
+  var relData=[['Date','Company','Source','Vehicle','Plate','Nights','Tow-in Mi','Tow-out Mi','Total ($)','Paid ($)']];
   releaseForms.slice().sort(function(a,b){return(a.signedAt||a.createdAt||0)-(b.signedAt||b.createdAt||0);}).forEach(function(r){
     var t=r.signedAt||r.createdAt||0;
-    relData.push([t?new Date(t).toLocaleDateString('en-US'):'',SOURCE_LABELS[r.src]||r.src||'',r.veh||'',[r.plate,r.state].filter(Boolean).join(' '),Number(r.nights)||0,Number(r.towInMiles)||0,Number(r.towOutMiles)||0,Number(r.total)||0,Number(r.paid)||0]);
+    relData.push([t?new Date(t).toLocaleDateString('en-US'):'',(r.company||'').trim()||'Corridor Towing',SOURCE_LABELS[r.src]||r.src||'',r.veh||'',[r.plate,r.state].filter(Boolean).join(' '),Number(r.nights)||0,Number(r.towInMiles)||0,Number(r.towOutMiles)||0,Number(r.total)||0,Number(r.paid)||0]);
   });
   var ws3=XLSX.utils.aoa_to_sheet(relData);
-  ws3['!cols']=[{wch:12},{wch:14},{wch:20},{wch:14},{wch:9},{wch:11},{wch:12},{wch:11},{wch:11}];
+  ws3['!cols']=[{wch:12},{wch:24},{wch:14},{wch:20},{wch:14},{wch:9},{wch:11},{wch:12},{wch:11},{wch:11}];
   XLSX.utils.book_append_sheet(wb,ws3,'Itemized Storage Releases');
 
   XLSX.writeFile(wb,'Corridor_Towing_Tax_Summary_'+new Date().toISOString().slice(0,10)+'.xlsx');
@@ -141,7 +143,8 @@ document.getElementById('nj-pickup').addEventListener('blur',function(){njAutoCa
 document.getElementById('nj-dest').addEventListener('blur',njAutoCalcTowMiles);
 CTAddr.attach(document.getElementById('nj-pickup'),function(){njAutoCalcEnroute();njAutoCalcTowMiles();});
 CTAddr.attach(document.getElementById('nj-dest'),function(){njAutoCalcTowMiles();});
-document.getElementById('tt-btn-release-form').addEventListener('click',openReleaseModal);
+document.getElementById('tt-btn-release-form').addEventListener('click',function(){openReleaseModal(false);});
+document.getElementById('tt-btn-release-form-co').addEventListener('click',function(){openReleaseModal(true);});
 document.getElementById('rf-in-date').addEventListener('change',rfRecalcNights);
 document.getElementById('rf-out-date').addEventListener('change',rfRecalcNights);
 document.getElementById('rf-nights').addEventListener('input',rfRecalcStorageFee);
