@@ -163,17 +163,16 @@ async function generateReleaseCoForm(){
   var vehicle=(document.getElementById('rfc-vehicle').value||'').trim();
   var name=(document.getElementById('rfc-name').value||'').trim();
   if(!company){alert('Select or type the company name.');return;}
-  if(!vehicle){alert('Enter the vehicle (year, make, model).');return;}
-  if(!name){alert('Enter the name of the person picking up the vehicle.');return;}
-  function dt(id){var v=document.getElementById(id).value;return v?new Date(v+'T00:00:00').getTime():null;}
-  function num(id){return Number(document.getElementById(id).value)||0;}
+  // Blank stays blank (null / '') so the printed form shows a line to write on
+  function txt(id){return (document.getElementById(id).value||'').trim().slice(0,40);}
+  function num(id){var v=document.getElementById(id).value;return v===''?null:(Number(v)||0);}
   var total=num('rfc-total');
   var d={
     simple:true,company:company,companyPhone:coPhone,
     veh:vehicle,plate:(document.getElementById('rfc-plate').value||'').trim(),vin:(document.getElementById('rfc-vin').value||'').trim(),
-    inDate:dt('rfc-in-date'),outDate:dt('rfc-out-date'),
+    inDateText:txt('rfc-in-date'),outDateText:txt('rfc-out-date'),
     towInFee:num('rfc-towin-fee'),towOutFee:num('rfc-towout-fee'),processingFee:num('rfc-admin-fee'),
-    total:total,paid:total,
+    total:total,paid:total||0,
     name:name,phone:(document.getElementById('rfc-phone').value||'').trim(),
     releasedBy:(document.getElementById('rfc-releasedby').value||'').trim(),
     createdAt:Date.now(),

@@ -799,7 +799,8 @@
      typed in (except Apex Towing's phone when Apex is picked). Same yard address. -->
 <div id="mgr-release-co-modal" class="tt-cfbg">
   <div class="tt-card" style="width:100%;max-width:420px;max-height:88vh;overflow-y:auto">
-    <h3 style="font-size:17px;font-weight:700;margin-bottom:14px"><i class="fas fa-building" style="color:#c084fc"></i> Other Company Release Form</h3>
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:4px"><i class="fas fa-building" style="color:#c084fc"></i> Other Company Release Form</h3>
+    <p style="font-size:12px;color:#6b6b6b;margin-bottom:14px">Only the company is required. Anything left empty prints as a blank line to fill in by hand.</p>
     <div style="display:flex;flex-direction:column;gap:10px">
       <div><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Company *</label>
         <select id="rfc-company" class="tt-inp"><option value="">Select company</option><option value="apex">Apex Towing</option><option value="typed">Type a company name…</option></select></div>
@@ -808,15 +809,15 @@
         <input id="rfc-company-phone" class="tt-inp" type="tel" placeholder="Company phone (optional)">
       </div>
       <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin:6px 0 -4px">Vehicle</p>
-      <input id="rfc-vehicle" class="tt-inp" placeholder="Vehicle — year, make, model *">
+      <input id="rfc-vehicle" class="tt-inp" placeholder="Vehicle — year, make, model">
       <div style="display:flex;gap:8px">
         <input id="rfc-plate" class="tt-inp" placeholder="Plate (optional)" style="flex:1">
         <input id="rfc-vin" class="tt-inp" placeholder="VIN (optional)" style="flex:1">
       </div>
       <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin:6px 0 -4px">Dates</p>
       <div style="display:flex;gap:8px">
-        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Towed in</label><input id="rfc-in-date" type="date" class="tt-inp"></div>
-        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Released / out</label><input id="rfc-out-date" type="date" class="tt-inp"></div>
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Towed in</label><input id="rfc-in-date" class="tt-inp" placeholder="e.g. 10/15/2026"></div>
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Released / out</label><input id="rfc-out-date" class="tt-inp" placeholder="e.g. 10/20/2026"></div>
       </div>
       <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin:6px 0 -4px">Fees</p>
       <div style="display:flex;gap:8px">
@@ -828,7 +829,7 @@
         <div style="flex:1"><label style="display:block;font-size:10px;color:#10b981;margin-bottom:4px">Total</label><input id="rfc-total" type="number" min="0" step="0.01" class="tt-inp" style="color:#10b981;font-weight:700"></div>
       </div>
       <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin:6px 0 -4px">Released To</p>
-      <input id="rfc-name" class="tt-inp" placeholder="Name of person picking up vehicle *">
+      <input id="rfc-name" class="tt-inp" placeholder="Name of person picking up vehicle">
       <input id="rfc-phone" class="tt-inp" type="tel" placeholder="Phone (optional)">
       <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin:6px 0 -4px">Released By (signature)</p>
       <input id="rfc-releasedby" class="tt-inp" placeholder="Your name (optional)">

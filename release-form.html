@@ -25,6 +25,7 @@
   .row:last-of-type{border-bottom:none}
   .row .k{color:#6b6b6b}
   .row .v{text-align:right;font-weight:600}
+  .blank{display:inline-block;min-width:150px;height:1.1em;border-bottom:1.5px solid #555;vertical-align:bottom}
   .line{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;font-family:'JetBrains Mono',monospace}
   .line .lbl{font-family:'Outfit',sans-serif;color:#aaa}
   .total{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:14px;border-top:2px solid rgba(16,185,129,.3)}
@@ -66,6 +67,7 @@
     .card{background:#fff;border:none;border-radius:0;padding:0;margin-bottom:0}
     .no-print{display:none}
     .row,.line{border-color:#ddd}
+    .blank{border-color:#000}
     .section-title{color:#555}
     .row .k,.line .lbl{color:#555}
     .release-text{background:#f5f5f5;color:#333}
@@ -275,6 +277,26 @@
   if(d.dl){document.getElementById('r-dl').textContent=d.dl;}else{document.getElementById('r-dl-row').style.display='none';}
   if(d.notes){document.getElementById('r-notes').textContent=d.notes;}else{document.getElementById('r-notes-row').style.display='none';}
 
+  // Other Company forms: every field shows, and anything left empty is a blank line to
+  // fill in by hand after printing
+  if(d.simple){
+    var BL='<span class="blank"></span>';
+    function tv(v){v=(v==null?'':String(v)).trim();return v?v.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):BL;}
+    function mv(v){return (v==null||v==='')?BL:'$'+(Number(v)||0).toFixed(2);}
+    document.getElementById('r-vehicle').innerHTML=tv(d.veh);
+    document.getElementById('r-plate').innerHTML=tv(d.plate);document.getElementById('r-plate-row').style.display='';
+    document.getElementById('r-vin').innerHTML=tv(d.vin);document.getElementById('r-vin-row').style.display='';
+    document.getElementById('r-in-date').innerHTML=tv(d.inDateText);
+    document.getElementById('r-out-date').innerHTML=tv(d.outDateText);
+    document.getElementById('r-lines').innerHTML=
+      '<div class="line"><span class="lbl">Towed-in fee</span><span>'+mv(d.towInFee)+'</span></div>'+
+      '<div class="line"><span class="lbl">Admin fee</span><span>'+mv(d.processingFee)+'</span></div>'+
+      '<div class="line"><span class="lbl">Towed-out fee</span><span>'+mv(d.towOutFee)+'</span></div>';
+    document.getElementById('r-total').innerHTML=mv(d.total);
+    document.getElementById('r-name').innerHTML=tv(d.name);
+    document.getElementById('r-phone').innerHTML=tv(d.phone);document.getElementById('r-phone-row').style.display='';
+  }
+
   // ---- Signature: draw with a finger/mouse, or type a name — saved back to
   // Firebase only when this page was reached via the short link (?r=), since
   // that's the only case with an actual record to save into. The self-contained
@@ -283,7 +305,7 @@
   var sigBlock=document.getElementById('r-releasee-sig-block');
   // Company side: the staff member's name typed in the dashboard when the form was created
   if(d.releasedBy){
-    var relDate=outD?outD.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+    var relDate=d.simple?(d.outDateText||'Date'):(outD?outD.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'');
     document.getElementById('r-releaser-sig-block').innerHTML='<div class="sig-signed-display"><span class="sig-signed-typed">'+String(d.releasedBy).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</span></div><p class="sig-label">Released by ('+coName.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+') · '+relDate+'</p>';
   }
   if(d.signedAt){
