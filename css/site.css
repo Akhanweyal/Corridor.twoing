@@ -14,7 +14,7 @@ header{background:#0b3d91;color:#fff;padding:1rem 0;position:fixed;top:0;left:0;
 .logo img{height:60px;width:auto;border-radius:8px}
 .company-name{font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:.5px;white-space:nowrap}
 .header-actions{display:flex;align-items:center;gap:10px}
-.menu-toggle{display:none;font-size:1.8rem;cursor:pointer;color:#fff}
+.menu-toggle{display:none;font-size:1rem;font-weight:700;cursor:pointer;color:#fff;padding:6px 12px;border:1.5px solid rgba(255,255,255,.45);border-radius:8px;white-space:nowrap}
 .driver-portal-btn{display:flex;align-items:center;gap:6px;background:rgba(255,204,0,.15);border:1.5px solid #ffcc00;color:#ffcc00;padding:8px 16px;border-radius:50px;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .3s;white-space:nowrap;font-family:inherit}
 .driver-portal-btn:hover{background:#ffcc00;color:#0b3d91}
 .manager-portal-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);padding:8px 14px;border-radius:50px;font-weight:600;font-size:.8rem;cursor:pointer;transition:all .3s;white-space:nowrap;font-family:inherit}
