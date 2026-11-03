@@ -2,6 +2,15 @@ var initTT_done=false,ttD={driverName:'',records:[]},ttCS=null,ttCM=null,ttDB=nu
 var COMPANY_EMAIL='corridor.towing.services@gmail.com'; // same inbox used everywhere else on the site
 var PAY_METHOD_LABEL={venmo:'Venmo',cashapp:'Cash App',paypal:'PayPal',card:'Card'};
 function drvTag(label,color){return '<span style="display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:'+color+'22;color:'+color+';border:1px solid '+color+'55">'+label+'</span>';}
+// Enroute + loaded tow miles the job was priced on — shown on both the driver's and the
+// dispatcher's job card so everyone sees the same numbers the customer was quoted.
+function jobMilesHtml(j,isTow){
+  var fmt=function(v){var n=Number(v);return n>0?n.toFixed(1)+' mi':'—';};
+  var html='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">';
+  html+=drvTag('<i class="fas fa-route"></i> Enroute: '+fmt(j.enrouteMiles),'#a78bfa');
+  if(isTow)html+=drvTag('<i class="fas fa-truck-pickup"></i> Tow miles: '+fmt(j.towMiles),'#f59e0b');
+  return html+'</div>';
+}
 // A single high-accuracy GPS attempt is noticeably more likely to time out or fail on iOS
 // Safari than on Android Chrome (iOS is stricter/slower to produce a precise fix, especially
 // indoors or with a weak signal) — retrying once with relaxed accuracy before giving up is
@@ -376,6 +385,7 @@ function initTT(){
           ?'<span style="display:inline-block;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.4)">PAY NOW SELECTED'+(PAY_METHOD_LABEL[j.payMethod]?' · '+PAY_METHOD_LABEL[j.payMethod]:'')+'</span>'
           :'<span style="display:inline-block;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(96,165,250,.15);color:#60a5fa;border:1px solid rgba(96,165,250,.4)">PAY ON ARRIVAL</span>';
         html+='<span style="display:inline-block;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(16,185,129,.1);color:#10b981;margin-left:6px">$'+(j.amount!=null?Number(j.amount).toFixed(2):'0.00')+'</span>';
+        html+=jobMilesHtml(j,isTow);
         html+='</div>';
 
         html+='<div style="background:#1a1a1a;border-radius:10px;padding:10px 12px;margin-bottom:8px">';

@@ -55,6 +55,7 @@ function buildJobDetailText(job){
     'Pickup: '+(job.pickupAddress||'')+'\n'+
     'Destination: '+(job.destinationAddress||'N/A')+'\n'+
     'Starts: '+(job.starts||'?')+' | Neutral: '+(job.neutral||'?')+'\n'+
+    'Enroute: '+(Number(job.enrouteMiles)||0).toFixed(1)+' mi'+((job.jobType==='tow'||/tow/i.test(job.service||''))?' | Tow: '+(Number(job.towMiles)||0).toFixed(1)+' mi':'')+'\n'+
     'Amount: $'+(job.amount!=null?Number(job.amount).toFixed(2):'0.00')+'\n'+
     'Open Driver Portal → Jobs to update status.';
 }
@@ -122,6 +123,7 @@ function renderMgrJobs(){
       :'<span style="display:inline-block;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(96,165,250,.15);color:#60a5fa;border:1px solid rgba(96,165,250,.4)">PAY ON ARRIVAL</span>';
     html+='<span style="display:inline-block;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(16,185,129,.1);color:#10b981;margin-left:6px">$'+(j.amount!=null?Number(j.amount).toFixed(2):'0.00')+'</span>';
     if(j.assignedDriverName)html+='<span style="display:inline-block;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(96,165,250,.1);color:#60a5fa;margin-left:6px"><i class="fas fa-id-badge"></i> '+esc(j.assignedDriverName)+'</span>';
+    html+=jobMilesHtml(j,isTow);
     html+='</div>';
 
     // Pickup / drop-off — same separated-box treatment instead of two thin lines, so
