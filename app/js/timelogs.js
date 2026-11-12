@@ -1,12 +1,12 @@
 async function loadMgrData(){
-  document.getElementById('mgr-logs-tb').innerHTML='<tr><td colspan="5" style="text-align:center;color:#6b6b6b;padding:30px 0"><i class="fas fa-spinner fa-spin"></i> Loading from cloud...</td></tr>';
+  document.getElementById('mgr-logs-tb').innerHTML='<tr><td colspan="7" style="text-align:center;color:#6b6b6b;padding:30px 0"><i class="fas fa-spinner fa-spin"></i> Loading from cloud...</td></tr>';
   try{
     var res=await fbFetch(FIREBASE_URL+'/driverLogs.json');
     if(!res.ok)throw new Error('HTTP '+res.status);
     var data=await res.json();
     if(!data){mgrAllRecords=[];renderMgrDash();return;}
     var all=[];
-    for(var drvId in data){var driverData=data[drvId];for(var recId in driverData){var r=driverData[recId];if(r&&typeof r.date==='string')all.push({id:recId,driverName:r.driverName||drvId,date:r.date,checkIn:r.checkIn||null,checkOut:r.checkOut||null,hours:r.hours!=null?r.hours:null});}}
+    for(var drvId in data){var driverData=data[drvId];for(var recId in driverData){var r=driverData[recId];if(r&&typeof r.date==='string')all.push({uid:drvId,id:recId,driverName:r.driverName||drvId,date:r.date,checkIn:r.checkIn||null,checkOut:r.checkOut||null,hours:r.hours!=null?r.hours:null});}}
     mgrAllRecords=all;renderMgrDash();
   }catch(err){console.error('Manager load error:',err);mgrAllRecords=[];renderMgrDash();}
 }
@@ -104,7 +104,7 @@ function renderMgrDash(){
   var sorted=filtered.slice().sort(function(a,b){return b.date.localeCompare(a.date);});
   var lh='';
   if(!sorted.length){
-    lh='<tr><td colspan="6" style="text-align:center;color:#6b6b6b;padding:32px 0">No shifts found for this period</td></tr>';
+    lh='<tr><td colspan="7" style="text-align:center;color:#6b6b6b;padding:32px 0">No shifts found for this period</td></tr>';
   }else{
     sorted.forEach(function(r){
       var dp=r.date.split('-');var d=new Date(+dp[0],+dp[1]-1,+dp[2]);
@@ -116,6 +116,7 @@ function renderMgrDash(){
       var hr=ms!=null?msToHM(ms):'<span style="color:#f59e0b;font-size:11px;font-weight:700">OPEN</span>';
       var inPhoto=safePhoto(r.checkIn&&r.checkIn.photo)?'<img src="'+r.checkIn.photo+'" onclick="mgrViewPhoto(this.src,\'Check-In\')" style="width:34px;height:34px;border-radius:6px;object-fit:cover;cursor:pointer;border:1.5px solid #10b981;margin-right:3px" title="Check-In">':'<span style="color:#444;font-size:10px">—</span>';
       var outPhoto=safePhoto(r.checkOut&&r.checkOut.photo)?'<img src="'+r.checkOut.photo+'" onclick="mgrViewPhoto(this.src,\'Check-Out\')" style="width:34px;height:34px;border-radius:6px;object-fit:cover;cursor:pointer;border:1.5px solid #f59e0b" title="Check-Out">':'';
+      var editBtn=(isSafeId(r.uid)&&isSafeId(r.id))?'<button data-shift-uid="'+r.uid+'" data-shift-id="'+r.id+'" title="Edit shift" style="width:30px;height:30px;border-radius:8px;border:1px solid rgba(96,165,250,.35);background:rgba(96,165,250,.1);color:#60a5fa;cursor:pointer"><i class="fas fa-pen" style="font-size:11px"></i></button>':'';
       lh+='<tr>'+
         '<td style="font-weight:600;color:#f59e0b;font-size:12px">'+esc(r.driverName||'Unknown')+'</td>'+
         '<td><span style="font-weight:600">'+ds+'</span><br><span style="font-size:10px;color:#6b6b6b">'+ws+'</span></td>'+
@@ -123,9 +124,10 @@ function renderMgrDash(){
         '<td style="font-family:\'JetBrains Mono\',monospace;font-size:12px">'+oT+'</td>'+
         '<td style="font-family:\'JetBrains Mono\',monospace;font-weight:700">'+hr+'</td>'+
         '<td style="text-align:center">'+inPhoto+outPhoto+'</td>'+
+        '<td>'+editBtn+'</td>'+
         '</tr>';
     });
-    lh+='<tr class="tt-total-row"><td colspan="4" style="text-align:right;padding-right:12px">PERIOD TOTAL:</td><td style="font-family:\'JetBrains Mono\',monospace;font-size:15px;padding:10px 12px">'+msToHM(totalMs)+'</td><td></td></tr>';
+    lh+='<tr class="tt-total-row"><td colspan="4" style="text-align:right;padding-right:12px">PERIOD TOTAL:</td><td style="font-family:\'JetBrains Mono\',monospace;font-size:15px;padding:10px 12px">'+msToHM(totalMs)+'</td><td></td><td></td></tr>';
   }
   document.getElementById('mgr-logs-tb').innerHTML=lh;
 }

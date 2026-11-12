@@ -68,6 +68,10 @@ footer{background:#0b3d91;color:#fff;text-align:center;padding:2rem 0;font-size:
 .vehicle-group{display:flex;gap:1rem;flex-wrap:wrap}
 .vehicle-group .form-group{flex:1;min-width:200px}
 .help-text{font-size:.85rem;color:#555;margin-top:.3rem}
+.faq{max-width:800px;margin:0 auto;display:flex;flex-direction:column;gap:.6rem}
+.faq details{background:#f9f9fb;border:1px solid #dde3ee;border-radius:10px;padding:.9rem 1.1rem}
+.faq summary{font-weight:700;color:#0b3d91;cursor:pointer;font-size:1.05rem}
+.faq details p{margin-top:.6rem;color:#444}
 .addr-ac-list{position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid #ccc;border-top:none;border-radius:0 0 8px 8px;max-height:220px;overflow-y:auto;z-index:50;box-shadow:0 8px 20px rgba(0,0,0,.15);display:none}
 .addr-ac-list.show{display:block}
 .addr-ac-item{padding:10px 12px;cursor:pointer;font-size:.9rem;border-bottom:1px solid #eee;text-align:left}

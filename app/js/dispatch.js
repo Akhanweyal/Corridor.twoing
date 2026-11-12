@@ -216,6 +216,7 @@ function renderMgrDrivers(){
     // itself checks on every request — this is a real, immediate access cutoff, not a display
     // filter (unlike Delete below, it's reversible: click again to re-enable).
     html+='<button onclick="toggleDriverActive(\''+d.id+'\')" title="Click to '+(d.active!==false?'disable':'enable')+' this account" style="font-size:10px;font-weight:700;color:'+(d.active!==false?'#10b981':'#6b6b6b')+';background:none;border:1px solid '+(d.active!==false?'rgba(16,185,129,.35)':'#333')+';border-radius:20px;padding:4px 10px;cursor:pointer;font-family:\'Outfit\',sans-serif">'+(d.active!==false?'Active':'Disabled')+'</button>';
+    html+='<button onclick="openEditDriverModal(\''+d.id+'\')" title="Edit driver" style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(96,165,250,.35);background:rgba(96,165,250,.1);color:#60a5fa;cursor:pointer;flex-shrink:0"><i class="fas fa-pen" style="font-size:12px"></i></button>';
     html+='<button onclick="deleteMgrDriver(\''+d.id+'\')" title="Delete driver" style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.1);color:#fca5a5;cursor:pointer;flex-shrink:0"><i class="fas fa-trash" style="font-size:12px"></i></button>';
     html+='</div>';
     html+='</div>';
@@ -261,7 +262,7 @@ async function deleteMgrDriver(driverId){
 
 /* ========== ACTIVITY LOG ========== */
 var mgrLogLoaded=false;
-var LOG_ACTION_LABEL={admin_signin:'Signed in (admin)',driver_signin:'Signed in (driver)',job_assigned:'Assigned a job',job_unassigned:'Unassigned a job',job_cancelled:'Cancelled a job',job_deleted:'Deleted a job',driver_added:'Added a driver',driver_deleted:'Removed a driver',driver_enabled:'Enabled a driver',driver_disabled:'Disabled a driver',admin_added:'Added an admin'};
+var LOG_ACTION_LABEL={admin_signin:'Signed in (admin)',driver_signin:'Signed in (driver)',job_assigned:'Assigned a job',job_unassigned:'Unassigned a job',job_cancelled:'Cancelled a job',job_deleted:'Deleted a job',driver_added:'Added a driver',driver_deleted:'Removed a driver',driver_enabled:'Enabled a driver',driver_disabled:'Disabled a driver',admin_added:'Added an admin',driver_edited:'Edited a driver',driver_pw_reset:'Sent a password reset',shift_added:'Added a shift',shift_edited:'Edited a shift',shift_deleted:'Deleted a shift',release_edited:'Edited a storage release',release_deleted:'Deleted a storage release',index_backfilled:'Rebuilt the job index'};
 function toggleActivityLog(){
   var body=document.getElementById('mgr-log-body'),chev=document.getElementById('mgr-log-chevron');
   var show=body.style.display==='none';
@@ -285,7 +286,7 @@ async function loadActivityLog(){
     entries.forEach(function(e){
       var when=e.at?new Date(e.at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'';
       var label=LOG_ACTION_LABEL[e.action]||e.action||'Action';
-      var extra=[e.driverName,e.jobId,e.email].filter(Boolean).join(' · ');
+      var extra=[e.driverName,e.jobId,e.email,e.date].filter(Boolean).join(' · ');
       html+='<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid #1e1e1e;font-size:12px">'+
         '<div><span style="color:#f0f0f0;font-weight:600">'+esc(label)+'</span>'+(extra?' <span style="color:#6b6b6b">— '+esc(extra)+'</span>':'')+
         '<br><span style="color:#6b6b6b;font-size:11px">'+esc(e.actorEmail||'')+'</span></div>'+

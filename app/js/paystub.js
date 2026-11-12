@@ -23,6 +23,7 @@ function ps_periods(){
 }
 function ps_driverNames(){
   var m={};(mgrAllRecords||[]).forEach(function(r){if(r.driverName)m[r.driverName]=1;});
+  (mgrDrivers||[]).forEach(function(d){if(d.name)m[d.name]=1;});
   return Object.keys(m).sort();
 }
 function ps_shifts(name,s,e){

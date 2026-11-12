@@ -196,7 +196,7 @@ async function addMgrDriver(){
     var uid=cred.user.uid;
     await sAuth.signOut();
     var empRes=await fbFetch(FIREBASE_URL+'/employees/'+uid+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      email:email,role:'driver',active:true,mustChangePassword:true,createdAt:Date.now()
+      email:email,name:name,role:'driver',active:true,mustChangePassword:true,createdAt:Date.now()
     })});
     if(!empRes.ok)throw new Error('Approval record rejected (HTTP '+empRes.status+') — has the current database.rules.json been published to Firebase? The login was created but is not yet approved.');
     var id=name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')+'_'+Date.now().toString(36);

@@ -38,7 +38,7 @@ function setSyncStatus(s){var el=document.getElementById('tt-sync-status');if(!e
 // stored on each record purely as a display label for reports.
 function driverUid(){return(fbAuth&&fbAuth.currentUser)?fbAuth.currentUser.uid:null;}
 async function firebaseSaveRecord(rec){var uid=driverUid();if(!uid||!ttD.driverName)return false;setSyncStatus('syncing');try{var res=await fbFetch(FIREBASE_URL+'/driverLogs/'+uid+'/'+rec.id+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({driverName:ttD.driverName,date:rec.date,checkIn:rec.checkIn,checkOut:rec.checkOut,hours:rec.hours,updatedAt:Date.now()})});if(!res.ok)throw new Error('HTTP '+res.status);setSyncStatus('synced');return true;}catch(err){setSyncStatus('error');return false;}}
-async function firebaseLoadRecords(){var uid=driverUid();if(!uid)return null;setSyncStatus('syncing');try{var res=await fbFetch(FIREBASE_URL+'/driverLogs/'+uid+'.json');if(!res.ok)throw new Error('HTTP '+res.status);var data=await res.json();setSyncStatus('synced');if(!data)return[];var records=[];for(var id in data){var r=data[id];if(r&&r.date&&isSafeId(id))records.push({id:id,date:r.date,checkIn:r.checkIn||null,checkOut:r.checkOut||null,hours:r.hours!=null?r.hours:null,driverName:r.driverName||null});}return records;}catch(err){setSyncStatus('error');return null;}}
+async function firebaseLoadRecords(){var uid=driverUid();if(!uid)return null;setSyncStatus('syncing');try{var res=await fbFetch(FIREBASE_URL+'/driverLogs/'+uid+'.json');if(!res.ok)throw new Error('HTTP '+res.status);var data=await res.json();setSyncStatus('synced');if(!data)return[];var records=[];for(var id in data){var r=data[id];if(r&&r.date&&isSafeId(id))records.push({id:id,date:r.date,checkIn:r.checkIn||null,checkOut:r.checkOut||null,hours:r.hours!=null?r.hours:null,driverName:r.driverName||null,adminEditedAt:r.adminEditedAt||0});}return records;}catch(err){setSyncStatus('error');return null;}}
 
 
 // ---- Global checklist state (accessible from onclick attributes) ----
@@ -829,13 +829,42 @@ function initTT(){
     tick();setInterval(tick,10000);
   }
 
+  // The cloud copy wins for anything an admin set: the driver's name (employees/{uid}.name,
+  // edited on the manager's Drivers tab) and any shift an admin added or corrected
+  // (adminEditedAt). Shifts this phone hasn't seen yet are pulled in too. Returns true if
+  // anything on this device changed.
+  async function syncFromCloud(){
+    var changed=false,uid=driverUid();
+    if(!uid)return false;
+    try{
+      var res=await fbFetch(FIREBASE_URL+'/employees/'+uid+'.json');
+      var emp=res.ok?await res.json():null;
+      if(emp&&typeof emp.name==='string'&&emp.name.trim()&&emp.name.trim()!==ttD.driverName){ttD.driverName=emp.name.trim();changed=true;}
+    }catch(e){}
+    var cloudRecs=await firebaseLoadRecords();
+    if(cloudRecs&&cloudRecs.length){
+      var byId={};ttD.records.forEach(function(r){byId[r.id]=r;});
+      cloudRecs.forEach(function(c){
+        var l=byId[c.id];
+        if(!l){ttD.records.push(c);changed=true;return;}
+        if(c.adminEditedAt&&c.adminEditedAt>(l.adminEditedAt||0)){
+          l.date=c.date;l.hours=c.hours;l.adminEditedAt=c.adminEditedAt;
+          if(c.checkIn)l.checkIn=Object.assign({},l.checkIn,{time:c.checkIn.time});
+          l.checkOut=c.checkOut?Object.assign({},l.checkOut,{time:c.checkOut.time}):null;
+          changed=true;
+        }
+      });
+    }
+    if(changed)sv();
+    return changed;
+  }
+
   // ---- Events ----
   document.getElementById('tt-btn-setup').addEventListener('click',async function(){
     var name=document.getElementById('tt-inp-name').value.trim();
     if(!name){tT('Please enter your name','warning');return;}
     ttD.driverName=name;sv();
-    var cloudRecs=await firebaseLoadRecords();
-    if(cloudRecs&&cloudRecs.length){var localIds={};ttD.records.forEach(function(r){localIds[r.id]=true;});var added=0;cloudRecs.forEach(function(r){if(!localIds[r.id]){ttD.records.push(r);added++;}});if(added){sv();tT('Synced '+added+' records from cloud','info');}}
+    await syncFromCloud();
     document.getElementById('tt-nav').style.display='block';go('dash');
   });
 
@@ -895,4 +924,8 @@ function initTT(){
   window.capPhoto = capPhoto;             // for onclick="capPhoto()" on capture button
   oDB().catch(function(){});ld();startClk();
   if(ttD.driverName){document.getElementById('tt-nav').style.display='block';go('dash');}
+  syncFromCloud().then(function(changed){
+    if(!changed||!ttD.driverName)return;
+    document.getElementById('tt-nav').style.display='block';go('dash');
+  });
 }

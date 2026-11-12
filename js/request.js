@@ -95,6 +95,10 @@ async function refreshTripMap(){
 }
 
 // ---- Mileage estimates (use the picked suggestion's coordinates — no re-geocoding) ----
+// The mile fields drive the quoted price, so they stay read-only while we can calculate
+// them ourselves and only open up for typing if the route lookup fails.
+function setMiles(id,miles){var el=document.getElementById(id);el.value=miles.toFixed(1);el.readOnly=true;calculateTotal();}
+function unlockMiles(id){document.getElementById(id).readOnly=false;}
 async function autoCalcMiles(){
   var b=document.getElementById('estimateBar');
   b.style.display='block';
@@ -105,10 +109,9 @@ async function autoCalcMiles(){
     var dp=await CTAddr.resolve(destInput);if(!dp)throw 0;
     var miles=await routeMiles(lp.lat,lp.lng,dp.lat,dp.lng);
     if(miles==null)throw 0;
-    document.getElementById('req_tow').value=miles.toFixed(1);
+    setMiles('req_tow',miles);
     b.textContent='Estimated tow distance: '+miles.toFixed(1)+' miles';
-    calculateTotal();
-  }catch(e){b.textContent='Auto estimate failed — enter tow miles manually.';}
+  }catch(e){unlockMiles('req_tow');b.textContent='Auto estimate failed — enter tow miles manually.';}
 }
 // Enroute = distance from OUR shop to the customer's pickup/service location — this
 // always applies (tow or roadside), unlike tow miles which only applies to tow jobs.
@@ -122,10 +125,9 @@ async function autoCalcEnroute(){
     if(!lp)throw 0;
     var miles=await routeMiles(BASE_LAT,BASE_LNG,lp.lat,lp.lng);
     if(miles==null)throw 0;
-    document.getElementById('req_enroute').value=miles.toFixed(1);
+    setMiles('req_enroute',miles);
     b.textContent='Estimated enroute: '+miles.toFixed(1)+' miles from our shop';
-    calculateTotal();
-  }catch(e){b.textContent='Auto estimate failed — enter enroute miles manually.';}
+  }catch(e){unlockMiles('req_enroute');b.textContent='Auto estimate failed — enter enroute miles manually.';}
 }
 
 // Pickup/destination can change via a suggestion click AND a blur a moment later — merge

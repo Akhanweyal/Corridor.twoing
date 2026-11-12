@@ -84,6 +84,7 @@ function renderMgrBusiness(){
     });
     tb.innerHTML=html;
   }
+  renderMgrReleaseList();
 }
 function downloadBizExcel(){
   if(typeof XLSX==='undefined'){alert('Excel library not loaded.');return;}

@@ -353,14 +353,17 @@
       </p>
       <div id="mgr-driver-cards" style="display:flex;flex-direction:column;gap:10px"></div>
     </div>
-    <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6b6b6b;margin-bottom:10px">
-      <i class="fas fa-list" style="color:#60a5fa;margin-right:6px"></i>Shift Log
-    </p>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6b6b6b">
+        <i class="fas fa-list" style="color:#60a5fa;margin-right:6px"></i>Shift Log
+      </p>
+      <button id="tt-btn-add-shift" style="padding:7px 12px;border:1px solid rgba(96,165,250,.35);border-radius:20px;font-weight:600;font-size:12px;cursor:pointer;background:rgba(96,165,250,.1);color:#60a5fa;font-family:'Outfit',sans-serif"><i class="fas fa-plus"></i> Add Shift</button>
+    </div>
     <div style="border-radius:16px;overflow:hidden;border:1px solid #262626;margin-bottom:14px">
       <div style="overflow-x:auto;max-height:40vh;overflow-y:auto">
         <table class="tt-dtb">
-          <thead><tr><th>Driver</th><th>Date</th><th>In</th><th>Out</th><th>Time</th><th style="min-width:76px">Photos</th></tr></thead>
-          <tbody id="mgr-logs-tb"><tr><td colspan="6" style="text-align:center;color:#6b6b6b;padding:30px 0"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+          <thead><tr><th>Driver</th><th>Date</th><th>In</th><th>Out</th><th>Time</th><th style="min-width:76px">Photos</th><th></th></tr></thead>
+          <tbody id="mgr-logs-tb"><tr><td colspan="7" style="text-align:center;color:#6b6b6b;padding:30px 0"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -404,12 +407,55 @@
         <tbody id="mgr-biz-svc-tb"><tr><td colspan="4" style="text-align:center;color:#6b6b6b;padding:20px 0">No completed jobs in this period</td></tr></tbody>
       </table>
     </div>
+    <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6b6b6b;margin-bottom:10px">
+      <i class="fas fa-warehouse" style="color:#c084fc;margin-right:6px"></i>Storage Releases
+    </p>
+    <div id="mgr-biz-releases" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-height:40vh;overflow-y:auto"></div>
     <button id="tt-btn-biz-excel" style="width:100%;padding:15px;border:none;border-radius:14px;font-weight:700;font-size:14px;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#ea580c);color:#000;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Outfit',sans-serif">
       <i class="fas fa-file-excel"></i>Download Tax Summary (Excel)
     </button>
   </div>
 
 </div>
+</div>
+
+<!-- EDIT DRIVER MODAL -->
+<div id="mgr-driver-modal" class="tt-cfbg">
+  <div class="tt-card" style="width:100%;max-width:380px;padding:16px">
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:12px"><i class="fas fa-user-pen" style="color:#60a5fa"></i> Edit Driver</h3>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Full name *</label><input id="md-name" class="tt-inp"></div>
+      <div><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Phone *</label><input id="md-phone" class="tt-inp" type="tel"></div>
+      <div><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Email for job notifications</label><input id="md-email" class="tt-inp" type="email"></div>
+      <p style="font-size:11px;color:#6b6b6b;line-height:1.4">Signs in with <strong id="md-login" style="color:#aaa"></strong>. The sign-in email can't be changed here — to change it, remove the driver and add them again.</p>
+      <button id="md-reset" onclick="sendDriverPasswordReset()" style="padding:10px;border:1px solid #262626;border-radius:12px;font-weight:600;font-size:13px;cursor:pointer;background:#141414;color:#aaa;font-family:'Outfit',sans-serif"><i class="fas fa-key"></i> Email a password reset link</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button onclick="closeEditDriverModal()" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#1e1e1e;border:1px solid #262626;color:#f0f0f0;cursor:pointer;font-family:'Outfit',sans-serif">Cancel</button>
+      <button id="md-save" onclick="saveDriverEdit()" style="flex:1;padding:12px;border-radius:12px;font-weight:700;font-size:14px;background:linear-gradient(135deg,#f59e0b,#ea580c);border:none;color:#000;cursor:pointer;font-family:'Outfit',sans-serif">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD / EDIT SHIFT MODAL -->
+<div id="mgr-shift-modal" class="tt-cfbg">
+  <div class="tt-card" style="width:100%;max-width:380px;padding:16px">
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:12px"><i class="fas fa-clock" style="color:#60a5fa"></i> <span id="ms-title">Edit Shift</span></h3>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Driver</label><select id="ms-driver" class="tt-inp"></select></div>
+      <div><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Date *</label><input id="ms-date" class="tt-inp" type="date"></div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Check in *</label><input id="ms-in" class="tt-inp" type="time"></div>
+        <div style="flex:1"><label style="display:block;font-size:10px;color:#6b6b6b;margin-bottom:4px">Check out</label><input id="ms-out" class="tt-inp" type="time"></div>
+      </div>
+      <p style="font-size:11px;color:#6b6b6b;line-height:1.4">Leave check out empty for a shift that's still open. A check out earlier than the check in counts as the next day.</p>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button onclick="closeShiftModal()" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#1e1e1e;border:1px solid #262626;color:#f0f0f0;cursor:pointer;font-family:'Outfit',sans-serif">Cancel</button>
+      <button id="ms-save" onclick="saveShift()" style="flex:1;padding:12px;border-radius:12px;font-weight:700;font-size:14px;background:linear-gradient(135deg,#f59e0b,#ea580c);border:none;color:#000;cursor:pointer;font-family:'Outfit',sans-serif">Save Shift</button>
+    </div>
+    <button id="ms-delete" onclick="deleteShift()" style="width:100%;margin-top:8px;padding:10px;border:1px solid rgba(239,68,68,.3);border-radius:12px;font-weight:600;font-size:13px;cursor:pointer;background:rgba(239,68,68,.1);color:#fca5a5;font-family:'Outfit',sans-serif"><i class="fas fa-trash"></i> Delete this shift</button>
+  </div>
 </div>
 
 <!-- ASSIGN JOB MODAL -->
@@ -910,6 +956,7 @@
 <script src="/app/js/jobs-admin.js"></script>
 <script src="/app/js/maps.js"></script>
 <script src="/app/js/business.js"></script>
+<script src="/app/js/admin-edit.js"></script>
 <script src="/app/js/driver.js"></script>
 <script src="/app/js/shell.js"></script>
 </body>
