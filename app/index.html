@@ -419,6 +419,17 @@
 </div>
 </div>
 
+<!-- CONFIRM MODAL (used instead of the browser's confirm() for job cancel/delete) -->
+<div id="mgr-confirm-modal" class="tt-cfbg" style="z-index:400">
+  <div class="tt-card" style="width:100%;max-width:360px;padding:16px">
+    <p id="mgr-confirm-text" style="font-size:14px;line-height:1.45;color:#f0f0f0;margin-bottom:14px"></p>
+    <div style="display:flex;gap:8px">
+      <button id="mgr-confirm-no" style="flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:14px;background:#1e1e1e;border:1px solid #262626;color:#f0f0f0;cursor:pointer;font-family:'Outfit',sans-serif">Go Back</button>
+      <button id="mgr-confirm-ok" style="flex:1;padding:12px;border-radius:12px;font-weight:700;font-size:14px;background:#ef4444;border:none;color:#fff;cursor:pointer;font-family:'Outfit',sans-serif">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <!-- EDIT DRIVER MODAL -->
 <div id="mgr-driver-modal" class="tt-cfbg">
   <div class="tt-card" style="width:100%;max-width:380px;padding:16px">

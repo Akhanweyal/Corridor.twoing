@@ -242,6 +242,8 @@ var formspreePromise=fetch('https://formspree.io/f/xdkyonjb',{method:'POST',head
 /* 2) Save job to Firebase for Manager Dispatch dashboard */
 var jobId='job_'+Date.now().toString(36)+secureToken(5);
 var feedbackToken=secureToken(24);
+// Lets this customer cancel/change the request later without an account (see /js/manage.js).
+var manageToken=secureToken(24);
 var now=Date.now();
 var pickupRec=placeRecord(pickupPlace,fd.location),destRec=jobType==='tow'?placeRecord(destPlace,fd.destination):null;
 // Public live-tracking record (separate from the job, which anonymous visitors can never read): the
@@ -251,7 +253,7 @@ var customerUid=signedInCustomer?signedInCustomer.uid:null;
 var jobPayload={status:'pending',jobType:jobType,serviceCode:fd.serviceCode,createdAt:now,updatedAt:now,customerName:fd.name,customerPhone:fd.phone,customerEmail:fd.email,service:fd.service,vehicle:fd.vehicle,starts:fd.starts,neutral:fd.neutral,attended:fd.attended,towMethod:jobType==='tow'?fd.towmethod:null,pickupAddress:fd.location,destinationAddress:fd.destination,enrouteMiles:Number(fd.enroute)||0,towMiles:Number(fd.tow)||0,amount:Number(fd.amount)||0,paymentPref:fd.payment,payMethod:fd.payment==='pay-now'?(fd.payMethod||null):null,source:'website',assignedDriverId:null,assignedDriverName:null,assignedDriverPhone:null,assignedAt:null,pickedUpAt:null,droppedOffAt:null,dropoffLat:null,dropoffLng:null,feedbackToken:feedbackToken,feedbackSubmitted:false,feedbackRating:null,feedbackComment:null,
   pickupLat:pickupRec?pickupRec.lat:null,pickupLng:pickupRec?pickupRec.lng:null,pickupName:pickupRec?pickupRec.name:null,pickupKind:pickupRec?pickupRec.kind:null,
   destLat:destRec?destRec.lat:null,destLng:destRec?destRec.lng:null,destName:destRec?destRec.name:null,destKind:destRec?destRec.kind:null,
-  trackToken:trackToken};
+  trackToken:trackToken,manageToken:manageToken};
 if(customerUid)jobPayload.customerUid=customerUid; // omitted entirely for a guest — the write rule requires it be absent or equal to auth.uid
 var jobPromise=fetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(jobPayload)}).then(function(res){if(!res.ok)throw new Error('HTTP '+res.status);return true;}).catch(function(err){console.warn('Job save failed (check Firebase rules):',err);return false;});
 // Links this job into the signed-in customer's /account.html list. Only possible once the
@@ -260,7 +262,7 @@ var customerLinkPromise=jobPromise.then(function(jobOk){
   if(!jobOk||!customerUid)return false;
   return fbFetch(FIREBASE_URL+'/customerJobs/'+customerUid+'/'+jobId+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:'true'}).then(function(r){return r.ok;}).catch(function(){return false;});
 });
-var trackPromise=trackToken?fetch(FIREBASE_URL+'/tracking/'+trackToken+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({createdAt:now,updatedAt:now,status:'pending',jobType:jobType,pickup:pickupRec,dest:destRec})}).then(function(res){return res.ok;}).catch(function(){return false;}):Promise.resolve(false);
+var trackPromise=trackToken?fetch(FIREBASE_URL+'/tracking/'+trackToken+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({createdAt:now,updatedAt:now,status:'pending',jobType:jobType,pickup:pickupRec,dest:destRec,jobId:jobId,mt:manageToken})}).then(function(res){return res.ok;}).catch(function(){return false;}):Promise.resolve(false);
 /* 3) Instant push notification to owner's phone via ntfy.sh (free, no account) — fire-and-forget so a failure here never blocks the customer's confirmation */
 fetch('https://ntfy.sh/'+NTFY_TOPIC,{method:'POST',headers:{'Title':'New '+(jobType==='tow'?'Tow':'Roadside')+' Request','Priority':'urgent','Tags':'rotating_light'},body:fd.name+' — '+fd.phone+'\n'+fd.service+'\n'+fd.location+(jobType==='tow'?' → '+fd.destination:'')+'\n$'+fd.amount}).catch(function(err){console.warn('Push notify failed:',err);});
 // Formspree (the owner's email copy) and the Firebase job save are independent
@@ -285,6 +287,13 @@ Promise.all([formspreeStatus,jobPromise,trackPromise,customerLinkPromise]).then(
   }
   if(fd.payment==='pay-now'){c.innerHTML+='<br><br><strong>Payment:</strong> <a href="/pay.html?amt='+encodeURIComponent(fd.amount)+'" style="color:#0b3d91;text-decoration:underline">Continue to payment</a>';if(!(trackOk&&jobOk))setTimeout(function(){window.location.href='/pay.html?amt='+encodeURIComponent(fd.amount);},1500);}
   btn.textContent='Request Sent ✓';
+  // Added last: the innerHTML += lines above would wipe this box's click handler.
+  if(jobOk){
+    var mb=document.createElement('div');
+    mb.style.cssText='margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(0,0,0,.12);font-weight:400;text-align:left';
+    c.appendChild(mb);
+    CTManage.render(mb,{jobId:jobId,token:manageToken,trackToken:trackOk?trackToken:null,status:'pending',summary:fd.name+' — '+fd.phone+'\n'+fd.service+'\n'+fd.location});
+  }
 });
 }
 window.addEventListener('load',function(){calculateTotal();});

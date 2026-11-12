@@ -126,6 +126,17 @@ function renderMgrJobs(){
     html+=jobMilesHtml(j,isTow);
     html+='</div>';
 
+    if(j.status==='cancelled'&&j.cancelledBy==='customer'){
+      html+='<p style="font-size:12px;font-weight:700;color:#fca5a5;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:8px 10px;margin-bottom:8px"><i class="fas fa-user-xmark"></i> Cancelled by the customer'+(j.cancelledAt?' · '+new Date(j.cancelledAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'')+'</p>';
+    }
+    if(j.changeRequest){
+      html+='<div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.4);border-radius:10px;padding:10px 12px;margin-bottom:8px">';
+      html+='<p style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#f59e0b;font-weight:700;margin-bottom:4px"><i class="fas fa-pen"></i> Customer asked for a change</p>';
+      html+='<p style="font-size:13px;color:#f0f0f0;line-height:1.4;margin-bottom:8px;white-space:pre-wrap">'+esc(j.changeRequest)+'</p>';
+      html+='<button onclick="clearChangeRequest(\''+j.id+'\')" style="padding:7px 12px;border:1px solid rgba(245,158,11,.4);border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;background:none;color:#f59e0b;font-family:\'Outfit\',sans-serif"><i class="fas fa-check"></i> Mark as handled</button>';
+      html+='</div>';
+    }
+
     // Pickup / drop-off — same separated-box treatment instead of two thin lines, so
     // addresses read at a glance rather than blending into the rest of the card.
     html+='<div style="background:#1a1a1a;border-radius:10px;padding:10px 12px;margin-bottom:8px">';
@@ -174,12 +185,31 @@ function renderMgrJobs(){
   });
   list.innerHTML=html;
 }
+// In-app confirmation instead of the browser's confirm(): once someone ticks "don't let this
+// page create more dialogs", confirm() silently returns false forever and Cancel/Delete look dead.
+function mgrConfirm(message,okLabel){
+  return new Promise(function(resolve){
+    var modal=document.getElementById('mgr-confirm-modal');
+    document.getElementById('mgr-confirm-text').textContent=message;
+    var ok=document.getElementById('mgr-confirm-ok'),no=document.getElementById('mgr-confirm-no');
+    ok.textContent=okLabel||'Confirm';
+    function close(v){modal.classList.remove('active');ok.onclick=no.onclick=null;resolve(v);}
+    ok.onclick=function(){close(true);};no.onclick=function(){close(false);};
+    modal.classList.add('active');
+  });
+}
+// Firebase explains a refused write in the response body ("Permission denied") — show it.
+async function fbErrText(res){
+  var why='';
+  try{var d=await res.json();why=(d&&d.error)||'';}catch(e){}
+  return 'HTTP '+res.status+(why?' — '+why:'')+(res.status===401||res.status===403?'. Try signing out and back in; if it keeps happening, the database rules in Firebase need to be re-published.':'');
+}
 async function cancelMgrJob(jobId){
   var job=mgrJobs.find(function(j){return j.id===jobId;});
-  if(!confirm('Cancel this job'+(job?' for '+(job.customerName||'this customer'):'')+'? The record is kept (visible under the Cancelled filter) but it stops counting toward dispatch, assignment, or the Business revenue/mileage summary.'))return;
+  if(!(await mgrConfirm('Cancel this job'+(job?' for '+(job.customerName||'this customer'):'')+'? It stays on record under the Cancelled filter but no longer counts toward dispatch or revenue.','Cancel Job')))return;
   try{
-    var res=await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'cancelled',updatedAt:Date.now()})});
-    if(!res.ok)throw new Error('HTTP '+res.status);
+    var res=await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'cancelled',cancelledBy:'staff',cancelledAt:Date.now(),updatedAt:Date.now()})});
+    if(!res.ok)throw new Error(await fbErrText(res));
     if(job)syncTracking(job,{status:'cancelled',driver:null});
     logAction('job_cancelled',{jobId:jobId});
     await loadMgrJobs();
@@ -188,10 +218,10 @@ async function cancelMgrJob(jobId){
 }
 async function deleteMgrJob(jobId){
   var job=mgrJobs.find(function(j){return j.id===jobId;});
-  if(!confirm('Permanently delete this job'+(job?' for '+(job.customerName||'this customer'):'')+'? This cannot be undone. Use this for test/duplicate entries — for a real customer who cancelled, use Cancel instead so the record is kept.'))return;
+  if(!(await mgrConfirm('Permanently delete this job'+(job?' for '+(job.customerName||'this customer'):'')+'? This cannot be undone. For a real customer who cancelled, use Cancel instead so the record is kept.','Delete Job')))return;
   try{
     var res=await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'DELETE'});
-    if(!res.ok)throw new Error('HTTP '+res.status);
+    if(!res.ok)throw new Error(await fbErrText(res));
     if(job&&job.trackToken&&isSafeId(job.trackToken))fbFetch(FIREBASE_URL+'/tracking/'+job.trackToken+'.json',{method:'DELETE'}).catch(function(){});
     // The job itself is gone — clean up the index pointers too, or a driver's/customer's
     // account would keep listing an id that no longer resolves to anything.
@@ -201,6 +231,14 @@ async function deleteMgrJob(jobId){
     await loadMgrJobs();
     tT('Job deleted','success');
   }catch(e){alert('Could not delete job: '+(e&&e.message||e));}
+}
+async function clearChangeRequest(jobId){
+  try{
+    var res=await fbFetch(FIREBASE_URL+'/jobs/'+jobId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({changeRequest:null,changeRequestAt:null})});
+    if(!res.ok)throw new Error(await fbErrText(res));
+    await loadMgrJobs();
+    tT('Change marked as handled','success');
+  }catch(e){alert('Could not update job: '+(e&&e.message||e));}
 }
 
 function renderMgrDrivers(){

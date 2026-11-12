@@ -56,6 +56,30 @@
         "feedbackAt": {
           ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (newData.isNumber() && newData.parent().child('_proof').isString() && newData.parent().child('_proof').val() === data.parent().child('feedbackToken').val() && data.parent().child('feedbackSubmitted').val() === false)"
         },
+        // The customer who made a request can cancel it, or leave a note asking for a change,
+        // WITHOUT signing in — but only while it is still pending/assigned (once a driver is
+        // on the way they have to call), and only by proving they hold this job's
+        // manageToken via the _proof field. Same proof-token pattern as the feedback fields
+        // above; the token is created with the request and handed only to its author
+        // (js/request.js -> js/manage.js). They can never set any other status or field.
+        "status": {
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (newData.val() === 'cancelled' && (data.val() === 'pending' || data.val() === 'assigned') && newData.parent().child('_proof').isString() && newData.parent().child('_proof').val() === data.parent().child('manageToken').val())"
+        },
+        "cancelledBy": {
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (newData.val() === 'customer' && (data.parent().child('status').val() === 'pending' || data.parent().child('status').val() === 'assigned') && newData.parent().child('_proof').isString() && newData.parent().child('_proof').val() === data.parent().child('manageToken').val())"
+        },
+        "cancelledAt": {
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (newData.isNumber() && (data.parent().child('status').val() === 'pending' || data.parent().child('status').val() === 'assigned') && newData.parent().child('_proof').isString() && newData.parent().child('_proof').val() === data.parent().child('manageToken').val())"
+        },
+        "updatedAt": {
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (newData.isNumber() && (data.parent().child('status').val() === 'pending' || data.parent().child('status').val() === 'assigned') && newData.parent().child('_proof').isString() && newData.parent().child('_proof').val() === data.parent().child('manageToken').val())"
+        },
+        "changeRequest": {
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (newData.isString() && newData.val().length <= 500 && (data.parent().child('status').val() === 'pending' || data.parent().child('status').val() === 'assigned') && newData.parent().child('_proof').isString() && newData.parent().child('_proof').val() === data.parent().child('manageToken').val())"
+        },
+        "changeRequestAt": {
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (newData.isNumber() && (data.parent().child('status').val() === 'pending' || data.parent().child('status').val() === 'assigned') && newData.parent().child('_proof').isString() && newData.parent().child('_proof').val() === data.parent().child('manageToken').val())"
+        },
         "_proof": {
           ".write": "auth == null",
           ".validate": "newData.isString()"
@@ -159,7 +183,13 @@
     "tracking": {
       "$token": {
         ".read": true,
-        ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && $token.length >= 16 && newData.child('status').val() === 'pending' && newData.child('pickup').child('lat').isNumber() && newData.child('pickup').child('lng').isNumber() && newData.child('pickup').child('address').isString() && newData.child('pickup').child('address').val().length <= 300 && (!newData.child('dest').exists() || (newData.child('dest').child('lat').isNumber() && newData.child('dest').child('lng').isNumber())) && !newData.child('driver').exists())"
+        ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (!data.exists() && $token.length >= 16 && newData.child('status').val() === 'pending' && newData.child('pickup').child('lat').isNumber() && newData.child('pickup').child('lng').isNumber() && newData.child('pickup').child('address').isString() && newData.child('pickup').child('address').val().length <= 300 && (!newData.child('dest').exists() || (newData.child('dest').child('lat').isNumber() && newData.child('dest').child('lng').isNumber())) && !newData.child('driver').exists())",
+        // Whoever holds the tracking link (the customer) may mark their own trip cancelled
+        // while it is still pending/assigned — this mirrors the job-side "status" rule above
+        // so the map page stops showing a cancelled request as live.
+        "status": {
+          ".write": "(auth != null && (auth.token.email === 'ajmal@corridortowing.org' || root.child('employees').child(auth.uid).exists())) || (newData.val() === 'cancelled' && (data.val() === 'pending' || data.val() === 'assigned'))"
+        }
       }
     },
 

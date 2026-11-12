@@ -69,6 +69,10 @@
       placeRow(isTow?'🚗':'📍',isTow?'Vehicle pickup':'Service location',rec.pickup)+
       (isTow?placeRow(rec.dest&&rec.dest.kind==='biz'?'🏢':(rec.dest&&rec.dest.kind==='house'?'🏠':'🏁'),'Drop-off'+(rec.dest&&rec.dest.kind==='house'?' (home)':''),rec.dest):'');
 
+    // Cancel / change controls — only requests made since this feature existed carry jobId + mt.
+    CTManage.render(document.getElementById('trk-manage'),{jobId:rec.jobId,token:rec.mt,trackToken:token,status:status,
+      summary:'Pickup: '+((rec.pickup&&rec.pickup.address)||''),onChange:function(){load();}});
+
     var deliveredEl=document.getElementById('trk-delivered');
     if((status==='done'||status==='dropped_off')&&rec.dropoffAt){
       var when=new Date(rec.dropoffAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
