@@ -285,6 +285,7 @@ Promise.all([formspreeStatus,jobPromise,trackPromise,customerLinkPromise]).then(
     c.innerHTML+='<br><br><a href="'+trackUrl+'" style="color:#0b3d91;text-decoration:underline"><i class="fas fa-location-dot"></i> Track your driver live on the map</a><br><span style="font-weight:400;font-size:.85rem">Bookmark this link — it shows where your driver is once one is assigned.</span>';
     try{localStorage.setItem('ct_last_track',trackUrl);}catch(err){}
   }
+  if(jobOk&&window.ctTrackLead)ctTrackLead({id:jobId,value:fd.amount,service:fd.serviceCode,jobType:jobType});
   if(fd.payment==='pay-now'){c.innerHTML+='<br><br><strong>Payment:</strong> <a href="/pay.html?amt='+encodeURIComponent(fd.amount)+'" style="color:#0b3d91;text-decoration:underline">Continue to payment</a>';if(!(trackOk&&jobOk))setTimeout(function(){window.location.href='/pay.html?amt='+encodeURIComponent(fd.amount);},1500);}
   btn.textContent='Request Sent ✓';
   // Added last: the innerHTML += lines above would wipe this box's click handler.

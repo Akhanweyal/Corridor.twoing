@@ -2,3 +2,18 @@ http://corridortowing.com/* https://corridortowing.org/:splat 301!
 https://corridortowing.com/* https://corridortowing.org/:splat 301!
 http://www.corridortowing.com/* https://corridortowing.org/:splat 301!
 https://www.corridortowing.com/* https://corridortowing.org/:splat 301!
+
+# One address per page (the .html one is canonical, in the sitemap and in every link),
+# so search engines and ad/analytics reports don't split a page in two. Query strings are kept.
+/request /request.html 301!
+/services /services.html 301!
+/contact /contact.html 301!
+/faq /faq.html 301!
+/about /about.html 301!
+/pay /pay.html 301!
+/login /login.html 301!
+/account /account.html 301!
+/track /track.html 301!
+/receipt /receipt.html 301!
+/feedback /feedback.html 301!
+/release-form /release-form.html 301!

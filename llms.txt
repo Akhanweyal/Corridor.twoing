@@ -9,7 +9,7 @@ Corridor Towing & Transportation Services provides emergency towing, roadside as
 - Email: corridor.towing.services@gmail.com
 - Address: 8607 Oakview Avenue, Henrico, VA 23228
 - Website: https://corridortowing.org
-- Pages: /services.html (pricing), /request.html (request service), /faq.html (questions and answers), /contact.html
+- Pages: /services.html (pricing), /request.html (request service), /faq.html (questions and answers), /about.html (about the company and fleet), /contact.html
 - Request service online: https://corridortowing.org/request.html
 
 ## Services & Pricing
