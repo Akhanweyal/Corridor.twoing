@@ -14,6 +14,22 @@ var CT_PHONE='(804) 292-8414';
 
 (function(){
   var C=CT_TRACKING;
+  // Initialize on the ad landing page and request form to preserve attribution.
+  var openAIPath=window.location.pathname;
+  var trackOpenAI=openAIPath==='/'||openAIPath==='/index.html'||
+    openAIPath==='/request'||openAIPath==='/request.html'||openAIPath==='/request/';
+  if(trackOpenAI){
+    if(!window.oaiq){
+      var queue=function(){queue.q.push(arguments);};
+      queue.q=[];
+      window.oaiq=queue;
+      var pixelScript=document.createElement('script');
+      pixelScript.async=true;
+      pixelScript.src='https://bzrcdn.openai.com/sdk/oaiq.min.js';
+      document.head.appendChild(pixelScript);
+    }
+    window.oaiq('init',{pixelId:'LGPsB2KcuxV1ooWjCVADYJ'});
+  }
   window.dataLayer=window.dataLayer||[];
   window.gtag=window.gtag||function(){dataLayer.push(arguments);};
   var on=!!(C.ga4||C.adsId);
@@ -40,6 +56,7 @@ var CT_PHONE='(804) 292-8414';
 
   // Called by js/request.js once a request has actually been saved.
   window.ctTrackLead=function(info){
+    if(trackOpenAI)window.oaiq('measure','lead_created',{type:'customer_action'});
     if(!on)return;
     info=info||{};
     var value=Number(info.value)||0;
